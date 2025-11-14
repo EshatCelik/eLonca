@@ -13,9 +13,9 @@ namespace eLonca.Infrastructure.Repositories
 
         }
 
-        public async Task<Result<User>> GetByEmailAndTenantAsync(string email, Guid tenantId, CancellationToken cancellationToken)
+        public async Task<Result<User>> GetByEmailAndTenantAsync(string email,  CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users.Include(x => x.Tenant).FirstOrDefaultAsync(x => x.Email == email && x.TenantId == tenantId, cancellationToken);
+            var user = await _dbContext.Users.Include(x => x.Tenant).FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
 
             if (user == null)
             {
