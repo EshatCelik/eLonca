@@ -2,6 +2,7 @@ using eLonca.Application.Commands.Tenants.CreateTenant;
 using eLonca.Application.Services.AuthService;
 using eLonca.Application.Services.JwtTokenService;
 using eLonca.Application.Services.TenantService;
+using eLonca.Common.Middelware;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Configuration;
 using eLonca.Infrastructure.Persistence;
@@ -30,13 +31,14 @@ builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblies(typeof(CreateT
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-builder.Services.AddScoped<ITenantService, TenantService>();
-
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IStoreRepository, StoreRepository>();
+
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddAuthentication(options =>
@@ -78,7 +80,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<TenantMiddleware>();
 
 app.MapControllers();
 

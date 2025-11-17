@@ -12,7 +12,7 @@ namespace eLonca.Domain.Entities
         public string TaxNumber { get; set; }
         public string LogoUrl { get; set; }
 
-        public Guid ManagerId { get; set; }
+        public Guid? ManagerId { get; set; }
         public User Manager { get; set; }        
         public Tenant Tenant { get; set; }
 
