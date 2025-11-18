@@ -22,7 +22,7 @@ namespace eLonca.Infrastructure.Repositories
                 return Result<User>.Failure(null, "Kullanıcı bulunamadı", 400);
             }
             return Result<User>.Success(user, "Kullanıcı listesi", 200);
-        }
+        } 
 
         public async Task<Result<List<User>>> GetUserByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
         {

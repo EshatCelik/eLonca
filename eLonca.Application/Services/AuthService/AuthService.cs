@@ -1,12 +1,6 @@
-﻿using eLonca.Application.Models;
-using eLonca.Application.Services.JwtTokenService;
+﻿using eLonca.Application.Services.JwtTokenService;
 using eLonca.Common.Models;
 using eLonca.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace eLonca.Application.Services.AuthService
 {
@@ -36,12 +30,18 @@ namespace eLonca.Application.Services.AuthService
             throw new NotImplementedException();
         }
 
-        public async Task<Result<LoginResponse>> Login(string username, string password, string tenantId, string ipAddress, CancellationToken cancellationToken)
+        public async Task<Result<LoginResponse>> Login(string email, string password, string tenantId, string ipAddress, CancellationToken cancellationToken)
         {
-            var loginResponse = await _authRepository.Login(username, password, tenantId, ipAddress);
-            var user = await _userRepository.GetByEmailAndTenantAsync(loginResponse.Data.Email , cancellationToken);
+            var user = await _userRepository.GetByEmailAndTenantAsync(email, cancellationToken);
+
             if (user == null)
                 return Result<LoginResponse>.Failure(null, "Kullanıcı bulunamadı", 400);
+            var loginResponse = await _authRepository.Login(email, password, user.Data.TenantId.ToString(), ipAddress);
+
+            if (!loginResponse.IsSuccess)
+            {
+                return loginResponse;
+            }
 
             var accessToken = _jwtTokenService.GenerateAccessToken(user.Data);
             var refreshToken = _jwtTokenService.GenerateRefreshToken(user.Data);
@@ -62,9 +62,26 @@ namespace eLonca.Application.Services.AuthService
             throw new NotImplementedException();
         }
 
-        public Task<Result> RefreshToken(string token, string refreshToken, string ipAddress)
+        public async Task<Result<LoginResponse>> RefreshToken(string accessToken, string refreshToken, string ipAddress, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var principle = _jwtTokenService.GetPrincipleFromExpiredToken(accessToken, cancellationToken);
+            var email = principle.Data.FindFirst("Email");
+            var user = await _userRepository.GetByEmailAndTenantAsync(email.ToString(), cancellationToken);
+            if (user == null)
+            {
+                return Result<LoginResponse>.Failure(null, "Kullanıcı bulunamadı", 400);
+            }
+            var g_accessToken = _jwtTokenService.GenerateAccessToken(user.Data);
+            var g_refreshToken = _jwtTokenService.GenerateRefreshToken(user.Data);
+
+            var responseResult = _jwtTokenService.CreateLoginResponse(user.Data, g_accessToken.Data, g_refreshToken.Data);
+
+            if (!responseResult.IsSuccess)
+            {
+                return Result<LoginResponse>.Failure(null, "Giriş başarısız", 400);
+
+            }
+            return Result<LoginResponse>.Success(responseResult.Data, "Giriş Başarılı", 200);
         }
 
         public Task<Result<LoginResponse>> Register(string tenant, string email, string password, string ipAddress, string firstName, string lastName)
@@ -72,7 +89,7 @@ namespace eLonca.Application.Services.AuthService
             var tenantResponse = _authRepository.Register(tenant, email, password, ipAddress, firstName, ipAddress);
 
             return tenantResponse;
-            
+
 
         }
 

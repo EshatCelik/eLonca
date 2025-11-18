@@ -1,4 +1,5 @@
 ﻿using eLonca.Application.Commands.AuthCommands.LoginCommand;
+using eLonca.Application.Commands.AuthCommands.RefreshTokenCommand;
 using eLonca.Application.Commands.AuthCommands.RegisterCommand;
 using eLonca.Application.Services.AuthService;
 using MediatR;
@@ -29,6 +30,12 @@ namespace eLonca.Api.Controllers
         public async Task<IActionResult> Register(RegisterCommand registerCommand)
         {
             var response = await _mediator.Send(registerCommand);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult>RefreshToken(RefreshTokenCommand refreshTokenCommand)
+        {
+           var response= await _mediator.Send(refreshTokenCommand);
             return Ok(response);
         }
     }

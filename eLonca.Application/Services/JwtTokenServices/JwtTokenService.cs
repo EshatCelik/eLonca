@@ -1,6 +1,7 @@
 ﻿using eLonca.Application.Models;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -25,6 +26,7 @@ namespace eLonca.Application.Services.JwtTokenService
 
         public Result<LoginResponse> CreateLoginResponse(User user, string accessToken, RefreshToken refreshToken)
         {
+            //HttpContext.Connection.RemoteIpAddress?.ToString()
             try
             {
                 var response = new LoginResponse
@@ -97,7 +99,7 @@ namespace eLonca.Application.Services.JwtTokenService
             {
                 var refreshToken = new RefreshToken
                 {
-                    Token = GetUniqueToken(),
+                    Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
                     ExpiresAt = DateTime.UtcNow.AddDays(7),
                     CreatedAt = DateTime.UtcNow,
                     CreatedByIp = user.Id.ToString(),
@@ -112,6 +114,19 @@ namespace eLonca.Application.Services.JwtTokenService
             }
         }
 
+        public Result<ClaimsPrincipal> GetPrincipleFromExpiredToken(string token)
+        {
+            var tokenParams = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+                ValidateLifetime = false
+
+            };
+            return Result<ClaimsPrincipal>.Success( new JwtSecurityTokenHandler().ValidateToken(token, tokenParams, out _),"Claim Listesi",200);
+        } 
         public Result<string> GetTenantIdFromToken(string token)
         {
             try
@@ -180,11 +195,6 @@ namespace eLonca.Application.Services.JwtTokenService
             {
                 return Result<int>.Failure(null, $"Token doğrulama hatası: {ex.Message}", statusCode: 401);
             }
-        }
-        private string GetUniqueToken()
-        {
-            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-            return token;
-        }
+        } 
     }
 }

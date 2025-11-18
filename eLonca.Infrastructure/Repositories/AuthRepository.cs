@@ -30,7 +30,7 @@ namespace eLonca.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<Result<LoginResponse>> Login(string username, string password, string tenantId, string ipAddress)
+        public async Task<Result<LoginResponse>> Login(string email, string password, string tenantId, string ipAddress)
         {
             var tenant = await _loncaDbContext.Tenants.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tenantId));
             if (tenant == null)
@@ -41,7 +41,7 @@ namespace eLonca.Infrastructure.Repositories
             {
                 return Result<LoginResponse>.Failure(null, "Tenant active değil", 400);
             }
-            var userResult = await _loncaDbContext.Users.FirstOrDefaultAsync(x => x.UserName == username);
+            var userResult = await _loncaDbContext.Users.FirstOrDefaultAsync(x => x.Email == email );
             if (userResult == null)
             {
                 return Result<LoginResponse>.Failure(null, "user bulunamadı", 400);

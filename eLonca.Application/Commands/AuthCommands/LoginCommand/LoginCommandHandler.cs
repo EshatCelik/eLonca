@@ -16,7 +16,7 @@ namespace eLonca.Application.Commands.AuthCommands.LoginCommand
 
         public Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-           var result= _authService.Login(request.UserName, request.Password, request.TenantId, request.IpAddress, cancellationToken);
+           var result= _authService.Login(request.Email, request.Password, request.TenantId, request.IpAddress, cancellationToken);
 
 
           return result;
