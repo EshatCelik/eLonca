@@ -13,11 +13,10 @@ namespace eLonca.Domain.Entities
         public string PhoneNumber { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
-        public UserRole UserRole { get; set; }
-        public bool IsActive { get; set; }
+        public UserRole UserRole { get; set; } 
 
         public Tenant Tenant { get; set; }
-        public virtual ICollection<Store> Stores { get; set; }
+        public virtual ICollection<Store> Stores { get; set; } = new List<Store>();
 
     }
 

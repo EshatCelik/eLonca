@@ -29,7 +29,11 @@ namespace eLonca.Infrastructure.Repositories
         {
             throw new NotImplementedException();
         }
-
+        public async Task<bool> VerifyPassword(string password, string hashedPassword)
+        {
+            var result = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            return result;
+        }
         public async Task<Result<LoginResponse>> Login(string email, string password, string tenantId, string ipAddress)
         {
             var tenant = await _loncaDbContext.Tenants.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tenantId));
@@ -41,10 +45,15 @@ namespace eLonca.Infrastructure.Repositories
             {
                 return Result<LoginResponse>.Failure(null, "Tenant active değil", 400);
             }
-            var userResult = await _loncaDbContext.Users.FirstOrDefaultAsync(x => x.Email == email );
+            var userResult = await _loncaDbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
             if (userResult == null)
             {
                 return Result<LoginResponse>.Failure(null, "user bulunamadı", 400);
+            }
+            if (!VerifyPassword(password, userResult.PasswordHash).Result)
+            {
+                return Result<LoginResponse>.Failure(null, "user password hatalı", 400);
+
             }
 
             var loginResponse = new LoginResponse()
@@ -80,7 +89,7 @@ namespace eLonca.Infrastructure.Repositories
                 return Result<LoginResponse>.Failure(null, "Firma bilgisi bulunamadı", 400);
             }
             var emailExist = await _loncaDbContext.Users.Where(x => x.Email == email && x.TenantId == Guid.Parse(tenant)).FirstOrDefaultAsync();
-            if (emailExist!=null)
+            if (emailExist != null)
             {
                 return Result<LoginResponse>.Failure(null, "kullanıcı email daha önce kaydedilmiş", 400);
             }

@@ -10,10 +10,7 @@ namespace eLonca.Domain.Entities
         public string Phone { get; set; }
         public string Email { get; set; }
         public string TaxNumber { get; set; }
-        public string LogoUrl { get; set; }
-
-        public Guid? ManagerId { get; set; }
-        public User Manager { get; set; }        
+        public string LogoUrl { get; set; }       
         public Tenant Tenant { get; set; }
 
         [JsonIgnore]
@@ -27,5 +24,8 @@ namespace eLonca.Domain.Entities
         [JsonIgnore]
 
         public virtual ICollection<Category> Categories { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
+
     }
 }

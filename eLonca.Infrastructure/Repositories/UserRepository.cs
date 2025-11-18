@@ -8,12 +8,24 @@ namespace eLonca.Infrastructure.Repositories
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        public UserRepository(LoncaDbContext loncaDbContext) : base(loncaDbContext)
+        private readonly IUnitOfWork _unitOfWork;
+        public UserRepository(LoncaDbContext loncaDbContext, IUnitOfWork unitOfWork) : base(loncaDbContext)
         {
-
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<User>> GetByEmailAndTenantAsync(string email,  CancellationToken cancellationToken)
+        public async Task<Result> CreateUserAccessToken(User user, string token, CancellationToken cancellationToken)
+        {
+            var userFind = _dbContext.Users.FirstOrDefault(x => x.Email == user.Email);
+            if (userFind != null)
+            {
+                user.RefreshToken = token;
+                await _unitOfWork.SaveChangeAsync(cancellationToken);
+            }
+            return Result.Success("Token Kaydedildi", 200);
+        }
+
+        public async Task<Result<User>> GetByEmailAndTenantAsync(string email, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users.Include(x => x.Tenant).FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
 
@@ -22,7 +34,7 @@ namespace eLonca.Infrastructure.Repositories
                 return Result<User>.Failure(null, "Kullanıcı bulunamadı", 400);
             }
             return Result<User>.Success(user, "Kullanıcı listesi", 200);
-        } 
+        }
 
         public async Task<Result<List<User>>> GetUserByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
         {
@@ -39,7 +51,7 @@ namespace eLonca.Infrastructure.Repositories
                 return Result<bool>.Failure(null, "Kullanıcı bulunamadı,yada Tenant bulunamadı", 404);
             }
             return Result<bool>.Success(true, "kullanıcı mevcut", 200);
-           
-        }
+
+        } 
     }
 }

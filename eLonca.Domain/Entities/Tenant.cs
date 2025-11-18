@@ -15,8 +15,7 @@ namespace eLonca.Domain.Entities
         public int MaxStores { get; set; }
         public string LogoUrl { get; set; }
         public string? ContractEmail { get; set; }
-        public string? ContractPhone { get; set; }
-        public bool IsActive { get; set; }
+        public string? ContractPhone { get; set; } 
 
         [JsonIgnore]
         public virtual ICollection<User> Users { get; set; } = new List<User>();

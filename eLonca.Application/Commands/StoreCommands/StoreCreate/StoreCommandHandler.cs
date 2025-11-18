@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eLonca.Application.Commands.StoreCommands
+namespace eLonca.Application.Commands.StoreCommands.StoreCreate
 {
     public class StoreCommandHandler : IRequestHandler<StoreCreateCommand, Result<Store>>
     {

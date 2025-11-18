@@ -63,26 +63,33 @@ namespace eLonca.Infrastructure.Persistence
         public override int SaveChanges()
         {
             var tenantId = GetTenantId();
-            var entries = ChangeTracker.Entries<BaseEntity>();
-            var tenantEntries = ChangeTracker.Entries<TenantBaseEntity>();
+            var entries = ChangeTracker.Entries<BaseEntity>(); 
             try
             {
-                foreach (var entry in tenantEntries)
+                foreach (var entry in entries)
                 {
                     switch (entry.State)
                     {
                         case EntityState.Deleted:
+                            entry.State = EntityState.Modified;
                             entry.Entity.DeleteAt = DateTime.Now;
                             entry.Entity.IsDeleted = true;
+                            entry.Entity.IsActive = false;
                             entry.Entity.DeletedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
                             break;
                         case EntityState.Modified:
+                            entry.State = EntityState.Modified;
                             entry.Entity.UpdateAt = DateTime.Now;
                             entry.Entity.UpdatedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
                             break;
                         case EntityState.Added:
                             entry.Entity.CreateAt = DateTime.Now;
-                            entry.Entity.TenantId = tenantId;
+                            entry.Entity.IsDeleted = false;
+                            entry.Entity.IsActive = true;
+                            if (entry.Entity is ITenantEntity tenantEntity)
+                            {
+                                tenantEntity.TenantId = tenantId;
+                            }
                             entry.Entity.CreatedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
                             break;
                         default:

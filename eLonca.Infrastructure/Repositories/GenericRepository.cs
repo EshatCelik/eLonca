@@ -3,6 +3,7 @@ using eLonca.Domain.Entities.BaseEntities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace eLonca.Infrastructure.Repositories
 {
@@ -23,7 +24,7 @@ namespace eLonca.Infrastructure.Repositories
             {
                 try
                 {
-                    await _dbSet.AddAsync(entity); 
+                    await _dbSet.AddAsync(entity);
                     if (_dbContext.SaveChanges() > 0)
                     {
                         await tr.CommitAsync(cancellationToken);
@@ -45,9 +46,28 @@ namespace eLonca.Infrastructure.Repositories
             }
         }
 
-        public void DeleteAsync(T entity)
+        public async Task<Result> DeleteAsync(T entity, CancellationToken cancellationToken)
         {
-            _dbSet.Remove(entity);
+            using (var tr = await _dbContext.Database.BeginTransactionAsync(cancellationToken))
+            {
+                try
+                {
+                    if (entity.IsActive == false && entity.IsDeleted == true)
+                        return Result.Failure($" daha önce silinmiş, tekrar silemezsiniz", null, 400);
+
+                    _dbSet.Remove(entity);
+                    var ss = _dbContext.SaveChanges();
+                    await tr.CommitAsync(cancellationToken);
+                    return Result.Success("Silme  başarılı", 200);
+
+
+                }
+                catch (Exception ex)
+                {
+                    await tr.RollbackAsync(cancellationToken);
+                    return Result.Failure("Silme işlemi sırasında hata alındı", new List<string>() { ex.Message }, 400);
+                }
+            }
         }
 
         public async Task<Result<List<T>>> GetAllAsync(CancellationToken cancellationToken)

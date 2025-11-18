@@ -11,5 +11,6 @@ namespace eLonca.Domain.Interfaces
         Task<Result> ForgotPassword(string email, string tenantId);
         Task<Result> ResetPassword(string email, string tenantId, string resetToken, string newPassword);
         Task<Result> Logout(string email, string tenantId);
+        Task<bool> VerifyPassword(string password, string hashedPassword);
     }
 }

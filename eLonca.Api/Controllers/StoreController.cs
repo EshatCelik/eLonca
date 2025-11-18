@@ -1,4 +1,4 @@
-﻿using eLonca.Application.Commands.StoreCommands;
+﻿using eLonca.Application.Commands.StoreCommands.StoreCreate;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class StoreController : BaseController
     {
         private readonly IMediator _mediator;
@@ -15,7 +15,7 @@ namespace eLonca.Api.Controllers
         {
             _mediator = mediator;
         }
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(StoreCreateCommand command)
         {
