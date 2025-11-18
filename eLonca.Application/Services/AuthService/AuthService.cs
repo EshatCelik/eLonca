@@ -34,7 +34,7 @@ namespace eLonca.Application.Services.AuthService
         {
             var user = await _userRepository.GetByEmailAndTenantAsync(email, cancellationToken);
 
-            if (user == null)
+            if (user.Data == null)
                 return Result<LoginResponse>.Failure(null, "Kullanıcı bulunamadı", 400);
             var loginResponse = await _authRepository.Login(email, password, user.Data.TenantId.ToString(), ipAddress);
 
@@ -45,6 +45,8 @@ namespace eLonca.Application.Services.AuthService
 
             var accessToken = _jwtTokenService.GenerateAccessToken(user.Data);
             var refreshToken = _jwtTokenService.GenerateRefreshToken(user.Data);
+
+            _ = _userRepository.CreateUserAccessToken(user.Data, refreshToken.Data.Token.ToString(), cancellationToken);
 
             var responseResult = _jwtTokenService.CreateLoginResponse(user.Data, accessToken.Data, refreshToken.Data);
 

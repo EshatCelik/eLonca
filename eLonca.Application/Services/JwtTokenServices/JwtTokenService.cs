@@ -114,7 +114,7 @@ namespace eLonca.Application.Services.JwtTokenService
             }
         }
 
-        public Result<ClaimsPrincipal> GetPrincipleFromExpiredToken(string token)
+        public Result<ClaimsPrincipal> GetPrincipleFromExpiredToken(string token ,CancellationToken cancellationToken)
         {
             var tokenParams = new TokenValidationParameters
             {

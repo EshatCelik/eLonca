@@ -10,6 +10,7 @@
         public DateTime? UpdateAt { get; set; }
         public Guid? UpdatedBy { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsActive { get; set; }
 
     }
 }
