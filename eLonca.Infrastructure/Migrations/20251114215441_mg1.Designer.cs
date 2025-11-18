@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eLonca.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    partial class LoncaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114215441_mg1")]
+    partial class mg1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -567,7 +570,7 @@ namespace eLonca.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ManagerId")
+                    b.Property<Guid>("ManagerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Phone")
@@ -942,7 +945,8 @@ namespace eLonca.Infrastructure.Migrations
                     b.HasOne("eLonca.Domain.Entities.User", "Manager")
                         .WithMany("Stores")
                         .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("eLonca.Domain.Entities.Tenant", "Tenant")
                         .WithMany("Stores")

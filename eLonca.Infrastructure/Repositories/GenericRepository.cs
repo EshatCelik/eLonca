@@ -23,11 +23,17 @@ namespace eLonca.Infrastructure.Repositories
             {
                 try
                 {
-                    await _dbSet.AddAsync(entity);
-                    _dbContext.SaveChanges();
+                    await _dbSet.AddAsync(entity); 
+                    if (_dbContext.SaveChanges() > 0)
+                    {
+                        await tr.CommitAsync(cancellationToken);
+                        return Result<T>.Success(entity, "Kayıt başarılı", 200);
+                    }
+                    else
+                    {
+                        return Result<T>.Failure(null, "Kayıt başarısız", 400);
 
-                    await tr.CommitAsync(cancellationToken);
-                    return Result<T>.Success(entity, "Kayıt başarılı", 200);
+                    }
 
                 }
                 catch (Exception ex)

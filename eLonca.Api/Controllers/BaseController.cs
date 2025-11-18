@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
@@ -7,5 +8,6 @@ namespace eLonca.Api.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
+       
     }
 }

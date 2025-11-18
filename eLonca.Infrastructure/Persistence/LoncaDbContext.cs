@@ -1,6 +1,8 @@
 ﻿using eLonca.Application.Services.TenantService;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Entities.BaseEntities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
@@ -9,10 +11,12 @@ namespace eLonca.Infrastructure.Persistence
     public class LoncaDbContext : DbContext
     {
         private readonly ITenantService _tenantService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LoncaDbContext(DbContextOptions<LoncaDbContext> options, ITenantService tenantService) : base(options)
+        public LoncaDbContext(DbContextOptions<LoncaDbContext> options, ITenantService tenantService, IHttpContextAccessor contextAccessor) : base(options)
         {
             _tenantService = tenantService;
+            _httpContextAccessor = contextAccessor;
         }
 
         public DbSet<Tenant> Tenants { get; set; }
@@ -36,10 +40,10 @@ namespace eLonca.Infrastructure.Persistence
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+            var tenantId = GetTenantId();
             // ===== TENANT FİLTRELERİ =====
-            if (_tenantService.GetTenantId() != Guid.Empty)
+            if (tenantId != Guid.Empty)
             {
-                var tenantId = _tenantService.GetTenantId();
 
                 modelBuilder.Entity<Customer>().HasQueryFilter(c => c.TenantId == tenantId);
                 modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == tenantId);
@@ -58,39 +62,49 @@ namespace eLonca.Infrastructure.Persistence
 
         public override int SaveChanges()
         {
-            //var tenant = _tenantService.GetTenantId();
+            var tenantId = GetTenantId();
             var entries = ChangeTracker.Entries<BaseEntity>();
-            //if (tenant == Guid.Empty)
-            //    return base.SaveChanges();
+            var tenantEntries = ChangeTracker.Entries<TenantBaseEntity>();
             try
             {
-                foreach (var entry in entries)
+                foreach (var entry in tenantEntries)
                 {
                     switch (entry.State)
                     {
                         case EntityState.Deleted:
                             entry.Entity.DeleteAt = DateTime.Now;
                             entry.Entity.IsDeleted = true;
-                            //entry.Entity.DeletedBy= GetCurrentUser()  bunu daha sonra yapacağım
+                            entry.Entity.DeletedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
                             break;
                         case EntityState.Modified:
                             entry.Entity.UpdateAt = DateTime.Now;
+                            entry.Entity.UpdatedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
                             break;
                         case EntityState.Added:
-                            entry.Entity.CreateAt = DateTime.Now; 
+                            entry.Entity.CreateAt = DateTime.Now;
+                            entry.Entity.TenantId = tenantId;
+                            entry.Entity.CreatedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
                             break;
                         default:
                             break;
                     }
                 }
-
                 return base.SaveChanges();
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 throw;
             }
+        }
+        private Guid GetTenantId()
+        {
+            var tenant = _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value;
+            if (tenant == null)
+            {
+                return Guid.Empty;
+            }
+            return Guid.Parse(tenant);
         }
     }
 }

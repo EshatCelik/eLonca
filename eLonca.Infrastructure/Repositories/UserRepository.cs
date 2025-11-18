@@ -13,16 +13,16 @@ namespace eLonca.Infrastructure.Repositories
 
         }
 
-        public async Task<Result<User>> GetByEmailAndTenantAsync(string email, Guid tenantId, CancellationToken cancellationToken)
+        public async Task<Result<User>> GetByEmailAndTenantAsync(string email,  CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users.Include(x => x.Tenant).FirstOrDefaultAsync(x => x.Email == email && x.TenantId == tenantId, cancellationToken);
+            var user = await _dbContext.Users.Include(x => x.Tenant).FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
 
             if (user == null)
             {
                 return Result<User>.Failure(null, "Kullanıcı bulunamadı", 400);
             }
             return Result<User>.Success(user, "Kullanıcı listesi", 200);
-        }
+        } 
 
         public async Task<Result<List<User>>> GetUserByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
         {

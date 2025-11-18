@@ -11,7 +11,7 @@ namespace eLonca.Api.Controllers
     {
         private readonly IMediator _mediator;
 
-        public TanentController(IMediator mediator)
+        public TanentController(IMediator mediator) 
         {
             _mediator = mediator;
         }
