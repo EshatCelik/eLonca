@@ -4,9 +4,9 @@ using eLonca.Infrastructure.Persistence;
 
 namespace eLonca.Infrastructure.Repositories
 {
-    public class StoreRepository : GenericRepository<Store>, IStoreRepository
+    public class CategoryRepository : GenericRepository<Category>, ICategoryRepository
     {
-        public StoreRepository(LoncaDbContext dbContext) : base(dbContext)
+        public CategoryRepository(LoncaDbContext dbContext) : base(dbContext)
         {
         }
     }

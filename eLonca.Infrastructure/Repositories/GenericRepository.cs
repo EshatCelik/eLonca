@@ -3,7 +3,6 @@ using eLonca.Domain.Entities.BaseEntities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace eLonca.Infrastructure.Repositories
 {

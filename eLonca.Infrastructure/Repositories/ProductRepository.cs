@@ -2,11 +2,12 @@
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
 
+
 namespace eLonca.Infrastructure.Repositories
 {
-    public class StoreRepository : GenericRepository<Store>, IStoreRepository
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
-        public StoreRepository(LoncaDbContext dbContext) : base(dbContext)
+        public ProductRepository(LoncaDbContext dbContext) : base(dbContext)
         {
         }
     }

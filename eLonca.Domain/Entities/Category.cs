@@ -8,9 +8,9 @@ namespace eLonca.Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ColorCode { get; set; } = string.Empty;
+        public Guid? ParentCategoryId { get; set; }
 
-
-       [JsonIgnore]
+        [JsonIgnore]
         public Tenant Tenant { get; set; } = null!;
 
         public Guid StoreId { get; set; }

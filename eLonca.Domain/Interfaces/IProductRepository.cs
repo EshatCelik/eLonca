@@ -2,7 +2,7 @@
 
 namespace eLonca.Domain.Interfaces
 {
-    public interface ICategoryRepository : IGenericRepository<Category>
+    public interface IProductRepository:IGenericRepository<Product>
     {
     }
 }
