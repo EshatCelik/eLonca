@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
-{ 
-    public class AuthController : BaseController
+{
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
         private readonly IMediator _mediator;

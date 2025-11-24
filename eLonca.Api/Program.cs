@@ -1,4 +1,3 @@
-using eLonca.Application.Commands.ProductCommands.ProductCreate;
 using eLonca.Application.Commands.Tenants.CreateTenant;
 using eLonca.Application.Services.AuthService;
 using eLonca.Application.Services.JwtTokenService;
@@ -7,14 +6,13 @@ using eLonca.Common.Middelware;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Configuration;
 using eLonca.Infrastructure.Persistence;
-using eLonca.Infrastructure.Repositories; 
+using eLonca.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using eLonca.Application.Extensions;
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
 // Add services to the container.
 
 var connectionString = builder.Configuration.GetConnectionString("eLoncaDb");
@@ -37,6 +35,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IStoreRepository, StoreRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -66,7 +66,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings.Issuer,
         ValidAudience = jwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
-        };
+    };
 
     options.Events = new JwtBearerEvents
     {

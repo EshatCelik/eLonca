@@ -1,10 +1,8 @@
 ﻿using eLonca.Application.Services.TenantService;
-using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Entities.BaseEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 
 namespace eLonca.Infrastructure.Persistence
 {

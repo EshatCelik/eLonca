@@ -4,8 +4,9 @@ namespace eLonca.Domain.Entities
 {
     public class StockMovement : TenantBaseEntity
     {
-        public Guid StoreId { get; set; }
-        public Guid ProductId { get; set; }
+        public Guid? StoreId { get; set; }
+        public Guid? ProductId { get; set; }
+        public Guid? SaleId { get; set; }
         public MovementType MovementType { get; set; }
         public decimal Quantity { get; set; }
         public DateTime MovementDate { get; set; } = DateTime.UtcNow;
@@ -14,8 +15,9 @@ namespace eLonca.Domain.Entities
 
         // Navigation
         public Tenant Tenant { get; set; } = null!;
-        public Store Store { get; set; } = null!;
-        public Product Product { get; set; } = null!;
+        public Sale? Sale { get; set; } = null!;
+        public Store? Store { get; set; } = null!;
+        public Product? Product { get; set; } = null!;
     }
 
     public enum MovementType
