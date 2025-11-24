@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eLonca.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    partial class LoncaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251124212154_mg23")]
+    partial class mg23
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -550,7 +553,7 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ProductId")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Quantity")
@@ -559,10 +562,7 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<Guid?>("ReferenceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("SaleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreId")
+                    b.Property<Guid>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TenantId")
@@ -577,8 +577,6 @@ namespace eLonca.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("SaleId");
 
                     b.HasIndex("StoreId");
 
@@ -976,17 +974,14 @@ namespace eLonca.Infrastructure.Migrations
                     b.HasOne("eLonca.Domain.Entities.Product", "Product")
                         .WithMany("StockMovements")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("eLonca.Domain.Entities.Sale", "Sale")
-                        .WithMany()
-                        .HasForeignKey("SaleId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("eLonca.Domain.Entities.Store", "Store")
                         .WithMany()
                         .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("eLonca.Domain.Entities.Tenant", "Tenant")
                         .WithMany("StockMovements")
@@ -995,8 +990,6 @@ namespace eLonca.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("Sale");
 
                     b.Navigation("Store");
 

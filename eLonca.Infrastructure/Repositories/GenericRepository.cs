@@ -75,10 +75,12 @@ namespace eLonca.Infrastructure.Repositories
             return Result<List<T>>.Success(await _dbSet.ToListAsync(), "Liste başarılı", 200);
         }
 
-        public async Task<Result<T>> GetByIdAsync(Guid Id)
+        public async Task<Result<T>> GetByIdAsync(Guid? Id)
         {
             var list = await _dbSet.Where(x => x.Id == Id).FirstOrDefaultAsync();
-            return Result<T>.Success(list, "Liste başarılı", 200);
+            if (list == null)
+                return Result<T>.Failure(null, "böyle bir istek bulunamadı", 400);
+                return Result<T>.Success(list, "Liste başarılı", 200);
         }
 
         public async Task<Result<T>> Update(T entity, CancellationToken cancellationToken)

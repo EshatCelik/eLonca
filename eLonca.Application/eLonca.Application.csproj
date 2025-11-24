@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Commands\CustomerCommands\NewFolder\" />
     <Folder Include="DTOs\" />
     <Folder Include="Queries\" />
   </ItemGroup>

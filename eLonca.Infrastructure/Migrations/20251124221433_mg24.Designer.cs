@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eLonca.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    partial class LoncaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251124221433_mg24")]
+    partial class mg24
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -559,9 +562,6 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<Guid?>("ReferenceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("SaleId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
@@ -577,8 +577,6 @@ namespace eLonca.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("SaleId");
 
                     b.HasIndex("StoreId");
 
@@ -978,11 +976,6 @@ namespace eLonca.Infrastructure.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("eLonca.Domain.Entities.Sale", "Sale")
-                        .WithMany()
-                        .HasForeignKey("SaleId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("eLonca.Domain.Entities.Store", "Store")
                         .WithMany()
                         .HasForeignKey("StoreId")
@@ -995,8 +988,6 @@ namespace eLonca.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-
-                    b.Navigation("Sale");
 
                     b.Navigation("Store");
 

@@ -8,7 +8,7 @@ namespace eLonca.Domain.Interfaces
         Task<Result<T>> CreateAsync(T entity, CancellationToken cancellationToken);
         Task<Result>  DeleteAsync(T Entitiy, CancellationToken cancellationToken);
         Task<Result<List<T>>> GetAllAsync(CancellationToken cancellationToken);
-        Task<Result<T>> GetByIdAsync(Guid Id);
+        Task<Result<T>> GetByIdAsync(Guid? Id);
         Task<Result<T>> Update(T entity, CancellationToken cancellationToken);
     }
 }
