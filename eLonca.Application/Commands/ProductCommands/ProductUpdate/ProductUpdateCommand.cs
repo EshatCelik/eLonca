@@ -1,0 +1,22 @@
+﻿using eLonca.Common.Models;
+using eLonca.Domain.Entities;
+using MediatR;
+
+namespace eLonca.Application.Commands.ProductCommands.ProductUpdate
+{
+    public class ProductUpdateCommand:IRequest<Result<Product>>
+    {
+        public Guid ProductId { get; set; }
+        public string ProductCode { get; set; } = string.Empty;
+        public string ProductName { get; set; } = string.Empty;
+        public decimal PurchasePrice { get; set; } // Satın alma fiyatı
+        public decimal SalePrice { get; set; } //Satış fiyatı
+        public decimal CurrentStock { get; set; }
+        public decimal MinStockLevel { get; set; }
+        public string Unit { get; set; } = "Adet";
+        public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Barcode { get; set; }
+        public Guid? CategoryId { get; set; }
+    }
+}

@@ -2,7 +2,7 @@
 using eLonca.Domain.Entities;
 using MediatR;
 
-namespace eLonca.Application.Commands.ProductCommands
+namespace eLonca.Application.Commands.ProductCommands.ProductCreate
 {
     public class ProductCreateCommand:IRequest<Result<Product>>
     {

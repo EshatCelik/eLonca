@@ -87,7 +87,7 @@ namespace eLonca.Infrastructure.Repositories
             {
 
                 _dbSet.Update(entity);
-                await _dbContext.SaveChangesAsync();
+                _dbContext.SaveChanges();
                 return Result<T>.Success(entity, "Güncelleme başarılı", 200);
 
             }

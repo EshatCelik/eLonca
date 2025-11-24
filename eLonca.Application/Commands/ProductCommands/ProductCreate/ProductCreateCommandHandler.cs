@@ -3,7 +3,7 @@ using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
-namespace eLonca.Application.Commands.ProductCommands
+namespace eLonca.Application.Commands.ProductCommands.ProductCreate
 {
     public class ProductCreateCommandHandler : IRequestHandler<ProductCreateCommand, Result<Product>>
     {

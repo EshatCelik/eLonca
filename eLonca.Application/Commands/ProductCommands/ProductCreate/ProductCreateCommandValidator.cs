@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace eLonca.Application.Commands.ProductCommands
+namespace eLonca.Application.Commands.ProductCommands.ProductCreate
 {
     public class ProductCreateCommandValidator : AbstractValidator<ProductCreateCommand>
     {
