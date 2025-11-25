@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace eLonca.Infrastructure.Repositories
 {
     public class TenantRepository : GenericRepository<Tenant>, ITenantRepository
-    {
+    { 
         public TenantRepository(LoncaDbContext loncaDbContext) : base(loncaDbContext)
         {
-
+            
         }
         public async Task<Result<List<Tenant>>> GetActiveTenantAsynct(CancellationToken cancellationToken)
         {

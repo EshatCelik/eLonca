@@ -61,6 +61,8 @@ namespace eLonca.Infrastructure.Persistence
         public override int SaveChanges()
         {
             var tenantId = GetTenantId();
+            if (tenantId == Guid.Empty)
+                return 0;
             var entries = ChangeTracker.Entries<BaseEntity>(); 
             try
             {

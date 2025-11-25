@@ -1,5 +1,6 @@
 ﻿using eLonca.Common.Models;
 using eLonca.Domain.Entities;
+using eLonca.Domain.Entities.BaseEntities;
 using MediatR;
 
 namespace eLonca.Application.Commands.Tenants.CreateTenant
