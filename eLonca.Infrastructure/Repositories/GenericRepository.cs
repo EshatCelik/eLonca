@@ -3,6 +3,7 @@ using eLonca.Domain.Entities.BaseEntities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace eLonca.Infrastructure.Repositories
 {
@@ -69,9 +70,9 @@ namespace eLonca.Infrastructure.Repositories
             }
         }
 
-        public async Task<Result<List<T>>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<Result<List<T>>> GetAllAsync(Expression<Func<T, bool>> predicate = null, CancellationToken cancellationToken = default)
         {
-            var list = await _dbSet.ToListAsync();
+            var list = await _dbSet.Where(predicate).ToListAsync();
             return Result<List<T>>.Success(await _dbSet.ToListAsync(), "Liste başarılı", 200);
         }
 
@@ -80,7 +81,7 @@ namespace eLonca.Infrastructure.Repositories
             var list = await _dbSet.Where(x => x.Id == Id).FirstOrDefaultAsync();
             if (list == null)
                 return Result<T>.Failure(null, "böyle bir istek bulunamadı", 400);
-                return Result<T>.Success(list, "Liste başarılı", 200);
+            return Result<T>.Success(list, "Liste başarılı", 200);
         }
 
         public async Task<Result<T>> Update(T entity, CancellationToken cancellationToken)
