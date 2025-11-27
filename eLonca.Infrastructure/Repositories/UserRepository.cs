@@ -43,9 +43,9 @@ namespace eLonca.Infrastructure.Repositories
             return Result<List<User>>.Success(tenant, "Tenant Listesi", 200);
         }
 
-        public async Task<Result<bool>> IsEmailExistInTenantAsync(string email, Guid tenantId, CancellationToken cancellationToken)
+        public async Task<Result<bool>> IsEmailExistInTenantAsync(string email, Guid storeId, string username,CancellationToken cancellationToken)
         {
-            var isExist = await _dbSet.FirstOrDefaultAsync(x => x.Email == email && x.TenantId == tenantId, cancellationToken);
+            var isExist = await _dbSet.FirstOrDefaultAsync(x => x.Email == email && x.StoreId == storeId && x.UserName==username, cancellationToken);
             if (isExist == null)
             {
                 return Result<bool>.Failure(null, "Kullanıcı bulunamadı,yada Tenant bulunamadı", 404);

@@ -8,10 +8,9 @@ namespace eLonca.Application.Commands.CategoryCommands.CategoryCreate
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string ColorCode { get; set; }
-        public Guid CategoryId { get; set; }
+        public string ColorCode { get; set; } 
         public Guid TenatId { get; set; }
         public Guid StoreId { get; set; }
-        public Guid ParentCategoryId { get; set; }
+        public Guid? ParentCategoryId { get; set; }
     }
 }

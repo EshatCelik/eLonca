@@ -1,10 +1,11 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using MediatR;
 
 namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
 {
-    public class CustomerCreateCommand : IRequest<Result<Customer>>
+    public class CustomerCreateCommand : IRequest<Result<StoreCustomer>>
     {
         public string CustomerCode { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -15,7 +16,12 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
         public CustomerType CustomerType { get; set; }
         public string? TaxNumber { get; set; }
         public string? Notes { get; set; }
-        public Guid? StoreId { get; set; }
-        public Guid TenantId { get; set; } 
+        public int DiscountRate { get; set; }
+
+        // Navigation: Ana mağaza
+        public Guid StoreId { get; set; } 
+
+        // Navigation: Müşteri olan mağaza
+        public Guid CustomerStoreId { get; set; }
     }
 }

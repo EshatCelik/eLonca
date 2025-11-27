@@ -1,9 +1,11 @@
-﻿using eLonca.Domain.Entities.BaseEntities;
+﻿using eLonca.Common;
+using eLonca.Domain.Entities.BaseEntities;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace eLonca.Domain.Entities
 {
-    public class Customer : TenantBaseEntity
+    public class StoreCustomer : TenantBaseEntity
     {
         public string CustomerCode { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -14,24 +16,25 @@ namespace eLonca.Domain.Entities
         public CustomerType CustomerType { get; set; }
         public string? TaxNumber { get; set; }
         public string? Notes { get; set; }
-        public int DiscountRate { get; set; } // indirim yapılacak müşteri oranı % ile
+        public int DiscountRate { get; set; }
 
-        // Navigation 
-        public Tenant? Tenant { get; set; } = null!;
-        public Guid? StoreId { get; set; }
-        public Store? Store { get; set; } = null!;
+        // Navigation: Ana mağaza
+        public Guid StoreId { get; set; }
+        public Store Store { get; set; }
+
+        // Navigation: Müşteri olan mağaza
+        public Guid CustomerStoreId { get; set; } 
+
+        public Tenant Tenant { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<CustomerAccount> CustomerAccounts { get; set; } = new List<CustomerAccount>();
+
         [JsonIgnore]
         public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
+
         [JsonIgnore]
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>(); 
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 
-    public enum CustomerType
-    {
-        Individual = 1,
-        Corporate = 2
-    }
 }

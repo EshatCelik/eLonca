@@ -22,21 +22,6 @@ namespace eLonca.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("StoreUser", b =>
-                {
-                    b.Property<Guid>("StoresId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("StoresId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("StoreUser");
-                });
-
             modelBuilder.Entity("eLonca.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -95,84 +80,6 @@ namespace eLonca.Infrastructure.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("eLonca.Domain.Entities.Customer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CustomerCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CustomerType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeleteAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("DiscountRate")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("StoreId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TaxNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("eLonca.Domain.Entities.CustomerAccount", b =>
@@ -389,9 +296,6 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime2");
 
@@ -426,6 +330,9 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("StoreCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
@@ -443,7 +350,7 @@ namespace eLonca.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("StoreCustomerId");
 
                     b.HasIndex("StoreId");
 
@@ -651,6 +558,102 @@ namespace eLonca.Infrastructure.Migrations
                     b.ToTable("Stores");
                 });
 
+            modelBuilder.Entity("eLonca.Domain.Entities.StoreCustomer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CustomerCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerStoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CustomerType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeleteAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DiscountRate")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StoreId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StoreId2")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StoreId3")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TaxNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId");
+
+                    b.HasIndex("StoreId1");
+
+                    b.HasIndex("StoreId2");
+
+                    b.HasIndex("StoreId3");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("StoreCustomers");
+                });
+
             modelBuilder.Entity("eLonca.Domain.Entities.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -773,6 +776,9 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -791,24 +797,11 @@ namespace eLonca.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("StoreId");
+
                     b.HasIndex("TenantId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("StoreUser", b =>
-                {
-                    b.HasOne("eLonca.Domain.Entities.Store", null)
-                        .WithMany()
-                        .HasForeignKey("StoresId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("eLonca.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("eLonca.Domain.Entities.Category", b =>
@@ -830,27 +823,9 @@ namespace eLonca.Infrastructure.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("eLonca.Domain.Entities.Customer", b =>
-                {
-                    b.HasOne("eLonca.Domain.Entities.Store", "Store")
-                        .WithMany("Customers")
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("eLonca.Domain.Entities.Tenant", "Tenant")
-                        .WithMany("Customers")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-
-                    b.Navigation("Tenant");
-                });
-
             modelBuilder.Entity("eLonca.Domain.Entities.CustomerAccount", b =>
                 {
-                    b.HasOne("eLonca.Domain.Entities.Customer", "Customer")
+                    b.HasOne("eLonca.Domain.Entities.StoreCustomer", "Customer")
                         .WithMany("CustomerAccounts")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -869,7 +844,7 @@ namespace eLonca.Infrastructure.Migrations
 
             modelBuilder.Entity("eLonca.Domain.Entities.Payment", b =>
                 {
-                    b.HasOne("eLonca.Domain.Entities.Customer", "Customer")
+                    b.HasOne("eLonca.Domain.Entities.StoreCustomer", "Customer")
                         .WithMany("Payments")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -923,9 +898,9 @@ namespace eLonca.Infrastructure.Migrations
 
             modelBuilder.Entity("eLonca.Domain.Entities.Sale", b =>
                 {
-                    b.HasOne("eLonca.Domain.Entities.Customer", "Customer")
+                    b.HasOne("eLonca.Domain.Entities.StoreCustomer", "StoreCustomer")
                         .WithMany("Sales")
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("StoreCustomerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("eLonca.Domain.Entities.Store", "Store")
@@ -939,9 +914,9 @@ namespace eLonca.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Customer");
-
                     b.Navigation("Store");
+
+                    b.Navigation("StoreCustomer");
 
                     b.Navigation("Tenant");
                 });
@@ -1014,13 +989,54 @@ namespace eLonca.Infrastructure.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("eLonca.Domain.Entities.StoreCustomer", b =>
+                {
+                    b.HasOne("eLonca.Domain.Entities.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLonca.Domain.Entities.Store", null)
+                        .WithMany("CustomerOf")
+                        .HasForeignKey("StoreId1")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("eLonca.Domain.Entities.Store", null)
+                        .WithMany("Customers")
+                        .HasForeignKey("StoreId2")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("eLonca.Domain.Entities.Store", null)
+                        .WithMany("StoreCustomers")
+                        .HasForeignKey("StoreId3")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("eLonca.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("Customers")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Store");
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("eLonca.Domain.Entities.User", b =>
                 {
+                    b.HasOne("eLonca.Domain.Entities.Store", "Store")
+                        .WithMany("Users")
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("eLonca.Domain.Entities.Tenant", "Tenant")
                         .WithMany("Users")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Store");
 
                     b.Navigation("Tenant");
                 });
@@ -1028,15 +1044,6 @@ namespace eLonca.Infrastructure.Migrations
             modelBuilder.Entity("eLonca.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("eLonca.Domain.Entities.Customer", b =>
-                {
-                    b.Navigation("CustomerAccounts");
-
-                    b.Navigation("Payments");
-
-                    b.Navigation("Sales");
                 });
 
             modelBuilder.Entity("eLonca.Domain.Entities.Product", b =>
@@ -1057,9 +1064,24 @@ namespace eLonca.Infrastructure.Migrations
                 {
                     b.Navigation("Categories");
 
+                    b.Navigation("CustomerOf");
+
                     b.Navigation("Customers");
 
                     b.Navigation("Products");
+
+                    b.Navigation("Sales");
+
+                    b.Navigation("StoreCustomers");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("eLonca.Domain.Entities.StoreCustomer", b =>
+                {
+                    b.Navigation("CustomerAccounts");
+
+                    b.Navigation("Payments");
 
                     b.Navigation("Sales");
                 });

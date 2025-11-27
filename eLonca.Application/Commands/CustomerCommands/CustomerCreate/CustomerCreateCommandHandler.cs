@@ -5,7 +5,7 @@ using MediatR;
 
 namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
 {
-    public class CustomerCreateCommandHandler : IRequestHandler<CustomerCreateCommand, Result<Customer>>
+    public class CustomerCreateCommandHandler : IRequestHandler<CustomerCreateCommand, Result<StoreCustomer>>
     {
         private readonly ICustomerRepository _customerRepository;
 
@@ -14,13 +14,17 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
             _customerRepository = customerRepository;
         }
 
-        public async Task<Result<Customer>> Handle(CustomerCreateCommand request, CancellationToken cancellationToken)
+        public async Task<Result<StoreCustomer>> Handle(CustomerCreateCommand request, CancellationToken cancellationToken)
         {
-            var customer = new Customer()
+            var customer = new StoreCustomer()
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 StoreId = request.StoreId,
+                CustomerStoreId = request.CustomerStoreId,
+                DiscountRate = request.DiscountRate,
+                PhoneNumber = request.PhoneNumber,
+                Notes = request.Notes,                
                 CustomerCode = request.CustomerCode,
                 Email = request.Email,
                 Address = request.Address,

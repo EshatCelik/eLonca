@@ -15,7 +15,7 @@ namespace eLonca.Domain.Entities
         public Sale Sale { get; set; } = null!; 
         public Tenant Tenant { get; set; } = null!;
         public Guid CustomerId { get; set; }
-        public Customer Customer { get; set; } = null!;
+        public StoreCustomer Customer { get; set; } = null!;
     }
 
     public enum PaymentType
