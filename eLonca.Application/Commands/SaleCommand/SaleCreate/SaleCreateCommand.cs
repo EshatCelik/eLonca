@@ -7,7 +7,7 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
     public class SaleCreateCommand:IRequest<Result<Sale>>
     {
         public Guid? StoreId { get; set; }
-        public Guid? CustomerId { get; set; }
+        public Guid? StoreCustomerId { get; set; }
         public Guid? TenantId { get; set; }
         public DateTime? SaleDate { get; set; } = DateTime.UtcNow;
         public string? InvoiceNumber { get; set; } = string.Empty;

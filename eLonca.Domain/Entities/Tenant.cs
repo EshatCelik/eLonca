@@ -27,7 +27,7 @@ namespace eLonca.Domain.Entities
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
 
         [JsonIgnore]
-        public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+        public virtual ICollection<StoreCustomer> Customers { get; set; } = new List<StoreCustomer>();
 
         [JsonIgnore]
         public virtual ICollection<CustomerAccount> CustomerAccounts { get; set; } = new List<CustomerAccount>();

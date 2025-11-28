@@ -27,13 +27,17 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
         {
             try
             {
-
+                var checkStoreCustomer = _saleRepository.CheckCustomerRelation(request.StoreId, request.StoreCustomerId, cancellationToken);
+                if (!checkStoreCustomer.Result.IsSuccess)
+                {
+                    return Result<Sale>.Failure(null, checkStoreCustomer.Result.Message, checkStoreCustomer.Result.StatusCode);
+                }
                 var checkStock = _productRepository.CheckProductStock(request.SaleItems);
                 if (!checkStock.Result.IsSuccess)
                 {
                     return Result<Sale>.Failure(new List<string>() { checkStock.Result.Message }, checkStock.Result.Message, 400);
                 }
-                var itemResponse = _saleRepository.GetItemsTotalAmount(request.SaleItems, request.CustomerId ?? Guid.Empty);
+                var itemResponse = _saleRepository.GetItemsTotalAmount(request.SaleItems, request.StoreId ?? Guid.Empty, request.StoreCustomerId ?? Guid.Empty);
                 if (!itemResponse.Result.IsSuccess)
                     return Result<Sale>.Failure(new List<string>() { itemResponse.Result.Message }, "Fiyatları hesaplarken hata alındı", 400);
 
@@ -43,7 +47,7 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
                 {
                     SaleDate = DateTime.Now,
                     StoreId = request.StoreId,
-                    CustomerId = request.CustomerId,
+                    StoreCustomerId = request.StoreCustomerId,
                     InvoiceNumber = request.InvoiceNumber,
                     Notes = request.Notes,
                     TotalAmount = totalAmount,

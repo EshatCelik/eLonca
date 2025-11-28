@@ -60,6 +60,7 @@ namespace eLonca.Application.Services.JwtTokenService
             {
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
+                var tokenExpr = DateTime.Now;
                 var claims = new[]
                 {
                     new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString() ),
@@ -69,7 +70,8 @@ namespace eLonca.Application.Services.JwtTokenService
                     new Claim(ClaimTypes.Role,user.UserRole.ToString()),
                     new Claim("TenantId",user.TenantId.ToString()),
                     new Claim("FullName",user.FullName),
-                    new Claim("UserId",user.Id.ToString())
+                    new Claim("UserId",user.Id.ToString()),
+                    new Claim("TokenExpr",DateTime.Now.AddHours(Convert.ToDouble(_configuration["Jwt:ExpirationHours"] ?? "8")).ToString())
                 };
 
 

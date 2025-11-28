@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
 {
-    public class CustomerCreateCommandValidator:AbstractValidator<Customer>
+    public class CustomerCreateCommandValidator:AbstractValidator<StoreCustomer>
     {
         public CustomerCreateCommandValidator()
         { 

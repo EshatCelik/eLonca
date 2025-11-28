@@ -5,13 +5,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
-{ 
-    [ApiController]
-    public class TanentController : BaseController
+{  
+    public class TenantController : BaseController
     {
         private readonly IMediator _mediator;
 
-        public TanentController(IMediator mediator) 
+        public TenantController(IMediator mediator) 
         {
             _mediator = mediator;
         }

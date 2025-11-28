@@ -5,7 +5,7 @@ using MediatR;
 
 namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
 {
-    public class CustomerUpdateCommandHandler : IRequestHandler<CustomerUpdateCommand, Result<Customer>>
+    public class CustomerUpdateCommandHandler : IRequestHandler<CustomerUpdateCommand, Result<StoreCustomer>>
     {
         private readonly ICustomerRepository _customerRepository;
 
@@ -14,7 +14,7 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
             _customerRepository = customerRepository;
         }
 
-        public async Task<Result<Customer>> Handle(CustomerUpdateCommand request, CancellationToken cancellationToken)
+        public async Task<Result<StoreCustomer>> Handle(CustomerUpdateCommand request, CancellationToken cancellationToken)
         {
             var customer = await _customerRepository.GetByIdAsync(request.Id);
             if (!customer.IsSuccess)

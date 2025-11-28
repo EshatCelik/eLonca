@@ -2,14 +2,14 @@
 
 namespace eLonca.Domain.Interfaces
 {
-    public interface ICustomerRepository : IGenericRepository<Customer>
+    public interface ICustomerRepository : IGenericRepository<StoreCustomer>
     {
-        Task<List<Customer>> GetCustomersWithPaginationAsync(
+        Task<List<StoreCustomer>> GetCustomersWithPaginationAsync(
             string searchTerm,
             int pageNumber,
             int pageSize,
             CancellationToken cancellationToken );
-        Task<List<Customer>> GetTotalCustomerCountAsync(string searchTerm,CancellationToken cancellationToken);
+        Task<List<StoreCustomer>> GetTotalCustomerCountAsync(string searchTerm,CancellationToken cancellationToken);
 
     }
 }

@@ -17,7 +17,7 @@ namespace eLonca.Domain.Entities
         public virtual ICollection<Product> Products { get; set; }
         [JsonIgnore]
 
-        public virtual ICollection<Customer> Customers { get; set; }
+        public virtual ICollection<StoreCustomer> StoreCustomers { get; set; }
         [JsonIgnore]
 
         public virtual ICollection<Sale> Sales { get; set; }
@@ -26,6 +26,12 @@ namespace eLonca.Domain.Entities
         public virtual ICollection<Category> Categories { get; set; }
         [JsonIgnore]
         public virtual ICollection<User> Users { get; set; } = new List<User>();
+        [JsonIgnore]
+        public virtual ICollection<StoreCustomer> Customers { get; set; } = new List<StoreCustomer>();
+
+        [JsonIgnore]
+        public virtual ICollection<StoreCustomer> CustomerOf { get; set; } = new List<StoreCustomer>();
+
 
     }
 }

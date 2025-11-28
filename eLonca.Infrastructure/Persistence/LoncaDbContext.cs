@@ -19,7 +19,7 @@ namespace eLonca.Infrastructure.Persistence
 
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<StoreCustomer> StoreCustomers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CustomerAccount> CustomerAccounts { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -32,6 +32,16 @@ namespace eLonca.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<StoreCustomer>(entity =>
+            {
+                // Ana mağaza ilişkisi
+                entity.HasOne(sc => sc.Store)
+                    .WithMany() // veya Store'da bir collection varsa: .WithMany(s => s.StoreCustomers)
+                    .HasForeignKey(sc => sc.StoreId)
+                    .OnDelete(DeleteBehavior.Restrict); // Cascade delete sorunları önlemek için 
+
+            });
+
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
         .SelectMany(e => e.GetForeignKeys()))
             {
@@ -43,7 +53,7 @@ namespace eLonca.Infrastructure.Persistence
             if (tenantId != Guid.Empty)
             {
 
-                modelBuilder.Entity<Customer>().HasQueryFilter(c => c.TenantId == tenantId);
+                modelBuilder.Entity<StoreCustomer>().HasQueryFilter(c => c.TenantId == tenantId);
                 modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == tenantId);
                 modelBuilder.Entity<Category>().HasQueryFilter(c => c.TenantId == tenantId);
                 modelBuilder.Entity<CustomerAccount>().HasQueryFilter(ca => ca.TenantId == tenantId);

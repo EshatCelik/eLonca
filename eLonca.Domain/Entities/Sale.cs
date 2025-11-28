@@ -10,8 +10,6 @@ namespace eLonca.Domain.Entities
 {
     public class Sale : TenantBaseEntity
     {
-        public Guid? StoreId { get; set; }
-        public Guid? CustomerId { get; set; }
         public DateTime SaleDate { get; set; } = DateTime.UtcNow;
         public string InvoiceNumber { get; set; } = string.Empty;
         public decimal? TotalAmount { get; set; }
@@ -23,8 +21,12 @@ namespace eLonca.Domain.Entities
 
         // Navigation
         public Tenant? Tenant { get; set; } = null!;
+
+        public Guid? StoreId { get; set; }
         public Store? Store { get; set; } = null!;
-        public Customer? Customer { get; set; } = null!;
+      
+        public Guid? StoreCustomerId { get; set; }
+        public StoreCustomer? StoreCustomer { get; set; } = null!;
         [JsonIgnore]
         public virtual ICollection<SaleItem> SaleItems { get; set; } = new List<SaleItem>();
         [JsonIgnore]

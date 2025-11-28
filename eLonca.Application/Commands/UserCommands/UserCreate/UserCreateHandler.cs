@@ -33,13 +33,18 @@ namespace eLonca.Application.Commands.UserCommands.UserCreate
                 Email = request.Email,
                 Name = request.Name,
                 LastName = request.LastName,
-                UserRole = request.UserRole??UserRole.User,
+                UserRole = request.UserRole ?? UserRole.User,
                 PhoneNumber = request.PhoneNumber,
-                PasswordHash= BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RefreshTokenExpiry=DateTime.Now.AddDays(7),
-                IsActive=true
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                RefreshTokenExpiry = DateTime.Now.AddDays(7),
+                IsActive = true,
+                StoreId = request.StoreId,
             };
-            var isUserExist = _userRepository.IsEmailExistInTenantAsync(request.Email, user.TenantId,cancellationToken);
+            var isUserExist = _userRepository.IsEmailExistInTenantAsync(request.Email, request.StoreId, request.UserName, cancellationToken);
+            if (isUserExist.Result.IsSuccess)
+            {
+                return Result<User>.Failure(null, "Kullanıcı daha önce eklenmiş", 400);
+            }
             if (request.StoreId != null)
             {
                 var store = await _storeRepository.GetByIdAsync(request.StoreId);
@@ -48,7 +53,6 @@ namespace eLonca.Application.Commands.UserCommands.UserCreate
                     return Result<User>.Failure(null, "Kullanıcı mağazası bulunamadı", 400);
                 }
 
-                user.Stores.Add(store.Data);
             }
 
             var response = await _userRepository.CreateAsync(user, cancellationToken);

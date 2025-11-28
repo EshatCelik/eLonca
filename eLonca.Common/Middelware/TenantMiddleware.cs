@@ -14,19 +14,42 @@ namespace eLonca.Common.Middelware
         {
             if (context.User.Identity?.IsAuthenticated == true)
             {
+                // Token expire kontrolü
+                var expClaim = context.User.Claims.FirstOrDefault(x => x.Type == "TokenExpr")?.Value;
+                if (!string.IsNullOrEmpty(expClaim))
+                {
+                    if (DateTime.TryParse(expClaim, out DateTime expDate))
+                    {
+                        if (expDate < DateTime.Now)
+                        {
+                            // Token süresi dolmuş
+                            context.Response.StatusCode = 401;
+                            context.Response.ContentType = "application/json";
+                            await context.Response.WriteAsync("{\"message\":\"Token expired. Please login again.\"}");
+                            return;
+                        }
+                    }
+                }
+
+                // TenantId kontrolü
                 var tenantId = context.User.Claims.FirstOrDefault(x => x.Type == "TenantId")?.Value;
                 if (!string.IsNullOrEmpty(tenantId))
                 {
                     context.Items["TenantId"] = tenantId;
+                    await _next(context);
                 }
-                await _next(context);
+                else
+                {
+                    // Login olmuş ama TenantId yok
+                    context.Response.StatusCode = 403;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync("{\"message\":\"Forbidden. TenantId not found.\"}");
+                }
             }
             else
             {
-                // API isteği ise 401 döndür
-                context.Response.StatusCode = 401;
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync("{\"message\":\"Unauthorized. Please login.\"}");
+                // Henüz login olmamış - login sayfasına gitsin
+                await _next(context);
             }
         }
     }

@@ -13,9 +13,19 @@ namespace eLonca.Infrastructure.Repositories
             _productRepository = productRepository;
         }
 
-        public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list, Guid customerId)
+        public async Task<Result> CheckCustomerRelation(Guid? storeId, Guid? storeCustomerId, CancellationToken cancellationToken)
         {
-            var findCustomer = _dbContext.Customers.FirstOrDefault(x => x.Id == customerId);
+            var customer = _dbContext.StoreCustomers.Where(x => x.StoreId == storeId && x.CustomerStoreId == storeCustomerId && x.IsActive && x.IsDeleted == false).FirstOrDefault();
+            if (customer == null)
+            {
+                return Result.Failure("Müşteri bulunamadı", null, 400);
+            }
+            return Result.Success("Müşteri bulundu", 200);
+        }
+
+        public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list,Guid storeId, Guid customerId)
+        {
+            var findCustomer = _dbContext.StoreCustomers.FirstOrDefault(x => x.StoreId == storeId && x.CustomerStoreId==customerId && x.IsActive && x.IsDeleted==false);
 
             if (findCustomer == null)
             {
