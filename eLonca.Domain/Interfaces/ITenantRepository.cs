@@ -8,5 +8,6 @@ namespace eLonca.Domain.Interfaces
         Task<Result<List<Tenant>>> GetActiveTenantAsynct(CancellationToken cancellationToken = default);
         Task<Result<Tenant>> GetTenantByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<Result> IsExistTenantByName(string name, CancellationToken cancellationToken = default);
+        Task<Result<Tenant>>CreateTenant(Tenant tenant, CancellationToken cancellationToken = default);
     }
 }

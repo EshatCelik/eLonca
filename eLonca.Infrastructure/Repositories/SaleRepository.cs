@@ -13,19 +13,19 @@ namespace eLonca.Infrastructure.Repositories
             _productRepository = productRepository;
         }
 
-        public async Task<Result> CheckCustomerRelation(Guid? storeId, Guid? storeCustomerId, CancellationToken cancellationToken)
+        public async Task<Result<StoreCustomer>> CheckCustomerRelation(Guid? storeId, Guid? storeCustomerId, CancellationToken cancellationToken)
         {
             var customer = _dbContext.StoreCustomers.Where(x => x.StoreId == storeId && x.CustomerStoreId == storeCustomerId && x.IsActive && x.IsDeleted == false).FirstOrDefault();
             if (customer == null)
             {
-                return Result.Failure("Müşteri bulunamadı", null, 400);
+                return Result<StoreCustomer>.Failure(null, "Müşteri bulunamadı", 400);
             }
-            return Result.Success("Müşteri bulundu", 200);
+            return Result<StoreCustomer>.Success(customer, "Müşteri bulundu", 200);
         }
 
-        public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list,Guid storeId, Guid customerId)
+        public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list, Guid storeId, Guid customerId)
         {
-            var findCustomer = _dbContext.StoreCustomers.FirstOrDefault(x => x.StoreId == storeId && x.CustomerStoreId==customerId && x.IsActive && x.IsDeleted==false);
+            var findCustomer = _dbContext.StoreCustomers.FirstOrDefault(x => x.StoreId == storeId && x.CustomerStoreId == customerId && x.IsActive && x.IsDeleted == false);
 
             if (findCustomer == null)
             {
