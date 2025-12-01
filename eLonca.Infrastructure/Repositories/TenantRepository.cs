@@ -2,16 +2,35 @@
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace eLonca.Infrastructure.Repositories
 {
     public class TenantRepository : GenericRepository<Tenant>, ITenantRepository
-    { 
-        public TenantRepository(LoncaDbContext loncaDbContext) : base(loncaDbContext)
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        public TenantRepository(LoncaDbContext dbContext, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork) : base(dbContext)
         {
-            
+            _unitOfWork = unitOfWork;
         }
+
+        public async Task<Result<Tenant>> CreateTenant(Tenant tenant, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var result = _dbContext.Tenants.Add(tenant);
+                _unitOfWork.SaveChangeAsync(cancellationToken);
+                return Result<Tenant>.Success(result.Entity, "tenant eklendi", 200);
+            }
+            catch (Exception ex)
+            {
+
+                return Result<Tenant>.Failure(null, ex.Message, 400);
+
+            }
+        }
+
         public async Task<Result<List<Tenant>>> GetActiveTenantAsynct(CancellationToken cancellationToken)
         {
             var list = await _dbContext.Tenants
@@ -30,7 +49,7 @@ namespace eLonca.Infrastructure.Repositories
             var user = _dbContext.Users.Where(x => x.Id == userId).FirstOrDefault();
             if (user == null)
             {
-                return  Result<Tenant>.Failure(null,"Kullanıcı bulunamdı",400);
+                return Result<Tenant>.Failure(null, "Kullanıcı bulunamdı", 400);
             }
             var tenant = await _dbContext.Tenants.Where(x => x.Id == user.TenantId).FirstOrDefaultAsync(cancellationToken);
             if (tenant == null)

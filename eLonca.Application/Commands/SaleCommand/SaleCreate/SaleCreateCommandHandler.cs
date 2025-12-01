@@ -45,9 +45,10 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
 
                 var sale = new Sale()
                 {
+                    Id = Guid.NewGuid(),
                     SaleDate = DateTime.Now,
                     StoreId = request.StoreId,
-                    StoreCustomerId = request.StoreCustomerId,
+                    StoreCustomerId = checkStoreCustomer.Result.Data.Id,
                     InvoiceNumber = request.InvoiceNumber,
                     Notes = request.Notes,
                     TotalAmount = totalAmount,

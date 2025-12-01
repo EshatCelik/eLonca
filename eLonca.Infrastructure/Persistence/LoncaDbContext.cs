@@ -3,6 +3,7 @@ using eLonca.Domain.Entities;
 using eLonca.Domain.Entities.BaseEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace eLonca.Infrastructure.Persistence
 {
@@ -68,12 +69,10 @@ namespace eLonca.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
         }
 
-        public override int SaveChanges()
+        public int SaveChanges()
         {
-            var tenantId = GetTenantId();
-            if (tenantId == Guid.Empty)
-                return 0;
-            var entries = ChangeTracker.Entries<BaseEntity>(); 
+            
+            var entries = ChangeTracker.Entries<TenantBaseEntity>();
             try
             {
                 foreach (var entry in entries)
@@ -95,12 +94,9 @@ namespace eLonca.Infrastructure.Persistence
                         case EntityState.Added:
                             entry.Entity.CreateAt = DateTime.Now;
                             entry.Entity.IsDeleted = false;
-                            entry.Entity.IsActive = true;
-                            if (entry.Entity is ITenantEntity tenantEntity)
-                            {
-                                tenantEntity.TenantId = tenantId;
-                            }
-                            entry.Entity.CreatedBy = Guid.Parse(_httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value);
+                            entry.Entity.IsActive = true; 
+                            entry.Entity.CreatedBy = GetUserId();
+                            entry.Entity.TenantId=GetTenantId();
                             break;
                         default:
                             break;
@@ -111,7 +107,7 @@ namespace eLonca.Infrastructure.Persistence
             }
             catch (Exception ex)
             {
-                throw;
+                return 0;
             }
         }
         private Guid GetTenantId()
@@ -122,6 +118,15 @@ namespace eLonca.Infrastructure.Persistence
                 return Guid.Empty;
             }
             return Guid.Parse(tenant);
+        }
+        private Guid GetUserId()
+        {
+            var user = _httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value;
+            if (user == null)
+            {
+                return Guid.Empty;
+            }
+            return Guid.Parse(user);
         }
     }
 }

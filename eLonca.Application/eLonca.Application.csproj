@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\CustomerCommands\NewFolder\" />
+    <Compile Remove="Commands\CustomerCommands\NewFolder\**" />
+    <EmbeddedResource Remove="Commands\CustomerCommands\NewFolder\**" />
+    <None Remove="Commands\CustomerCommands\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>

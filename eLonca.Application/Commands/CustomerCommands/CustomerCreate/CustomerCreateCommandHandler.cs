@@ -16,6 +16,11 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
 
         public async Task<Result<StoreCustomer>> Handle(CustomerCreateCommand request, CancellationToken cancellationToken)
         {
+            var isAdded = _customerRepository.CheckIsAddedCustomer(request.StoreId, request.CustomerStoreId, cancellationToken);
+            if (!isAdded.Result.IsSuccess)
+            {
+                return isAdded.Result;
+            }
             var customer = new StoreCustomer()
             {
                 FirstName = request.FirstName,
@@ -24,7 +29,7 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
                 CustomerStoreId = request.CustomerStoreId,
                 DiscountRate = request.DiscountRate,
                 PhoneNumber = request.PhoneNumber,
-                Notes = request.Notes,                
+                Notes = request.Notes,
                 CustomerCode = request.CustomerCode,
                 Email = request.Email,
                 Address = request.Address,

@@ -1,7 +1,9 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Application.Services.TenantService;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities.BaseEntities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -11,6 +13,8 @@ namespace eLonca.Infrastructure.Repositories
     {
         protected readonly LoncaDbContext _dbContext;
         protected readonly DbSet<T> _dbSet;
+         
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public GenericRepository(LoncaDbContext dbContext)
         {
@@ -98,6 +102,24 @@ namespace eLonca.Infrastructure.Repositories
             {
                 return Result<T>.Failure(new List<string>() { ex.Message }, $"{typeof(T).Name} bulunamadı ,güncelleme yapılırken hata alındı", 404);
             }
+        }
+        private Guid GetTenantId()
+        {
+            var tenant = _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value;
+            if (tenant == null)
+            {
+                return Guid.Empty;
+            }
+            return Guid.Parse(tenant);
+        }
+        private Guid GetUserId()
+        {
+            var user = _httpContextAccessor.HttpContext?.User.FindFirst("UserId")?.Value;
+            if (user == null)
+            {
+                return Guid.Empty;
+            }
+            return Guid.Parse(user);
         }
     }
 }
