@@ -1,5 +1,33 @@
 ﻿using Microsoft.AspNetCore.Http;
 
+
+
+//using Microsoft.AspNetCore.Http;
+
+//public class TenantMiddleware
+//{
+//    private readonly RequestDelegate _next;
+
+//    public TenantMiddleware(RequestDelegate next)
+//    {
+//        _next = next;
+//    }
+
+//    public async Task InvokeAsync(HttpContext context)
+//    {
+//        // OPTIONS request'leri (preflight) için doğrudan geç
+//        if (context.Request.Method == "OPTIONS")
+//        {
+//            context.Response.StatusCode = 200; 
+//            return;
+//        }
+
+//        // Tenant logic buraya...
+
+//        await _next(context);
+//    }
+//}
+
 namespace eLonca.Common.Middelware
 {
     public class TenantMiddleware

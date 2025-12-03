@@ -1,8 +1,7 @@
 using eLonca.Application.Commands.Tenants.CreateTenant;
 using eLonca.Application.Services.AuthService;
 using eLonca.Application.Services.JwtTokenService;
-using eLonca.Application.Services.TenantService;
-using eLonca.Common.Middelware;
+using eLonca.Application.Services.TenantService; 
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Configuration;
 using eLonca.Infrastructure.Persistence;
@@ -12,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using eLonca.Application.Extensions;
+using eLonca.Common.Middelware;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
@@ -82,6 +82,17 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// CORS BURADA OLMALI (builder tarafýnda)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendCors", policy =>
+    {
+        policy.SetIsOriginAllowed(origin => true) // Geliþtirme için tüm origin'lere izin ver
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -91,8 +102,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+app.UseCors("FrontendCors");
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

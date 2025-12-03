@@ -1,10 +1,12 @@
 ﻿using eLonca.Common.Models;
 using MediatR;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
 {
     [Route("api/[controller]/[action]")]
+    [EnableCors("FrontendCors")]
     [ApiController]
     public class BaseController : ControllerBase
     {
