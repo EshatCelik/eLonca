@@ -8,13 +8,18 @@ export class AuthService {
   private readonly _isAuthenticated = signal(false);
 
   private readonly apiBase = 'https://localhost:7145/api/Auth';
+  private readonly tokenKey = 'auth_token';
+  private readonly tenantIdKey = 'tenant_id';
 
   readonly isAuthenticated = this._isAuthenticated;
 
   constructor(
     private readonly router: Router,
     private readonly http: HttpClient
-  ) {}
+  ) {
+    const token = this.getToken();
+    this._isAuthenticated.set(!!token);
+  }
 
   login(userName: string, password: string) {
     const body = {
@@ -27,13 +32,28 @@ export class AuthService {
 
     return this.http.post<any>(`${this.apiBase}/Login`, body).pipe(
       tap((response) => {
-        if (response?.isSuccess) {
+        const token =
+          response?.token ||
+          response?.accessToken ||
+          response?.data?.token ||
+          response?.data?.accessToken ||
+          response?.result?.token ||
+          response?.result?.accessToken;
+
+        if (response?.isSuccess && token) {
+          this.setToken(token);
+          const tenantId = response?.tenantId ?? response?.data?.tenantId ?? response?.result?.tenantId;
+          if (tenantId) this.setTenantId(tenantId);
           this._isAuthenticated.set(true);
         } else {
+          this.clearToken();
+          this.clearTenantId();
           this._isAuthenticated.set(false);
         }
       }),
       catchError((error) => {
+        this.clearToken();
+        this.clearTenantId();
         this._isAuthenticated.set(false);
         return throwError(() => error);
       })
@@ -41,8 +61,50 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearToken();
+    this.clearTenantId();
     this._isAuthenticated.set(false);
     this.router.navigate(['/login']);
+  }
+
+  getToken(): string | null {
+    try {
+      return localStorage.getItem(this.tokenKey);
+    } catch {
+      return null;
+    }
+  }
+
+  private setToken(token: string): void {
+    try {
+      localStorage.setItem(this.tokenKey, token);
+    } catch {}
+  }
+
+  private clearToken(): void {
+    try {
+      localStorage.removeItem(this.tokenKey);
+    } catch {}
+  }
+
+  getTenantId(): string | null {
+    try {
+      return localStorage.getItem(this.tenantIdKey);
+    } catch {
+      return null;
+    }
+  }
+
+  private setTenantId(tenantId: string): void {
+    try {
+      localStorage.setItem(this.tenantIdKey, tenantId);
+    } catch {}
+  }
+
+  private clearTenantId(): void {
+    try {
+      localStorage.removeItem(this.tenantIdKey);
+    } catch {}
   }
 
   registerTenant(payload: any) {
