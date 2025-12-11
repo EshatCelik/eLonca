@@ -5,6 +5,7 @@ import { RegisterComponent } from './pages/auth/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { TenantsComponent } from './pages/tenants/tenants.component';
 import { UsersComponent } from './pages/users/users.component';
+import { StoresComponent } from './pages/stores/stores.component';
 import { CategoriesComponent } from './pages/categories/categories.component';
 import { CustomersComponent } from './pages/customers/customers.component';
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
@@ -29,6 +30,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'tenants', component: TenantsComponent },
       { path: 'users', component: UsersComponent },
+      { path: 'stores', component: StoresComponent },
       { path: 'categories', component: CategoriesComponent },
       { path: 'customers', component: CustomersComponent },
       { path: 'e-ledger', component: ELedgerComponent },

@@ -1,7 +1,7 @@
 ﻿using eLonca.Application.Commands.UserCommands.UserCreate;
 using eLonca.Application.Commands.UserCommands.UserDelete;
+using eLonca.Application.Queries.UserQueries;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
@@ -27,5 +27,12 @@ namespace eLonca.Api.Controllers
             var response= await _mediator.Send(command);
             return Ok(response);
         }
+        [HttpPost]
+        public async Task<IActionResult> GetAll(GetAllUserQueryResponse getAllUserQueryResponse)
+        {
+            var response=await _mediator.Send(getAllUserQueryResponse);
+            return Ok(response);
+        }
+       
     }
 }

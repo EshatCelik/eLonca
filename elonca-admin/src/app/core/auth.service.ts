@@ -18,6 +18,7 @@ export class AuthService {
     private readonly http: HttpClient
   ) {
     const token = this.getToken();
+    const tenantId = this.getTenantId();
     this._isAuthenticated.set(!!token);
   }
 

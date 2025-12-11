@@ -1,41 +1,41 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { TenantsService } from './tenants.service';
+import { StoresService } from './stores.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-tenants-page',
+  selector: 'app-stores-page',
   standalone: true,
   imports: [FormsModule],
-  templateUrl: './tenants.component.html',
-  styleUrl: './tenants.component.scss'
+  templateUrl: './stores.component.html',
+  styleUrl: './stores.component.scss'
 })
-export class TenantsComponent implements OnInit, OnDestroy {
-  tenants: any[] = [];
+export class StoresComponent implements OnInit, OnDestroy {
+  stores: any[] = [];
   isLoading = false;
   errorMessage = '';
   showCreate = false;
   isCreating = false;
   deletingId: string | number | null = null;
   createModel: any = {
-     name: '', 
-     contractEmail: '', 
-     contractPhone: ''
-     };
+    name: '',
+    address: '',
+    phone: '',
+    email: ''
+  };
   createMessage = '';
   createSuccess = false;
   private routerSubscription?: Subscription;
 
   constructor(
-    private readonly tenantsService: TenantsService,
+    private readonly storesService: StoresService,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
     this.routerSubscription = this.router.events.subscribe(() => {
-      // Wait for navigation to complete
       setTimeout(() => {
         if (!this.isLoading) {
           this.load();
@@ -55,16 +55,16 @@ export class TenantsComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.isLoading = true;
 
-    this.tenantsService
+    this.storesService
       .getAll()
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (data: any) => {
           const list = Array.isArray(data) ? data : (data?.items ?? data?.data ?? []);
-          this.tenants = Array.isArray(list) ? list : [];
+          this.stores = Array.isArray(list) ? list : [];
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || 'Tenant listesi alınamadı.';
+          this.errorMessage = err?.error?.message || 'Mağaza listesi alınamadı.';
         }
       });
   }
@@ -80,7 +80,7 @@ export class TenantsComponent implements OnInit, OnDestroy {
     this.showCreate = true;
     this.createMessage = '';
     this.createSuccess = false;
-    this.createModel = { name: '', contractEmail: '', contractPhone: '' };
+    this.createModel = { name: '', address: '', phone: '', email: '' };
   }
 
   closeCreate(): void {
@@ -93,28 +93,28 @@ export class TenantsComponent implements OnInit, OnDestroy {
   onCreate(): void {
     if (this.isCreating) return;
     this.isCreating = true;
-    this.tenantsService
+    this.storesService
       .create(this.createModel)
       .pipe(finalize(() => (this.isCreating = false)))
       .subscribe({
         next: () => {
-          this.createMessage = 'Kiracı başarıyla oluşturuldu.';
+          this.createMessage = 'Mağaza başarıyla oluşturuldu.';
           this.createSuccess = true;
-          this.createModel = { name: '', contractEmail: '', contractPhone: '' };
+          this.createModel = { name: '', address: '', phone: '', email: '' };
           this.load();
         },
         error: (err) => {
-          this.createMessage = err?.error?.message || 'Tenant oluşturulamadı.';
+          this.createMessage = err?.error?.message || 'Mağaza oluşturulamadı.';
           this.createSuccess = false;
         }
       });
   }
 
-  onDelete(t: any): void {
-    const id = this.getId(t);
+  onDelete(s: any): void {
+    const id = this.getId(s);
     if (id == null || this.deletingId != null) return;
     this.deletingId = id;
-    this.tenantsService
+    this.storesService
       .delete(id)
       .pipe(finalize(() => (this.deletingId = null)))
       .subscribe({
@@ -122,12 +122,12 @@ export class TenantsComponent implements OnInit, OnDestroy {
           this.load();
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || 'Tenant silinemedi.';
+          this.errorMessage = err?.error?.message || 'Mağaza silinemedi.';
         }
       });
   }
 
-  getId(t: any): string | number | null {
-    return t?.id ?? t?.tenantId ?? t?.tenantID ?? null;
+  getId(s: any): string | number | null {
+    return s?.id ?? s?.storeId ?? s?.storeID ?? null;
   }
 }

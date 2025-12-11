@@ -1,7 +1,6 @@
 ﻿using eLonca.Application.Commands.StoreCommands.StoreCreate;
+using eLonca.Application.Queries.StoreQueries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
@@ -20,6 +19,13 @@ namespace eLonca.Api.Controllers
         public async Task<IActionResult> Create(StoreCreateCommand command)
         {
             var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetAll(GetAllStoreQueryResponse getAllStoreQueryResponse)
+        {
+            var result=await _mediator.Send(getAllStoreQueryResponse);
             return Ok(result);
         }
     }
