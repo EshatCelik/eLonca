@@ -1,0 +1,95 @@
+<div class="tenants-page">
+  <h1>Tenantlar</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+      Yeni Kiracı Ekle
+    </button> 
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (showCreate) {
+    <div class="modal-overlay" (click)="closeCreate()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Yeni Kiracı Oluştur</h2>
+          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="create-form" (ngSubmit)="onCreate()">
+            <label>
+              Ad
+              <input type="text" name="name" [(ngModel)]="createModel.name" required />
+            </label>
+            <label>
+              Email
+              <input type="email" name="contractEmail" [(ngModel)]="createModel.contractEmail" required />
+            </label>
+            <label>
+              Telefon
+              <input type="text" name="contractPhone" [(ngModel)]="createModel.contractPhone" />
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name || !createModel.contractEmail">
+                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+                İptal
+              </button>
+            </div>
+          </form>
+          @if (createMessage) {
+            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
+              {{ createMessage }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && tenants.length === 0 && !errorMessage) {
+    <p>Gösterilecek tenant bulunamadı.</p>
+  }
+
+  @if (tenants.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Kiracı Ad</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Plan</th>
+            <th>Durum</th>
+            <th>Maks. Kullanıcı</th>
+            <th>Maks. Mağaza</th>
+            <th>Bit. Tarihi</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of tenants; track $index) {
+            <tr>
+              <td>{{ t.name || '-' }}</td>
+              <td>{{ t.contractEmail || '-' }}</td>
+              <td>{{ t.contractPhone || '-' }}</td>
+              <td>{{ t.tenantPlan || '-' }}</td>
+              <td>{{ statusLabel(t.status) }}</td>
+              <td>{{ t.maxUser ?? t.maxUsers ?? '-' }}</td>
+              <td>{{ t.maxStores ?? '-' }}</td>
+              <td>{{ (t.subscriptionEndDate || t.subscriptionEnd) || '-' }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" (click)="onDelete(t)" [disabled]="deletingId === getId(t) || isLoading">
+                  {{ deletingId === getId(t) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

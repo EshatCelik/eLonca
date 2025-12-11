@@ -1,0 +1,86 @@
+<div class="categories-page">
+  <h1>Kategoriler</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+      Yeni Kategori
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
+    </button>
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (showCreate) {
+    <div class="modal-overlay" (click)="closeCreate()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Yeni Kategori Oluştur</h2>
+          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="create-form" (ngSubmit)="onCreate()">
+            <label>
+              Kategori Adı
+              <input type="text" name="name" [(ngModel)]="createModel.name" required />
+            </label>
+            <label>
+              Açıklama
+              <textarea name="description" [(ngModel)]="createModel.description" rows="3"></textarea>
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name">
+                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+                İptal
+              </button>
+            </div>
+          </form>
+          @if (createMessage) {
+            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
+              {{ createMessage }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && categories.length === 0 && !errorMessage) {
+    <p>Gösterilecek kategori bulunamadı.</p>
+  }
+
+  @if (categories.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Kategori Adı</th>
+            <th>Açıklama</th>
+            <th>Durum</th>
+            <th>Oluşturulma Tarihi</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of categories; track $index) {
+            <tr>
+              <td>{{ c.name || '-' }}</td>
+              <td>{{ c.description || '-' }}</td>
+              <td>{{ statusLabel(c.status) }}</td>
+              <td>{{ (c.createdAt || c.createdDate) || '-' }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" (click)="onDelete(c)" [disabled]="deletingId === getId(c) || isLoading">
+                  {{ deletingId === getId(c) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

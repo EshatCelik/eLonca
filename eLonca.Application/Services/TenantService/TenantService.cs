@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using eLonca.Common.Models;
+using eLonca.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace eLonca.Application.Services.TenantService
 {
@@ -10,20 +12,21 @@ namespace eLonca.Application.Services.TenantService
         {
             _httpContextAccessor = httpContextAccessor;
         }
-        public Guid GetTenantId()
+        public Result<Guid> GetTenantId()
         {
             try
             {
 
-            var host = _httpContextAccessor.HttpContext?.Request.Host.Host;
-            var tenantId = host?.Split('.')[0];
-            if (tenantId == null)
-                tenantId = _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value;
-            return Guid.Parse(tenantId);
+                var tenant = _httpContextAccessor.HttpContext?.User?.Claims?.FirstOrDefault(x => x.Type == "TenantId").Value;
+
+                if (tenant == null)
+                    return Result<Guid>.Failure(null, "tenant ıdbulunamadı", 400);
+                return Result<Guid>.Success(Guid.Parse(tenant), "tenant ıd", 400);
             }
             catch (Exception)
             {
-                 return Guid.Empty;
+                return Result<Guid>.Failure(null, "tenant ıd bulunamadı", 400);
+
             }
         }
     }

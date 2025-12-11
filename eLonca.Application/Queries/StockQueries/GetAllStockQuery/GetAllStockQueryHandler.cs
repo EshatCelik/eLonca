@@ -20,7 +20,7 @@ namespace eLonca.Application.Queries.StockQueries.GetAllStockQuery
 
         public async Task<Result<List<StockMovement>>> Handle(GetAllStockQuery request, CancellationToken cancellationToken)
         {
-            var stock = await _stockRepository.GetAllAsync(x => x.TenantId == _tenantService.GetTenantId(), cancellationToken);
+            var stock = await _stockRepository.GetAllAsync(x => x.TenantId == _tenantService.GetTenantId().Data, cancellationToken);
             return stock;
         }
     }

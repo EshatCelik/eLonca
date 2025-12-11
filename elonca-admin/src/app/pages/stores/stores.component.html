@@ -1,0 +1,98 @@
+<div class="stores-page">
+  <h1>Mağazalar</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+      Yeni Mağaza
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
+    </button>
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (showCreate) {
+    <div class="modal-overlay" (click)="closeCreate()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Yeni Mağaza Oluştur</h2>
+          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="create-form" (ngSubmit)="onCreate()">
+            <label>
+              Mağaza Adı
+              <input type="text" name="name" [(ngModel)]="createModel.name" required />
+            </label>
+            <label>
+              Adres
+              <textarea name="address" [(ngModel)]="createModel.address" rows="3"></textarea>
+            </label>
+            <label>
+              Telefon
+              <input type="text" name="phone" [(ngModel)]="createModel.phone" />
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" [(ngModel)]="createModel.email" />
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name">
+                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+                İptal
+              </button>
+            </div>
+          </form>
+          @if (createMessage) {
+            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
+              {{ createMessage }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && stores.length === 0 && !errorMessage) {
+    <p>Gösterilecek mağaza bulunamadı.</p>
+  }
+
+  @if (stores.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Mağaza Adı</th>
+            <th>Adres</th>
+            <th>Telefon</th>
+            <th>Email</th>
+            <th>Durum</th>
+            <th>Oluşturulma Tarihi</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of stores; track $index) {
+            <tr>
+              <td>{{ s.name || s.storeName || '-' }}</td>
+              <td>{{ s.address || '-' }}</td>
+              <td>{{ s.phone || s.phoneNumber || '-' }}</td>
+              <td>{{ s.email || '-' }}</td>
+              <td>{{ statusLabel(s.status) }}</td>
+              <td>{{ (s.createdAt || s.createdDate) || '-' }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" (click)="onDelete(s)" [disabled]="deletingId === getId(s) || isLoading">
+                  {{ deletingId === getId(s) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -4,14 +4,14 @@ import { Observable, map } from 'rxjs';
 import { BaseService } from '../../core/base.service';
 
 @Injectable({ providedIn: 'root' })
-export class TenantsService extends BaseService {
+export class UsersService extends BaseService {
   constructor(http: HttpClient) {
     super(http);
   }
 
   getAll(payload?: any): Observable<any[]> {
     const body = payload ?? {};
-    return this.post<any>('Tenant/GetAll', body).pipe(
+    return this.post<any>('User/GetAll', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
           throw new Error(res?.message || 'İstek başarısız');
@@ -30,11 +30,11 @@ export class TenantsService extends BaseService {
   }
 
   create(payload: any): Observable<any> {
-    return this.post<any>('Tenant/Create', payload);
+    return this.post<any>('User/Create', payload);
   }
 
   override delete(id: string | number): Observable<any> {
     const body = { id } as any;
-    return this.post<any>('Tenant/Delete', body);
+    return this.post<any>('User/Delete', body);
   }
 }
