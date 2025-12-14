@@ -1,4 +1,5 @@
-﻿using eLonca.Domain.Entities.BaseEntities; 
+﻿using eLonca.Common;
+using eLonca.Domain.Entities.BaseEntities; 
 
 namespace eLonca.Domain.Entities
 {
@@ -16,28 +17,5 @@ namespace eLonca.Domain.Entities
         public Tenant Tenant { get; set; } = null!;
         public Guid CustomerId { get; set; }
         public StoreCustomer Customer { get; set; } = null!;
-    }
-
-    public enum PaymentType
-    {
-        Cash = 1,
-        CreditCard = 2,
-        BankTransfer = 3,
-        Credit = 4
-    }
-
-    public enum PaymentStatus
-    {
-        Unpaid = 1,
-        Partial = 2,
-        Paid = 3
-    }
-
-    public enum PaymentMethod
-    {
-        Cash = 1,
-        CreditCard = 2,
-        BankTransfer = 3,
-        Check = 4
     }
 }

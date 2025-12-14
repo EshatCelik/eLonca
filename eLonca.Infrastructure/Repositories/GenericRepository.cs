@@ -77,7 +77,7 @@ namespace eLonca.Infrastructure.Repositories
         public async Task<Result<List<T>>> GetAllAsync(Expression<Func<T, bool>> predicate = null, CancellationToken cancellationToken = default)
         {
             var list = await _dbSet.Where(predicate).ToListAsync();
-            return Result<List<T>>.Success(await _dbSet.ToListAsync(), "Liste başarılı", 200);
+            return Result<List<T>>.Success(list, "Liste başarılı", 200);
         }
 
         public async Task<Result<T>> GetByIdAsync(Guid? Id)

@@ -1,10 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { UsersService } from './users.service';
 import { StoresService } from '../stores/stores.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-users-page',
@@ -13,7 +12,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
 })
-export class UsersComponent implements OnInit, OnDestroy {
+export class UsersComponent implements OnInit {
   users: any[] = [];
   stores: any[] = [];
   isLoading = false;
@@ -33,7 +32,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   };
   createMessage = '';
   createSuccess = false;
-  private routerSubscription?: Subscription;
 
   constructor(
     private readonly usersService: UsersService,
@@ -42,20 +40,8 @@ export class UsersComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.routerSubscription = this.router.events.subscribe(() => {
-      setTimeout(() => {
-        if (!this.isLoading) {
-          this.load();
-          this.loadStores();
-        }
-      }, 50);
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.load();
+    this.loadStores();
   }
 
   load(): void {
@@ -176,5 +162,19 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   getId(u: any): string | number | null {
     return u?.id ?? u?.userId ?? u?.userID ?? null;
+  }
+
+  onRowClick(user: any, event?: MouseEvent): void {
+    if (event && (event.target as HTMLElement).closest('button')) {
+      return;
+    }
+    
+    event?.preventDefault();
+    event?.stopPropagation();
+    
+    const id = this.getId(user);
+    if (id != null) {
+      this.router.navigate([`/admin/users/${id}/edit`]);
+    }
   }
 }

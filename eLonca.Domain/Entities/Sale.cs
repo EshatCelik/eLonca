@@ -1,10 +1,6 @@
-﻿using eLonca.Domain.Entities.BaseEntities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using eLonca.Common;
+using eLonca.Domain.Entities.BaseEntities;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace eLonca.Domain.Entities
 {

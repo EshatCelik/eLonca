@@ -1,0 +1,118 @@
+<div class="customers-page">
+  <h1>Müşteriler</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+      Yeni Müşteri
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
+    </button>
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (showCreate) {
+    <div class="modal-overlay" (click)="closeCreate()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Yeni Müşteri Oluştur</h2>
+          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="create-form" (ngSubmit)="onCreate()">
+            <label>
+              Müşteri Codu
+              <input type="text" name="name" [(ngModel)]="createModel.customerCode" required />
+            </label>
+            <label>
+              Müşteri Adı
+              <input type="text" name="taxNumber" [(ngModel)]="createModel.firstName" />
+            </label>
+            <label>
+              Müşteri Soyadı
+              <input type="text" name="taxNumber" [(ngModel)]="createModel.lastName" />
+            </label>
+            <label>
+              Müşteri Tipi
+              <input type="text" name="taxNumber" [(ngModel)]="createModel.customerType" />
+            </label>
+            <label>
+              Müşteri İndirimi
+              <input type="text" name="taxNumber" [(ngModel)]="createModel.discountRate" />
+            </label>
+            <label>
+              Telefon
+              <input type="text" name="phone" [(ngModel)]="createModel.phoneNumber" />
+            </label>
+            <label>
+              Email
+              <input type="email" name="email" [(ngModel)]="createModel.email" />
+            </label>
+            <label>
+              Adres
+              <textarea name="address" [(ngModel)]="createModel.address" rows="3"></textarea>
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name">
+                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+                İptal
+              </button>
+            </div>
+          </form>
+          @if (createMessage) {
+            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
+              {{ createMessage }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && customers.length === 0 && !errorMessage) {
+    <p>Gösterilecek müşteri bulunamadı.</p>
+  }
+
+  @if (customers.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Müşteri Codu</th>
+            <th>Müşteri Adı</th>
+            <th>Müşteri Soyadı</th> 
+            <th>Telefon</th>
+            <th>Email</th>
+            <th>Adres</th>
+            <th>Durum</th>
+            <th>Kayıt Tarihi</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of customers; track $index) {
+            <tr (click)="onRowClick(c, $event)" [class.clickable-row]="true">
+              <td>{{ c.customerCode || '-' }}</td>
+              <td>{{ c.firstName || '-' }}</td>
+              <td>{{ c.lastName || '-' }}</td>
+              <td>{{ c.phoneNumber || '-' }}</td>
+              <td>{{ c.email || c.tcNumber || '-' }}</td>  
+              <td>{{ c.address || '-' }}</td>
+              <td>{{ statusLabel(c.customerType) }}</td>
+              <td>{{ (c.createAt || c.createdDate) || '-' }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" (click)="onDelete(c)" [disabled]="deletingId === getId(c) || isLoading">
+                  {{ deletingId === getId(c) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

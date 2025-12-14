@@ -1,0 +1,49 @@
+<div class="e-ledger-page">
+  <h1>e-Defter</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
+    </button>
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (!isLoading && entries.length === 0 && !errorMessage) {
+    <p>Gösterilecek e-defter kaydı bulunamadı.</p>
+  }
+
+  @if (entries.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Tarih</th>
+            <th>Belge No</th>
+            <th>Açıklama</th>
+            <th>Borç</th>
+            <th>Alacak</th>
+            <th>Bakiye</th>
+            <th>Hesap Kodu</th>
+            <th>İşlem Türü</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of entries; track $index) {
+            <tr>
+              <td>{{ entry.date || '-' }}</td>
+              <td>{{ entry.documentNumber || '-' }}</td>
+              <td>{{ entry.description || '-' }}</td>
+              <td class="debit">{{ entry.debit || '-' }}</td>
+              <td class="credit">{{ entry.credit || '-' }}</td>
+              <td class="balance">{{ entry.balance || '-' }}</td>
+              <td>{{ entry.accountCode || '-' }}</td>
+              <td>{{ transactionTypeLabel(entry.transactionType) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

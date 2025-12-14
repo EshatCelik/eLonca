@@ -1,5 +1,6 @@
 ﻿using eLonca.Application.Commands.StoreCommands.StoreCreate;
-using eLonca.Application.Queries.StoreQueries;
+using eLonca.Application.Queries.StoreQueries.GetAllStore;
+using eLonca.Application.Queries.StoreQueries.GetStoreById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +28,12 @@ namespace eLonca.Api.Controllers
         {
             var result=await _mediator.Send(getAllStoreQueryResponse);
             return Ok(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult>GetById(GetStoreByIdQueryResponse getStoreByIdQueryResponse)
+        {
+            var response = await _mediator.Send(getStoreByIdQueryResponse);
+            return Ok(response);
         }
     }
 }

@@ -103,7 +103,7 @@
         </thead>
         <tbody>
           @for (u of users; track $index) {
-            <tr>
+            <tr (click)="onRowClick(u, $event)" [class.clickable-row]="true">
               <td>{{ u.name || '-' }}</td>
               <td>{{ u.email || '-' }}</td>
               <td>{{ u.phone || '-' }}</td>

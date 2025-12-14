@@ -72,7 +72,7 @@
         </thead>
         <tbody>
           @for (t of tenants; track $index) {
-            <tr>
+            <tr (click)="onRowClick(t, $event)" [class.clickable-row]="true">
               <td>{{ t.name || '-' }}</td>
               <td>{{ t.contractEmail || '-' }}</td>
               <td>{{ t.contractPhone || '-' }}</td>
