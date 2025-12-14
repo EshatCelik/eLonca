@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { DetailModalComponent } from '../../shared/components/detail-modal/detail-modal.component';
 import { StoresService } from './stores.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-stores-page',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './stores.component.html',
-  styleUrl: './stores.component.scss'
+  styleUrls: ['./stores.component.scss']
 })
-export class StoresComponent implements OnInit, OnDestroy {
+export class StoresComponent implements OnInit {
   stores: any[] = [];
   isLoading = false;
   errorMessage = '';
@@ -27,7 +27,6 @@ export class StoresComponent implements OnInit, OnDestroy {
   };
   createMessage = '';
   createSuccess = false;
-  private routerSubscription?: Subscription;
 
   constructor(
     private readonly storesService: StoresService,
@@ -35,19 +34,7 @@ export class StoresComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.routerSubscription = this.router.events.subscribe(() => {
-      setTimeout(() => {
-        if (!this.isLoading) {
-          this.load();
-        }
-      }, 50);
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.load();
   }
 
   load(): void {
@@ -129,5 +116,19 @@ export class StoresComponent implements OnInit, OnDestroy {
 
   getId(s: any): string | number | null {
     return s?.id ?? s?.storeId ?? s?.storeID ?? null;
+  }
+
+  onRowClick(store: any, event?: MouseEvent): void {
+    if (event && (event.target as HTMLElement).closest('button')) {
+      return;
+    }
+    
+    event?.preventDefault();
+    event?.stopPropagation();
+    
+    const id = this.getId(store);
+    if (id != null) {
+      this.router.navigate([`/admin/stores/${id}/edit`]);
+    }
   }
 }

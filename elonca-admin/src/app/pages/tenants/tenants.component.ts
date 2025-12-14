@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DetailModalComponent } from '../../shared/components/detail-modal/detail-modal.component';
 import { TenantsService } from './tenants.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -30,7 +32,8 @@ export class TenantsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly tenantsService: TenantsService,
-    private readonly router: Router
+    private readonly router: Router,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -129,5 +132,23 @@ export class TenantsComponent implements OnInit, OnDestroy {
 
   getId(t: any): string | number | null {
     return t?.id ?? t?.tenantId ?? t?.tenantID ?? null;
+  }
+
+  onRowClick(tenant: any, event?: MouseEvent): void {
+    if (event && (event.target as HTMLElement).closest('button')) {
+      return;
+    }
+    
+    event?.preventDefault();
+    event?.stopPropagation();
+    
+    const modalRef = this.modalService.open(DetailModalComponent, { 
+      size: 'sm',
+      centered: true,
+      backdrop: 'static'
+    });
+    
+    modalRef.componentInstance.title = 'Kiracı Detayları';
+    modalRef.componentInstance.data = tenant;
   }
 }

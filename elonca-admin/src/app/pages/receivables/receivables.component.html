@@ -1,0 +1,103 @@
+<div class="receivables-page">
+  <h1>Alacaklar</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+      Yeni Alacak
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
+    </button>
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (showCreate) {
+    <div class="modal-overlay" (click)="closeCreate()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Yeni Alacak Oluştur</h2>
+          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="create-form" (ngSubmit)="onCreate()">
+            <label>
+              Müşteri
+              <select name="customerId" [(ngModel)]="createModel.customerId" required>
+                <option value="">Müşteri seçin</option>
+                @for (customer of customers; track customer.id) {
+                  <option [value]="customer.id">{{ customer.name }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              Açıklama
+              <textarea name="description" [(ngModel)]="createModel.description" rows="3" required></textarea>
+            </label>
+            <label>
+              Tutar
+              <input type="number" name="amount" [(ngModel)]="createModel.amount" required />
+            </label>
+            <label>
+              Vade Tarihi
+              <input type="date" name="dueDate" [(ngModel)]="createModel.dueDate" required />
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.customerId || !createModel.description || !createModel.amount || !createModel.dueDate">
+                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+                İptal
+              </button>
+            </div>
+          </form>
+          @if (createMessage) {
+            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
+              {{ createMessage }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && receivables.length === 0 && !errorMessage) {
+    <p>Gösterilecek alacak bulunamadı.</p>
+  }
+
+  @if (receivables.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Müşteri</th>
+            <th>Açıklama</th>
+            <th>Tutar</th>
+            <th>Vade Tarihi</th>
+            <th>Durum</th>
+            <th>Oluşturulma Tarihi</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of receivables; track $index) {
+            <tr>
+              <td>{{ r.customerName || r.customer?.name || '-' }}</td>
+              <td>{{ r.description || '-' }}</td>
+              <td>{{ r.amount || '-' }}</td>
+              <td>{{ r.dueDate || '-' }}</td>
+              <td>{{ statusLabel(r.status) }}</td>
+              <td>{{ (r.createdAt || r.createdDate) || '-' }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" (click)="onDelete(r)" [disabled]="deletingId === getId(r) || isLoading">
+                  {{ deletingId === getId(r) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

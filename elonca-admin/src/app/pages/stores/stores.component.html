@@ -77,7 +77,7 @@
         </thead>
         <tbody>
           @for (s of stores; track $index) {
-            <tr>
+            <tr (click)="onRowClick(s, $event)" [class.clickable-row]="true">
               <td>{{ s.name || s.storeName || '-' }}</td>
               <td>{{ s.address || '-' }}</td>
               <td>{{ s.phone || s.phoneNumber || '-' }}</td>

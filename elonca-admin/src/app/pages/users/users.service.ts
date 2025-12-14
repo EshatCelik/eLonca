@@ -33,6 +33,24 @@ export class UsersService extends BaseService {
     return this.post<any>('User/Create', payload);
   }
 
+  getById(id: string | number): Observable<any> {
+    const body = { id } as any;
+    return this.post<any>('User/GetById', body).pipe(
+      map((res: any) => {
+        if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
+          throw new Error(res?.message || 'İstek başarısız');
+        }
+        // API response format: { isSuccess: true, data: {...}, message: "...", errors: [], statusCode: 200 }
+        return res?.data || res;
+      })
+    );
+  }
+
+  update(id: string | number, payload: any): Observable<any> {
+    const body = { id, ...payload } as any;
+    return this.post<any>('User/Update', body);
+  }
+
   override delete(id: string | number): Observable<any> {
     const body = { id } as any;
     return this.post<any>('User/Delete', body);

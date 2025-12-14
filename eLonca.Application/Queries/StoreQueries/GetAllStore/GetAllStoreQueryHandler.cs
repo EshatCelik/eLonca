@@ -4,7 +4,7 @@ using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
-namespace eLonca.Application.Queries.StoreQueries
+namespace eLonca.Application.Queries.StoreQueries.GetAllStore
 {
     public class GetAllStoreQueryHandler : IRequestHandler<GetAllStoreQueryResponse, Result<List<Store>>>
     {

@@ -1,7 +1,9 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.DTOs;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace eLonca.Infrastructure.Repositories
 {
@@ -21,6 +23,12 @@ namespace eLonca.Infrastructure.Repositories
                 return Result<StoreCustomer>.Failure(null, "Müşteri bulunamadı", 400);
             }
             return Result<StoreCustomer>.Success(customer, "Müşteri bulundu", 200);
+        }
+
+        public async Task<Result<List<Sale>>> GetAllSales(Guid tenantId, CancellationToken cancellationToken)
+        { 
+            var sales= _dbContext.Sales.Where(x=>x.TenantId==tenantId).Include(x=>x.SaleItems).ToList(); 
+            return Result<List<Sale>>.Success(sales, "Satış listesi", 200);
         }
 
         public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list, Guid storeId, Guid customerId)

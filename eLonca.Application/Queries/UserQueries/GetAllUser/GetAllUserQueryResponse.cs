@@ -2,7 +2,7 @@
 using eLonca.Domain.Entities;
 using MediatR;
 
-namespace eLonca.Application.Queries.UserQueries
+namespace eLonca.Application.Queries.UserQueries.GetAllUser
 {
     public class GetAllUserQueryResponse:IRequest<Result<List<User>>>
     {

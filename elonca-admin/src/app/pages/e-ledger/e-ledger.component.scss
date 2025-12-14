@@ -1,0 +1,84 @@
+.e-ledger-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.error {
+  color: #b00020;
+  font-weight: 500;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  &:hover:not(:disabled) {
+    background-color: #5a6268;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+}
+
+.table-wrapper {
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead th {
+  text-align: left;
+  background: #f9fafb;
+  color: #374151;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+}
+
+.table tbody td {
+  padding: 10px 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.table .debit {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.table .credit {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.table .balance {
+  font-weight: 600;
+  color: #495057;
+}

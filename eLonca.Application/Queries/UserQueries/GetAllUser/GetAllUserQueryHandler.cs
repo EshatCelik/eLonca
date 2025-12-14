@@ -4,7 +4,7 @@ using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
-namespace eLonca.Application.Queries.UserQueries
+namespace eLonca.Application.Queries.UserQueries.GetAllUser
 {
     public class GetAllUserQueryHandler : IRequestHandler<GetAllUserQueryResponse, Result<List<User>>>
     {

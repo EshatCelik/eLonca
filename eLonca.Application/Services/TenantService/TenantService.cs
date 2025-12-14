@@ -17,7 +17,7 @@ namespace eLonca.Application.Services.TenantService
             try
             {
 
-                var tenant = _httpContextAccessor.HttpContext?.User?.Claims?.FirstOrDefault(x => x.Type == "TenantId").Value;
+                var tenant = _httpContextAccessor.HttpContext?.User?.Claims?.FirstOrDefault(x => x.Type == "TenantId")?.Value;
 
                 if (tenant == null)
                     return Result<Guid>.Failure(null, "tenant ıdbulunamadı", 400);

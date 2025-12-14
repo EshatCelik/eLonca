@@ -1,0 +1,74 @@
+<div class="store-edit-page">
+  <div class="header">
+    <h1>Mağaza Detayları</h1>
+    <button type="button" class="btn btn-secondary" (click)="onClose()">Kapat</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">
+      <div>Yükleniyor...</div>
+      <small>Debug: isLoading = {{ isLoading }}</small>
+      <small>Debug: store = {{ !!store }}</small>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="error">{{ errorMessage }}</div>
+  }
+
+  @if (successMessage) {
+    <div class="success">{{ successMessage }}</div>
+  }
+
+  @if (store) {
+    <div class="content">
+      <div class="info-section">
+        <h2>Mağaza Bilgileri</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Mağaza Adı:</label>
+            <input type="text" [(ngModel)]="store.storeName" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Adres:</label>
+            <textarea [(ngModel)]="store.address" class="form-input" rows="3"></textarea>
+          </div>
+          <div class="info-item">
+            <label>Telefon:</label>
+            <input type="text" [(ngModel)]="store.phone" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>E-posta:</label>
+            <input type="email" [(ngModel)]="store.email" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Vergi No:</label>
+            <input type="text" [(ngModel)]="store.taxNumber" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Durum:</label>
+            <select [(ngModel)]="store.isActive" class="form-input">
+              <option [ngValue]="true">Aktif</option>
+              <option [ngValue]="false">Pasif</option>
+            </select>
+          </div>
+          <div class="info-item">
+            <label>Oluşturulma Tarihi:</label>
+            <div class="readonly">{{ store.createAt || store.createdAt || '-' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+          {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="isSaving">
+          İptal
+        </button>
+      </div>
+    </div>
+  } @if (!store && !isLoading) {
+    <div class="error">Mağaza verisi yüklenemedi.</div>
+  }
+</div>

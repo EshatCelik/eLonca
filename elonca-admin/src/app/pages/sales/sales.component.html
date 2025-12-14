@@ -1,0 +1,109 @@
+<div class="sales-page">
+  <h1>Satışlar</h1>
+
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+      Yeni Satış
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
+    </button>
+    @if (errorMessage) {
+      <span class="error">{{ errorMessage }}</span>
+    }
+  </div>
+
+  @if (showCreate) {
+    <div class="modal-overlay" (click)="closeCreate()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Yeni Satış Oluştur</h2>
+          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="create-form" (ngSubmit)="onCreate()">
+            <label>
+              Müşteri
+              <select name="customerId" [(ngModel)]="createModel.customerId" required>
+                <option value="">Müşteri seçin</option>
+                @for (customer of customers; track customer.id) {
+                  <option [value]="customer.id">{{ customer.name }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              Ürün Adı
+              <input type="text" name="productName" [(ngModel)]="createModel.productName" required />
+            </label>
+            <label>
+              Miktar
+              <input type="number" name="quantity" [(ngModel)]="createModel.quantity" required />
+            </label>
+            <label>
+              Birim Fiyat
+              <input type="number" name="unitPrice" [(ngModel)]="createModel.unitPrice" required />
+            </label>
+            <label>
+              Toplam Tutar
+              <input type="number" name="totalAmount" [(ngModel)]="createModel.totalAmount" readonly />
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.customerId || !createModel.productName || !createModel.quantity || !createModel.unitPrice">
+                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+                İptal
+              </button>
+            </div>
+          </form>
+          @if (createMessage) {
+            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
+              {{ createMessage }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && sales.length === 0 && !errorMessage) {
+    <p>Gösterilecek satış bulunamadı.</p>
+  }
+
+  @if (sales.length > 0) {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Müşteri </th>
+            <th>Ürün Adı</th>
+            <th>Satış Miktarı</th>
+            <th>Birim Fiyat</th>
+            <th>Toplam Tutar</th>
+            <th>Tarih</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of sales; track $index) {
+            <tr>
+              <td>{{ s.customerName || s.customer?.name || '-' }}</td>
+              <td>{{ s.productName || '-' }}</td>
+              <td>{{ s.quantity || '-' }}</td>
+              <td>{{ s.unitPrice || '-' }}</td>
+              <td>{{ s.totalAmount || '-' }}</td>
+              <td>{{ (s.createdAt || s.saleDate) || '-' }}</td>
+              <td>{{ statusLabel(s.status) }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" (click)="onDelete(s)" [disabled]="deletingId === getId(s) || isLoading">
+                  {{ deletingId === getId(s) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
