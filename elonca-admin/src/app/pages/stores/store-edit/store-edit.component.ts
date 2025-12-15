@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, timeout, catchError } from 'rxjs';
 import { of } from 'rxjs';
 import { StoresService } from '../stores.service';
+import { SwalService } from '../../../core/swal.service';
 
 @Component({
   selector: 'app-store-edit',
@@ -24,7 +25,8 @@ export class StoreEditComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
-    private readonly zone: NgZone
+    private readonly zone: NgZone,
+    private readonly swalService: SwalService
   ) {}
 
   ngOnInit(): void {
@@ -72,8 +74,6 @@ export class StoreEditComponent implements OnInit {
     if (this.isSaving || !this.store) return;
     
     this.isSaving = true;
-    this.successMessage = '';
-    this.errorMessage = '';
 
     // Form'daki güncel verileri gönder
     const updateData = {
@@ -88,13 +88,16 @@ export class StoreEditComponent implements OnInit {
 
     this.storesService
       .update(this.store.id, updateData)
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => {
+        this.isSaving = false;
+        this.cdr.detectChanges(); // Change detection'ı tetikle
+      }))
       .subscribe({
         next: () => {
-          this.successMessage = 'Mağaza bilgileri başarıyla güncellendi.';
+          this.swalService.success('Başarılı!', 'Mağaza bilgileri başarıyla güncellendi.');
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || 'Mağaza güncellenemedi.';
+          this.swalService.error('Hata!', err?.error?.message || 'Mağaza güncellenemedi.');
         }
       });
   }

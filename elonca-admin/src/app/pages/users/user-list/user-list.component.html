@@ -1,0 +1,126 @@
+<div class="users-page">
+  <div class="page-header">
+    <h1>Kullanıcılar</h1>
+    <button class="add-btn" (click)="onAddUser()">
+      <span>+</span> Ekle
+    </button>
+  </div>
+  
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (!isLoading && users.length > 0) {
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Adı</th>
+          <th>Soyadı</th>
+          <th>Kullanıcı Adı</th>
+          <th>E-posta</th>
+          <th>Telefon</th>
+          <th>Rol</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.id) {
+          <tr class="user-row">
+            <td (click)="onUserClick(user)">{{ user.name || '-' }}</td>
+            <td (click)="onUserClick(user)">{{ user.lastName || '-' }}</td>
+            <td (click)="onUserClick(user)">{{ user.userName || '-' }}</td>
+            <td (click)="onUserClick(user)">{{ user.email || '-' }}</td>
+            <td (click)="onUserClick(user)">{{ user.phoneNumber || '-' }}</td>
+            <td (click)="onUserClick(user)">{{ user.userRole === 0 ? 'Admin' : user.userRole === 1 ? 'User' : user.userRole === 2 ? 'Manager' : '-' }}</td>
+            <td (click)="onUserClick(user)">{{ user.isActive ? 'Aktif' : 'Pasif' }}</td>
+            <td class="actions">
+              <button class="delete-btn" (click)="onDeleteUser(user, $event)">
+                Sil
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (!isLoading && users.length === 0) {
+    <div class="no-data">Kullanıcı bulunamadı.</div>
+  }
+
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="onCloseModal()">
+      <div class="modal-container panel-style" (click)="$event.stopPropagation()">
+        <div class="panel-header">
+          <h1>Yeni Kullanıcı Ekle</h1>
+          <button type="button" class="btn btn-secondary" (click)="onCloseModal()">İptal</button>
+        </div>
+
+        <div class="panel-content">
+          <div class="info-section">
+            <h2>Kullanıcı Bilgileri</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Adı:</label>
+                <input type="text" [(ngModel)]="createModel.name" class="form-input" placeholder="Adını girin" />
+              </div>
+              <div class="info-item">
+                <label>Soyadı:</label>
+                <input type="text" [(ngModel)]="createModel.lastName" class="form-input" placeholder="Soyadını girin" />
+              </div>
+              <div class="info-item">
+                <label>Kullanıcı Adı:</label>
+                <input type="text" [(ngModel)]="createModel.userName" class="form-input" placeholder="Kullanıcı adını girin" />
+              </div>
+              <div class="info-item">
+                <label>E-posta:</label>
+                <input type="email" [(ngModel)]="createModel.email" class="form-input" placeholder="ornek@email.com" />
+              </div>
+              <div class="info-item">
+                <label>Şifre:</label>
+                <input type="password" [(ngModel)]="createModel.password" class="form-input" placeholder="••••••••" />
+              </div>
+              <div class="info-item">
+                <label>Telefon:</label>
+                <input type="text" [(ngModel)]="createModel.phoneNumber" class="form-input" placeholder="0555 123 45 67" />
+              </div>
+              <div class="info-item">
+                <label>Rol:</label>
+                <select [(ngModel)]="createModel.userRole" class="form-input">
+                  <option value="">Rol seçin</option>
+                  <option value="0">Admin</option>
+                  <option value="1">User</option>
+                  <option value="2">Manager</option>
+                </select>
+              </div>
+              <div class="info-item">
+                <label>Mağaza:</label>
+                <select [(ngModel)]="createModel.storeId" class="form-input">
+                  <option value="">Mağaza seçin</option>
+                  @for (store of stores; track store.id) {
+                    <option [value]="store.id">{{ store.name || store.storeName }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
+              İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="onCreateUser()" [disabled]="isCreating">
+              @if (isCreating) {
+                <span class="spinner"></span>
+                Kaydediliyor...
+              } @else {
+                Kullanıcı Ekle
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

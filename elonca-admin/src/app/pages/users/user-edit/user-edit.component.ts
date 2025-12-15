@@ -1,8 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, timeout, catchError } from 'rxjs';
-import { of } from 'rxjs';
 import { UsersService } from '../users.service';
 import { StoresService } from '../../stores/stores.service';
 
@@ -17,112 +15,86 @@ export class UserEditComponent implements OnInit {
   user: any = null;
   isLoading = false;
   errorMessage = '';
-  isSaving = false;
-  successMessage = '';
   stores: any[] = [];
+  isSaving = false;
 
   constructor(
     private readonly usersService: UsersService,
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly zone: NgZone,    
     private readonly storesService: StoresService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadUser();
     this.loadStores();
   }
+
   loadStores(): void {
     this.storesService.getAll().subscribe({
       next: (data: any) => {
-        const list = Array.isArray(data) ? data : (data?.items ?? data?.data ?? []);
-        this.stores = Array.isArray(list) ? list : [];
+        this.stores = Array.isArray(data) ? data : (data?.data || []);
       },
       error: (err) => {
-        console.error('Store listesi alınamadı:', err);
+        console.error('Stores could not be loaded:', err);
       }
     });
   }
-  loadUser(): void {
-    if (this.isLoading) return;
-    
-    this.isLoading = true;
-    this.errorMessage = '';
 
+  loadUser(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.errorMessage = 'Kullanıcı ID bulunamadı.';
-      this.isLoading = false;
       return;
     }
 
-    // API çağrısı
-    this.zone.run(() => {
-      this.usersService
-        .getById(id)
-        .pipe(
-          timeout(10000),
-          catchError((err) => {
-            this.errorMessage = 'API isteği zaman aşımına uğradı veya hata oluştu.';
-            this.cdr.detectChanges();
-            return of(null);
-          })
-        )
-        .subscribe({
-          next: (data: any) => {
-            if (data) {
-              this.user = data;
-            }
-            this.isLoading = false;
-            this.cdr.detectChanges();
-          }
-        });
-    });
+    this.isLoading = true;
+    
+    // Mock data for testing
+    setTimeout(() => {
+      this.user = {
+        id: id,
+        name: 'Test',
+        lastName: 'User',
+        userName: 'test.user',
+        email: 'test@example.com',
+        phoneNumber: '123456789',
+        userRole: 1,
+        isActive: true,
+        storeId: '',
+        createAt: new Date().toISOString()
+      };
+      this.isLoading = false;
+      console.log('=== Mock user loaded ===', this.user);
+    }, 1000);
   }
 
   onUpdate(): void {
-    if (this.isSaving || !this.user) return;
-    
-    this.isSaving = true;
-    this.successMessage = '';
-    this.errorMessage = '';
+    if (!this.user) return;
 
-    // Form'daki güncel verileri gönder
+    this.isSaving = true;
+
     const updateData = {
       id: this.user.id,
       name: this.user.name,
-      lastName:this.user.lastName,
+      lastName: this.user.lastName,
       email: this.user.email,
       phoneNumber: this.user.phoneNumber,
-      userName:this.user.userName,
-      password: this.user.password, // Şifre değiştirilmişse gönder
+      userName: this.user.userName,
       userRole: this.user.userRole,
       isActive: this.user.isActive,
-      storeId:this.user.storeId
+      storeId: this.user.storeId
     };
 
-    this.usersService
-      .update(this.user.id, updateData)
-      .pipe(finalize(() => (this.isSaving = false)))
-      .subscribe({
-        next: () => {
-          this.successMessage = 'Kullanıcı bilgileri başarıyla güncellendi.';
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Kullanıcı güncellenemedi.';
-        }
-      });
+    // Mock update
+    setTimeout(() => {
+      alert('Kullanıcı başarıyla güncellendi (mock)!');
+      this.isSaving = false;
+      this.router.navigate(['/admin/users']);
+    }, 1000);
   }
 
   onClose(): void {
     this.router.navigate(['/admin/users']);
-  }
-
-  statusLabel(v: any): string {
-    if (v === true || v === 'true' || v === 1) return 'Aktif';
-    if (v === false || v === 'false' || v === 0) return 'Pasif';
-    return v ?? '-';
   }
 }

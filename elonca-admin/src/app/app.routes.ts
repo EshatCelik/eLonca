@@ -4,8 +4,8 @@ import { LoginComponent } from './pages/auth/login.component';
 import { RegisterComponent } from './pages/auth/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { TenantsComponent } from './pages/tenants/tenants.component';
-import { UsersComponent } from './pages/users/users.component';
-import { UserEditComponent } from './pages/users/user-edit/user-edit.component';
+import { UserListComponent } from './pages/users/user-list/user-list.component';
+import { UserInfo } from './pages/users/user-info/user-info';
 import { StoresComponent } from './pages/stores/stores.component';
 import { StoreEditComponent } from './pages/stores/store-edit/store-edit.component';
 import { CategoriesComponent } from './pages/categories/categories.component';
@@ -31,8 +31,8 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'tenants', component: TenantsComponent },
-      { path: 'users', component: UsersComponent },
-      { path: 'users/:id/edit', component: UserEditComponent },
+      { path: 'users', component: UserListComponent },
+      { path: 'users/:id/edit', component: UserInfo },
       { path: 'stores', component: StoresComponent },
       { path: 'stores/:id/edit', component: StoreEditComponent },
       { path: 'categories', component: CategoriesComponent },

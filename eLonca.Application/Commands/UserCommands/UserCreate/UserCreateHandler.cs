@@ -33,7 +33,7 @@ namespace eLonca.Application.Commands.UserCommands.UserCreate
                 Email = request.Email,
                 Name = request.Name,
                 LastName = request.LastName,
-                UserRole = request.UserRole ?? UserRole.User,
+                UserRole = request.UserRole != null ? Enum.Parse<UserRole>(request.UserRole) : UserRole.User,
                 PhoneNumber = request.PhoneNumber,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 RefreshTokenExpiry = DateTime.Now.AddDays(7),

@@ -21,7 +21,7 @@ namespace eLonca.Application.Commands.UserCommands.UserDelete
         }
         public async Task<Result<User>> Handle(UserDeleteCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
+            var user = await _userRepository.GetByIdAsync(request.Id);
             if (!user.IsSuccess)
             {
                 return user;
