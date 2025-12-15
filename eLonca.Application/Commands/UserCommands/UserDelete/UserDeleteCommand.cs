@@ -6,6 +6,6 @@ namespace eLonca.Application.Commands.UserCommands.UserDelete
 {
     public class UserDeleteCommand:IRequest<Result<User>>
     {
-        public Guid UserId { get; set; }
+        public Guid Id { get; set; }
     }
 }

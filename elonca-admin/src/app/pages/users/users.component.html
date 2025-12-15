@@ -1,124 +1,32 @@
 <div class="users-page">
-  <h1>Kullanıcılar</h1>
-
-  <div class="toolbar">
-    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
-      Yeni Kullanıcı
-    </button>
-    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
-      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
-    </button>
-    @if (errorMessage) {
-      <span class="error">{{ errorMessage }}</span>
-    }
+  <div class="page-header">
+    <h1>Kullanıcı Yönetimi</h1>
   </div>
+  
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
 
-  @if (showCreate) {
-    <div class="modal-overlay" (click)="closeCreate()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Yeni Kullanıcı Oluştur</h2>
-          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+  @if (!isLoading && users.length > 0) {
+    <div class="users-grid">
+      @for (user of users; track user.id) {
+        <div class="user-card">
+          <div class="user-info">
+            <h3>{{ user.name || '-' }} {{ user.lastName || '-' }}</h3>
+            <p>@{{ user.userName || '-' }}</p>
+            <p>{{ user.email || '-' }}</p>
+            <span class="role-badge" [class.admin]="user.userRole === 0" [class.manager]="user.userRole === 2">
+              {{ user.userRole === 0 ? 'Admin' : user.userRole === 1 ? 'User' : user.userRole === 2 ? 'Manager' : '-' }}
+            </span>
+          </div>
         </div>
-        <div class="modal-body">
-          <form class="create-form" (ngSubmit)="onCreate()">
-            <label>
-               Adı
-              <input type="text" name="name" [(ngModel)]="createModel.name" required />
-            </label>
-            <label>
-               Soyadı
-              <input type="text" name="name" [(ngModel)]="createModel.lastName" required />
-            </label>
-            <label>
-              Kullanıcı Adı
-              <input type="text" name="name" [(ngModel)]="createModel.userName" required />
-            </label>
-            <label>
-              Password
-              <input type="email" name="email" [(ngModel)]="createModel.password" required />
-            </label>
-            <label>
-              Email
-              <input type="email" name="email" [(ngModel)]="createModel.email" required />
-            </label>
-            <label>
-              Telefon Numarası
-              <input type="text" name="phone" [(ngModel)]="createModel.phoneNumber" />
-            </label>
-            <label>
-              Rol
-              <select name="role" [(ngModel)]="createModel.role" required>
-                <option value="">Rol seçin</option>
-                <option value="admin">Admin</option>
-                <option value="user">Kullanıcı</option>
-                <option value="manager">Yönetici</option>
-              </select>
-            </label>
-            <label>
-              Mağaza
-              <select name="storeId" [(ngModel)]="createModel.storeId" required>
-                <option value="">Mağaza seçin</option>
-                @for (store of stores; track store.id) {
-                  <option [value]="store.id">{{ store.name || store.storeName }}</option>
-                }
-              </select>
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name || !createModel.lastName || !createModel.userName || !createModel.password || !createModel.email || !createModel.role || !createModel.storeId">
-                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
-                İptal
-              </button>
-            </div>
-          </form>
-          @if (createMessage) {
-            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
-              {{ createMessage }}
-            </div>
-          }
-        </div>
-      </div>
+      }
     </div>
   }
 
-  @if (!isLoading && users.length === 0 && !errorMessage) {
-    <p>Gösterilecek kullanıcı bulunamadı.</p>
-  }
-
-  @if (users.length > 0) {
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Ad</th>
-            <th>Email</th>
-            <th>Telefon</th>
-            <th>Rol</th>
-            <th>Durum</th>
-            <th>Kayıt Tarihi</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (u of users; track $index) {
-            <tr (click)="onRowClick(u, $event)" [class.clickable-row]="true">
-              <td>{{ u.name || '-' }}</td>
-              <td>{{ u.email || '-' }}</td>
-              <td>{{ u.phone || '-' }}</td>
-              <td>{{ roleLabel(u.role) }}</td>
-              <td>{{ statusLabel(u.status) }}</td>
-              <td>{{ (u.createdAt || u.createdDate) || '-' }}</td>
-              <td>
-                <button type="button" class="btn btn-danger" (click)="onDelete(u)" [disabled]="deletingId === getId(u) || isLoading">
-                  {{ deletingId === getId(u) ? 'Siliniyor...' : 'Sil' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  @if (!isLoading && users.length === 0) {
+    <div class="no-data">
+      <p>Kullanıcı bulunamadı.</p>
     </div>
   }
 </div>

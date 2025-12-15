@@ -5,19 +5,7 @@
   </div>
 
   @if (isLoading) {
-    <div class="loading">
-      <div>Yükleniyor...</div>
-      <small>Debug: isLoading = {{ isLoading }}</small>
-      <small>Debug: store = {{ !!store }}</small>
-    </div>
-  }
-
-  @if (errorMessage) {
-    <div class="error">{{ errorMessage }}</div>
-  }
-
-  @if (successMessage) {
-    <div class="success">{{ successMessage }}</div>
+    <div class="loading">Yükleniyor...</div>
   }
 
   @if (store) {

@@ -1,0 +1,55 @@
+<div class="user-info-page">
+  <div class="header">
+    <h1>Kullanıcı Detayları</h1>
+    <button type="button" class="btn btn-secondary" (click)="goBack()">Geri</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (user) {
+    <div class="content">
+      <div class="info-section">
+        <h2>Kullanıcı Bilgileri</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Adı:</label>
+            <input type="text" [(ngModel)]="user.name" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Soyadı:</label>
+            <input type="text" [(ngModel)]="user.lastName" class="form-input" />
+          </div>
+           <div class="info-item">
+            <label>Kullanıcı Adı:</label>
+            <input type="text" [(ngModel)]="user.userName" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>E-posta:</label>
+            <input type="email" [(ngModel)]="user.email" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Telefon:</label>
+            <input type="text" [(ngModel)]="user.phoneNumber" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Rol:</label>
+            <select [(ngModel)]="user.userRole" class="form-input">
+              <option value="0">Admin</option>
+              <option value="1">User</option>
+              <option value="2">Manager</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary">Güncelle</button>
+        <button type="button" class="btn btn-secondary" (click)="goBack()">İptal</button>
+      </div>
+    </div>
+  } @if (!user && !isLoading) {
+    <div class="error">Kullanıcı verisi yüklenemedi.</div>
+  }
+</div>
