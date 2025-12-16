@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DetailModalComponent } from '../../shared/components/detail-modal/detail-modal.component';
 import { CustomersService } from './customers.service';
+import { StoresService } from '../stores/stores.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { SwalService } from '../../core/swal.service';
+import { BaseComponent } from '../../core/base.component';
 
 @Component({
   selector: 'app-customers-page',
@@ -14,142 +14,213 @@ import { Subscription } from 'rxjs';
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.scss'
 })
-export class CustomersComponent implements OnInit, OnDestroy {
+export class CustomersComponent extends BaseComponent implements OnInit {
   customers: any[] = [];
   isLoading = false;
-  errorMessage = '';
-  showCreate = false;
+  showCreateModal = false;
   isCreating = false;
-  deletingId: string | number | null = null;
   createModel: any = {
-    name: '',
-    taxNumber: '',
-    phone: '',
+    storeId: '',
+    firstName: '',
+    customerType: '',
+    discountRate: 0,
+    phoneNumber: '',
     email: '',
-    address: ''
+    address: '',
+    userStoreId: '' // Ekleyen kullanıcının store ID'si
   };
-  createMessage = '';
-  createSuccess = false;
-  private routerSubscription?: Subscription;
+  searchQuery = '';
+  searchResults: any[] = [];
+  isSearching = false;
+  selectedStore: any = null;
 
   constructor(
-    private readonly customersService: CustomersService,
-    private readonly router: Router,
-    private modalService: NgbModal
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private customersService: CustomersService,
+    private storesService: StoresService,
+    private swalService: SwalService
+  ) {
+    super(platformId);
+  }
 
   ngOnInit(): void {
-    this.routerSubscription = this.router.events.subscribe(() => {
-      setTimeout(() => {
-        if (!this.isLoading) {
-          this.load();
-        }
-      }, 50);
+    console.log('=== CustomersComponent LOADING ===');
+    this.loadCustomers();
+    this.setupCurrentUserStoreId();
+  }
+
+  setupCurrentUserStoreId(): void {
+    this.refreshUserData(); // BaseComponent method
+    this.createModel.userStoreId = this.currentStoreId || this.currentTenantId;
+    console.log('=== Current user store ID ===', this.createModel.userStoreId);
+  }
+
+  loadCustomers(): void {
+    console.log('=== Loading customers ===');
+    this.isLoading = true;
+    this.cdr.detectChanges();
+    
+    this.customersService.getAll().subscribe({
+      next: (data: any) => {
+        this.customers = Array.isArray(data) ? data : (data?.data || []);
+        this.isLoading = false;
+        console.log('=== Customers loaded ===', this.customers);
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('=== Customers load error ===', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
+  onAddCustomer(): void {
+    console.log('=== Add customer clicked ===');
+    this.showCreateModal = true;
+    this.selectedStore = null;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.createModel = {
+      storeId: '',
+      firstName: '',
+      customerType: '',
+      discountRate: 0,
+      phoneNumber: '',
+      email: '',
+      address: '',
+      customerStoreId: this.currentStoreId || this.currentTenantId
+    };
+  }
+
+  onSearchStores(): void {
+    if (!this.searchQuery.trim()) {
+      this.searchResults = [];
+      return;
     }
+
+    this.isSearching = true;
+    this.storesService.getAllStoreByName({ storeName: this.searchQuery }).subscribe({
+      next: (data: any) => {
+        this.searchResults = Array.isArray(data) ? data : (data?.data || []);
+        this.isSearching = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Search error:', err);
+        this.searchResults = [];
+        this.isSearching = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
-  load(): void {
-    if (this.isLoading) return;
-    this.errorMessage = '';
-    this.isLoading = true;
-
-    this.customersService
-      .getAll()
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (data: any) => {
-          const list = Array.isArray(data) ? data : (data?.items ?? data?.data ?? []);
-          this.customers = Array.isArray(list) ? list : [];
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Müşteri listesi alınamadı.';
-        }
-      });
+  onSelectStore(store: any): void {
+    this.selectedStore = store;
+    this.searchResults = [];
+    this.searchQuery = '';
+    
+    // Fill createModel with selected store data
+    this.createModel = {
+      customerStoreId: store.id,
+      firstName: store.name || store.storeName,
+      customerType: '',
+      discountRate: 0,
+      phoneNumber: store.phone || '',
+      email: store.email || '',
+      address: store.address || '',
+      storeId: this.currentStoreId ||""
+    };
   }
 
-  statusLabel(v: any): string {
-    if (v === 1 || v === true || v === 'Active') return 'Aktif';
-    if (v === 0 || v === false || v === 'Passive') return 'Pasif';
-    return v ?? '-';
-  }
-
-  toggleCreate(): void {
-    if (this.isCreating) return;
-    this.showCreate = true;
-    this.createMessage = '';
-    this.createSuccess = false;
-    this.createModel = { name: '', taxNumber: '', phone: '', email: '', address: '' };
-  }
-
-  closeCreate(): void {
-    if (this.isCreating) return;
-    this.showCreate = false;
-    this.createMessage = '';
-    this.createSuccess = false;
-  }
-
-  onCreate(): void {
-    if (this.isCreating) return;
+  createCustomer(): void {
+    console.log('=== Creating customer ===', this.createModel);
     this.isCreating = true;
-    this.customersService
-      .create(this.createModel)
-      .pipe(finalize(() => (this.isCreating = false)))
-      .subscribe({
-        next: () => {
-          this.createMessage = 'Müşteri başarıyla oluşturuldu.';
-          this.createSuccess = true;
-          this.createModel = { name: '', taxNumber: '', phone: '', email: '', address: '' };
-          this.load();
-        },
-        error: (err) => {
-          this.createMessage = err?.error?.message || 'Müşteri oluşturulamadı.';
-          this.createSuccess = false;
-        }
-      });
+    
+    this.customersService.create(this.createModel).subscribe({
+      next: (result) => {
+        this.showCreateModal = false;
+        this.isCreating = false;
+        this.loadCustomers();
+        this.swalService.success(result.message || 'Müşteri başarılya eklendi.');
+      },
+      error: (err: any) => {
+        console.error('Create error:', err);
+        this.isCreating = false;
+        this.swalService.error('Hata', 'Müşteri eklenirken bir hata oluştu.');
+      }
+    });
   }
 
-  onDelete(c: any): void {
-    const id = this.getId(c);
-    if (id == null || this.deletingId != null) return;
-    this.deletingId = id;
-    this.customersService
-      .delete(id)
-      .pipe(finalize(() => (this.deletingId = null)))
-      .subscribe({
-        next: () => {
-          this.load();
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Müşteri silinemedi.';
-        }
-      });
+  onCloseModal(): void {
+    this.showCreateModal = false;
+    this.isCreating = false;
+    this.selectedStore = null;
+    this.searchQuery = '';
+    this.searchResults = [];
   }
 
-  getId(c: any): string | number | null {
-    return c?.id ?? c?.customerId ?? c?.customerID ?? null;
-  }
-
-  onRowClick(customer: any, event?: MouseEvent): void {
-    if (event && (event.target as HTMLElement).closest('button')) {
+  onDeleteCustomer(customer: any, event: Event): void {
+    event.stopPropagation();
+    console.log('=== Delete customer clicked ===', customer);
+    
+    const customerName = customer.firstName || 'Bu müşteri';
+    const customerId = this.getId(customer);
+    
+    if (customerId == null) {
+      console.error('Customer ID not found');
       return;
     }
     
-    event?.preventDefault();
-    event?.stopPropagation();
-    
-    const modalRef = this.modalService.open(DetailModalComponent, { 
-      size: 'sm',
-      centered: true,
-      backdrop: 'static'
+    this.swalService.deleteConfirm(customerName).then((result) => {
+      if (result.isConfirmed) {
+        this.customersService.delete(customerId.id).subscribe({
+          next: () => {
+            this.swalService.success('Müşteri silindi', `${customerName} başarıyla silindi.`);
+            this.loadCustomers();
+          },
+          error: (err: any) => {
+            console.error('Delete error:', err);
+            this.swalService.error('Hata', 'Müşteri silinirken bir hata oluştu.');
+          }
+        });
+      }
+    });
+  }
+
+  onCustomerClick(customer: any): void {
+    console.log('=== Customer clicked ===', customer);
+    console.log('=== Customer ID fields ===', {
+      id: customer.id,
+      customerId: customer.customerId,
+      customerID: customer.customerID,
+      storeId: customer.storeId
     });
     
-    modalRef.componentInstance.title = 'Müşteri Detayları';
-    modalRef.componentInstance.data = customer;
+    const ids = this.getId(customer);
+    console.log('=== Extracted IDs ===', ids);
+    
+    if (ids != null && ids.storeId && ids.storeCustomerId) { 
+      this.router.navigate(['/admin/customers', ids.storeId, ids.storeCustomerId, 'edit']);
+    } else {
+      console.error('=== No valid customer IDs found ===');
+      this.swalService.error('Hata', 'Müşteri ID bulunamadı. Detay sayfasına gidilemiyor.');
+    }
+  }
+
+  getId(c: any): any | null {
+    return {
+      id:c.id,
+      storeId: c.storeId,
+      storeCustomerId: c.customerId
+    };
+  }
+
+  getCustomerType(type: any): string {
+    if (type == 1) return "Bireysel";
+    else if (type == 2) return "Kurumsal";
+    else return '';
   }
 }

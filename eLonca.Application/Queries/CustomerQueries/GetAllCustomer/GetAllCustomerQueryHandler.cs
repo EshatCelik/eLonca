@@ -1,4 +1,5 @@
 ﻿using eLonca.Application.Services.TenantService;
+using eLonca.Common.DTOs;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace eLonca.Application.Queries.CustomerQueries.GetAllCustomer
 {
-    public class GetAllCustomerQueryHandler : IRequestHandler<GetAllCustomerQueryResponse, Result<List<StoreCustomer>>>
+    public class GetAllCustomerQueryHandler : IRequestHandler<GetAllCustomerQueryResponse, Result<List<StoreCustomerDto>>>
     {
         private readonly ITenantService _tenantService;
         private readonly ICustomerRepository _customerRepository;
@@ -23,15 +24,16 @@ namespace eLonca.Application.Queries.CustomerQueries.GetAllCustomer
             _tenantService = tenantService;
         }
 
-        public async Task<Result<List<StoreCustomer>>> Handle(GetAllCustomerQueryResponse request, CancellationToken cancellationToken)
+        public async Task<Result<List<StoreCustomerDto>>> Handle(GetAllCustomerQueryResponse request, CancellationToken cancellationToken)
         {
             var tenant = _tenantService.GetTenantId();
             if (!tenant.IsSuccess)
             {
-                return Result<List<StoreCustomer>>.Failure(null, "Tenant bulunamadı", 400);
+                return Result<List<StoreCustomerDto>>.Failure(null, "Tenant bulunamadı", 400);
             }
-            var customer = await _customerRepository.GetAllAsync(x => x.TenantId == tenant.Data, cancellationToken);
-            return Result<List<StoreCustomer>>.Success(customer.Data, "Müşteri Listesi", 200);
-        }
+            var customer = await _customerRepository.GetAllStoreCustomer(tenant.Data, cancellationToken);
+
+            return customer;
+        } 
     }
 }

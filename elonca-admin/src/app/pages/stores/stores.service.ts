@@ -32,6 +32,9 @@ export class StoresService extends BaseService {
   create(payload: any): Observable<any> {
     return this.post<any>('Store/Create', payload);
   }
+  getAllStoreByName(storeName:any):Observable<any>{
+    return this.post<any>('Store/GetAllStoreByName',storeName);
+  }
 
   getById(id: string | number): Observable<any> {
     const body = { id } as any;

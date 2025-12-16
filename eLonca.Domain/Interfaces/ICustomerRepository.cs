@@ -1,4 +1,5 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.DTOs;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 
 namespace eLonca.Domain.Interfaces
@@ -8,5 +9,7 @@ namespace eLonca.Domain.Interfaces
         Task<List<StoreCustomer>> GetCustomersWithPaginationAsync(string searchTerm, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<List<StoreCustomer>> GetTotalCustomerCountAsync(string searchTerm, CancellationToken cancellationToken);
         Task<Result<StoreCustomer>> CheckIsAddedCustomer(Guid storeId, Guid customerId, CancellationToken cancellationToken);
+        Task<Result<List<StoreCustomerDto>>> GetAllStoreCustomer(Guid tenantId, CancellationToken cancellationToken);
+        Task<Result<StoreCustomerDto>> GetByIdStoreCustomer(Guid storeId, Guid storeCustomerId, CancellationToken cancellationToken);
     }
 }

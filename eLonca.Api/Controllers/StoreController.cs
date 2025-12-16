@@ -1,5 +1,6 @@
 ﻿using eLonca.Application.Commands.StoreCommands.StoreCreate;
 using eLonca.Application.Commands.StoreCommands.StoreDelete;
+using eLonca.Application.Queries;
 using eLonca.Application.Queries.StoreQueries.GetAllStore;
 using eLonca.Application.Queries.StoreQueries.GetStoreById;
 using MediatR;
@@ -32,7 +33,7 @@ namespace eLonca.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> GetAll(GetAllStoreQueryResponse getAllStoreQueryResponse)
-        {
+       {
             var result=await _mediator.Send(getAllStoreQueryResponse);
             return Ok(result);
         }
@@ -41,6 +42,12 @@ namespace eLonca.Api.Controllers
         {
             var response = await _mediator.Send(getStoreByIdQueryResponse);
             return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetAllStoreByName(GetAllStoreByNameQueryResponse getAllStoreQueryResponse)
+        {
+            var result = await _mediator.Send(getAllStoreQueryResponse);
+            return Ok(result);
         }
     }
 }

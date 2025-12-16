@@ -1,11 +1,12 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.DTOs;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
 namespace eLonca.Application.Queries.UserQueries.GetUserById
 {
-    public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQueryResponse, Result<StoreCustomer>>
+    public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQueryResponse, Result<StoreCustomerDto>>
     {
         private readonly ICustomerRepository _customerRepository;
 
@@ -14,14 +15,14 @@ namespace eLonca.Application.Queries.UserQueries.GetUserById
             _customerRepository = customerRepository;
         }
 
-        public async Task<Result<StoreCustomer>> Handle(GetCustomerByIdQueryResponse request, CancellationToken cancellationToken)
+        public async Task<Result<StoreCustomerDto>> Handle(GetCustomerByIdQueryResponse request, CancellationToken cancellationToken)
         {
-            var customer = await _customerRepository.GetByIdAsync(request.Id);
+            var customer = await _customerRepository.GetByIdStoreCustomer(request.StoreId, request.StoreCustomerId, cancellationToken);
             if (!customer.IsSuccess)
             {
-                return Result<StoreCustomer>.Failure(null, "Müşteri bulunamadı", 400);
+                return Result<StoreCustomerDto>.Failure(null, "Müşteri bulunamadı", 400);
             }
-            return customer;
+            return Result<StoreCustomerDto>.Success(customer.Data, "Mağaza müşterisi", 200);
         }
     }
 }

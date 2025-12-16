@@ -1,4 +1,5 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
@@ -22,19 +23,12 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
                 return isAdded.Result;
             }
             var customer = new StoreCustomer()
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
+            { 
                 StoreId = request.StoreId,
                 CustomerStoreId = request.CustomerStoreId,
-                DiscountRate = request.DiscountRate,
-                PhoneNumber = request.PhoneNumber,
-                Notes = request.Notes,
+                DiscountRate = request.DiscountRate, 
                 CustomerCode = request.CustomerCode,
-                Email = request.Email,
-                Address = request.Address,
-                TaxNumber = request.TaxNumber,
-                CustomerType = request.CustomerType
+                CustomerType = Enum.Parse<CustomerType>(request.CustomerType == null ? request.CustomerType : CustomerType.Corporate.ToString())
 
             };
 

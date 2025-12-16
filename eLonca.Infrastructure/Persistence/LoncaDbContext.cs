@@ -33,15 +33,6 @@ namespace eLonca.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<StoreCustomer>(entity =>
-            {
-                // Ana mağaza ilişkisi
-                entity.HasOne(sc => sc.Store)
-                    .WithMany() // veya Store'da bir collection varsa: .WithMany(s => s.StoreCustomers)
-                    .HasForeignKey(sc => sc.StoreId)
-                    .OnDelete(DeleteBehavior.Restrict); // Cascade delete sorunları önlemek için 
-
-            });
 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
         .SelectMany(e => e.GetForeignKeys()))

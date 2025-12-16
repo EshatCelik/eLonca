@@ -1,118 +1,150 @@
 <div class="customers-page">
-  <h1>Müşteriler</h1>
-
-  <div class="toolbar">
-    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
-      Yeni Müşteri
+  <div class="page-header">
+    <h1>Müşteriler</h1>
+    <button class="add-btn" (click)="onAddCustomer()">
+      <span>+</span> Ekle
     </button>
-    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
-      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
-    </button>
-    @if (errorMessage) {
-      <span class="error">{{ errorMessage }}</span>
-    }
   </div>
+  
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
 
-  @if (showCreate) {
-    <div class="modal-overlay" (click)="closeCreate()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Yeni Müşteri Oluştur</h2>
-          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+  @if (!isLoading && customers.length > 0) {
+    <table class="customers-table">
+      <thead>
+        <tr>
+          <th>Müşteri Kodu</th>
+          <th>Müşteri Adı</th>
+          <th>Indirim Oranı</th>
+          <th>Telefon</th>
+          <th>Email</th>
+          <th>Müşteri Tipi</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (customer of customers; track customer.id) {
+          <tr class="customer-row">
+            <td (click)="onCustomerClick(customer)">{{ customer.customerCode || '-' }}</td>
+            <td (click)="onCustomerClick(customer)">{{ customer.storeName || '-' }}</td>
+            <td (click)="onCustomerClick(customer)">{{ customer.discountRate || '-' }}</td>
+            <td (click)="onCustomerClick(customer)">{{ customer.phone || '-' }}</td>
+            <td (click)="onCustomerClick(customer)">{{ customer.email || '-' }}</td>
+            <td (click)="onCustomerClick(customer)">{{ getCustomerType(customer.customerType) || '-' }}</td>
+            <td (click)="onCustomerClick(customer)">{{ customer.isActive==true?'Aktif':"Pasif" }}</td>
+
+            <td class="actions">
+              <button class="delete-btn" (click)="onDeleteCustomer(customer, $event)">
+                Sil
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (!isLoading && customers.length === 0) {
+    <div class="no-data">Müşteri bulunamadı.</div>
+  }
+
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="onCloseModal()">
+      <div class="modal-container panel-style" (click)="$event.stopPropagation()">
+        <div class="panel-header">
+          <h1>Yeni Müşteri Ekle</h1>
+          <button type="button" class="btn btn-secondary" (click)="onCloseModal()">İptal</button>
         </div>
-        <div class="modal-body">
-          <form class="create-form" (ngSubmit)="onCreate()">
-            <label>
-              Müşteri Codu
-              <input type="text" name="name" [(ngModel)]="createModel.customerCode" required />
-            </label>
-            <label>
-              Müşteri Adı
-              <input type="text" name="taxNumber" [(ngModel)]="createModel.firstName" />
-            </label>
-            <label>
-              Müşteri Soyadı
-              <input type="text" name="taxNumber" [(ngModel)]="createModel.lastName" />
-            </label>
-            <label>
-              Müşteri Tipi
-              <input type="text" name="taxNumber" [(ngModel)]="createModel.customerType" />
-            </label>
-            <label>
-              Müşteri İndirimi
-              <input type="text" name="taxNumber" [(ngModel)]="createModel.discountRate" />
-            </label>
-            <label>
-              Telefon
-              <input type="text" name="phone" [(ngModel)]="createModel.phoneNumber" />
-            </label>
-            <label>
-              Email
-              <input type="email" name="email" [(ngModel)]="createModel.email" />
-            </label>
-            <label>
-              Adres
-              <textarea name="address" [(ngModel)]="createModel.address" rows="3"></textarea>
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name">
-                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
-                İptal
-              </button>
+
+        <div class="panel-content">
+          <div class="info-section">
+            <h2>Müşteri Bilgileri</h2>
+            
+            <!-- Store Search Section -->
+            <div class="search-section">
+              <h3>Mağaza Ara</h3>
+              <div class="search-container">
+                <input 
+                  type="text" 
+                  [(ngModel)]="searchQuery" 
+                  (input)="onSearchStores()" 
+                  class="form-input search-input" 
+                  placeholder="Mağaza adı ile arayın..." 
+                />
+                @if (isSearching) {
+                  <div class="search-loading">Aranıyor...</div>
+                }
+              </div>
+              
+              @if (searchResults.length > 0) {
+                <div class="search-results">
+                  <h4>Sonuçlar:</h4>
+                  @for (result of searchResults; track result.id) {
+                    <div class="search-result-item" (click)="onSelectStore(result)">
+                      <div class="result-name">{{ result.name || result.storeName }}</div>
+                      <div class="result-details">
+                        @if (result.phone) {
+                          <span class="result-detail">{{ result.phone }}</span>
+                        }
+                        @if (result.email) {
+                          <span class="result-detail">{{ result.email }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
             </div>
-          </form>
-          @if (createMessage) {
-            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
-              {{ createMessage }}
+
+            <div class="info-grid"> 
+              <div class="info-item">
+                <label>Mağaza Adı:</label>
+                <input type="text" [(ngModel)]="createModel.firstName" [readonly]="true" class="form-input" placeholder="Mağaza adı" />
+              </div> 
+              <div class="info-item">
+                <label>Müşteri Tipi:</label>
+                <select [(ngModel)]="createModel.customerType" class="form-input">
+                  <option value="">Müşteri tipi seçin</option>
+                  <option value="Individual">Bireysel</option>
+                  <option value="Corporate">Kurumsal</option>
+                </select>
+              </div>
+              <div class="info-item">
+                <label>İndirim Oranı:</label>
+                <input type="number" [(ngModel)]="createModel.discountRate" class="form-input" placeholder="İndirim oranını girin (%)" />
+              </div>
+              <div class="info-item">
+                <label>Telefon:</label>
+                <input type="text" [(ngModel)]="createModel.phoneNumber" [readonly]="true" class="form-input" placeholder="Telefon numarası" />
+              </div>
+              <div class="info-item">
+                <label>Email:</label>
+                <input type="email" [(ngModel)]="createModel.email" [readonly]="true" class="form-input" placeholder="Email adresi" />
+              </div>
+              <div class="info-item full-width">
+                <label>Adres:</label>
+                <textarea [(ngModel)]="createModel.address" [readonly]="true" class="form-input" placeholder="Adres" rows="3"></textarea>
+              </div>
             </div>
-          }
+          </div>
+
+          <div class="panel-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
+              İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createCustomer()" [disabled]="isCreating || !createModel.storeId">
+              @if (isCreating) {
+                <span class="spinner"></span>
+                Kaydediliyor...
+              } @else {
+                Müşteri Ekle
+              }
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  }
-
-  @if (!isLoading && customers.length === 0 && !errorMessage) {
-    <p>Gösterilecek müşteri bulunamadı.</p>
-  }
-
-  @if (customers.length > 0) {
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Müşteri Codu</th>
-            <th>Müşteri Adı</th>
-            <th>Müşteri Soyadı</th> 
-            <th>Telefon</th>
-            <th>Email</th>
-            <th>Adres</th>
-            <th>Durum</th>
-            <th>Kayıt Tarihi</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (c of customers; track $index) {
-            <tr (click)="onRowClick(c, $event)" [class.clickable-row]="true">
-              <td>{{ c.customerCode || '-' }}</td>
-              <td>{{ c.firstName || '-' }}</td>
-              <td>{{ c.lastName || '-' }}</td>
-              <td>{{ c.phoneNumber || '-' }}</td>
-              <td>{{ c.email || c.tcNumber || '-' }}</td>  
-              <td>{{ c.address || '-' }}</td>
-              <td>{{ statusLabel(c.customerType) }}</td>
-              <td>{{ (c.createAt || c.createdDate) || '-' }}</td>
-              <td>
-                <button type="button" class="btn btn-danger" (click)="onDelete(c)" [disabled]="deletingId === getId(c) || isLoading">
-                  {{ deletingId === getId(c) ? 'Siliniyor...' : 'Sil' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
     </div>
   }
 </div>

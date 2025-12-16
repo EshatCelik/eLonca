@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
+import { BaseComponent } from '../../core/base.component';
 
 @Component({
   selector: 'app-login-page',
@@ -54,7 +55,7 @@ import { AuthService } from '../../core/auth.service';
   `,
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent extends BaseComponent {
   email = '';
   password = '';
   
@@ -62,9 +63,12 @@ export class LoginComponent {
   isLoading = false;
 
   constructor(
+    @Inject(PLATFORM_ID) platformId: Object,
     private readonly authService: AuthService,
     private readonly router: Router
-  ) {}
+  ) {
+    super(platformId);
+  }
 
   onSubmit(): void {
     if (this.isLoading) return;
@@ -80,6 +84,9 @@ export class LoginComponent {
           console.log('Login response:', response);
 
           if (response?.isSuccess) {
+            // Save auth data to localStorage using BaseComponent method
+            this.saveCurrentUserToStorage(response.data);
+            
             this.errorMessage = '';
             this.router.navigate(['/admin']);
           } else {
