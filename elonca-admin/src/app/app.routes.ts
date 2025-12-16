@@ -13,6 +13,7 @@ import { CategoryEditComponent } from './pages/categories/category-edit/category
 import { ProductsComponent } from './pages/products/products.component';
 import { ProductEditComponent } from './pages/products/product-edit/product-edit.component';
 import { CustomersComponent } from './pages/customers/customers.component';
+import { CustomerEditComponent } from './pages/customers/customer-edit/customer-edit.component';
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
 import { SalesComponent } from './pages/sales/sales.component';
 import { ReceivablesComponent } from './pages/receivables/receivables.component';
@@ -43,6 +44,7 @@ export const routes: Routes = [
       { path: 'products', component: ProductsComponent },
       { path: 'products/:id/edit', component: ProductEditComponent },
       { path: 'customers', component: CustomersComponent },
+      { path: 'customers/:storeId/:customerStoreId/edit', component: CustomerEditComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'sales', component: SalesComponent },
       { path: 'receivables', component: ReceivablesComponent },

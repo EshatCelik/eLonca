@@ -23,7 +23,7 @@ namespace eLonca.Application.Queries.StoreQueries.GetAllStore
             {
                 return Result<List<Store>>.Failure(null, "Tenant bulunamadı", 400);
             }
-            var stores = await _storeRepository.GetAllAsync(x => x.TenantId == tenant.Data);
+            var stores = await _storeRepository.GetAllAsync(x => x.TenantId == tenant.Data &&x.IsActive);
             return Result<List<Store>>.Success(stores.Data, "Store List", 200);
 
         }

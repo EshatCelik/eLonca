@@ -33,7 +33,24 @@ export class CustomersService extends BaseService {
     return this.post<any>('Customer/Create', payload);
   }
 
-  override delete(id: string | number): Observable<any> {
+  getById(storeId: string | number ,storeCustomerId :string): Observable<any> {
+    const body = { storeId,storeCustomerId } as any;
+    return this.post<any>('Customer/GetById', body).pipe(
+      map((res: any) => {
+        if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
+          throw new Error(res?.message || 'İstek başarısız');
+        }
+        return res?.data || res;
+      })
+    );
+  }
+
+  update(id: string | number, payload: any): Observable<any> {
+    const body = { id, ...payload } as any;
+    return this.post<any>('Customer/Update', body);
+  }
+
+  override delete(id: any | number): Observable<any> {
     const body = { id } as any;
     return this.post<any>('Customer/Delete', body);
   }

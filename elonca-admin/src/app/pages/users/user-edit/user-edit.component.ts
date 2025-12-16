@@ -49,26 +49,7 @@ export class UserEditComponent implements OnInit {
     }
 
     this.isLoading = true;
-    
-    // Mock data for testing
-    setTimeout(() => {
-      this.user = {
-        id: id,
-        name: 'Test',
-        lastName: 'User',
-        userName: 'test.user',
-        email: 'test@example.com',
-        phoneNumber: '123456789',
-        userRole: 1,
-        isActive: true,
-        storeId: '',
-        createAt: new Date().toISOString()
-      };
-      this.isLoading = false;
-      console.log('=== Mock user loaded ===', this.user);
-    }, 1000);
   }
-
   onUpdate(): void {
     if (!this.user) return;
 

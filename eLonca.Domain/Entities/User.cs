@@ -15,7 +15,7 @@ namespace eLonca.Domain.Entities
         public DateTime? RefreshTokenExpiry { get; set; }
         public UserRole UserRole { get; set; }
 
-        public Guid? StoreId { get; set; }
+        public Guid StoreId { get; set; }
         public Store? Store { get; set; }
         public Tenant Tenant { get; set; } 
 

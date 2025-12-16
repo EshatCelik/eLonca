@@ -43,7 +43,8 @@ namespace eLonca.Application.Services.JwtTokenService
                     {
                         Id = user.Tenant.Id,
                         CompanyName = user.Tenant.Name
-                    }
+                    },
+                    StoreId=user.StoreId
                 };
 
                 return Result<LoginResponse>.Success(response, "Login response oluşturuldu", 200);
@@ -69,8 +70,9 @@ namespace eLonca.Application.Services.JwtTokenService
                     new Claim(ClaimTypes.NameIdentifier,user.Email),
                     new Claim(ClaimTypes.Role,user.UserRole.ToString()),
                     new Claim("TenantId",user.TenantId.ToString()),
+                    new Claim("StoreId",user.StoreId.ToString()),
                     new Claim("FullName",user.FullName),
-                    new Claim("UserId",user.Id.ToString()),
+                    new Claim("UserId",user.Id.ToString()), 
                     new Claim("TokenExpr",DateTime.Now.AddHours(Convert.ToDouble(_configuration["Jwt:ExpirationHours"] ?? "8")).ToString())
                 };
 

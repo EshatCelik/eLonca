@@ -12,7 +12,7 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    [Migration("20251127233000_mg1")]
+    [Migration("20251216134335_mg1")]
     partial class mg1
     {
         /// <inheritdoc />
@@ -567,9 +567,6 @@ namespace eLonca.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
@@ -595,43 +592,14 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<int>("DiscountRate")
                         .HasColumnType("int");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("StoreId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreId2")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreId3")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TaxNumber")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
@@ -645,12 +613,6 @@ namespace eLonca.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("StoreId");
-
-                    b.HasIndex("StoreId1");
-
-                    b.HasIndex("StoreId2");
-
-                    b.HasIndex("StoreId3");
 
                     b.HasIndex("TenantId");
 
@@ -994,36 +956,17 @@ namespace eLonca.Infrastructure.Migrations
 
             modelBuilder.Entity("eLonca.Domain.Entities.StoreCustomer", b =>
                 {
-                    b.HasOne("eLonca.Domain.Entities.Store", "Store")
-                        .WithMany()
+                    b.HasOne("eLonca.Domain.Entities.Store", null)
+                        .WithMany("StoreCustomers")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("eLonca.Domain.Entities.Store", null)
-                        .WithMany("CustomerOf")
-                        .HasForeignKey("StoreId1")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("eLonca.Domain.Entities.Store", null)
-                        .WithMany("Customers")
-                        .HasForeignKey("StoreId2")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("eLonca.Domain.Entities.Store", null)
-                        .WithMany("StoreCustomers")
-                        .HasForeignKey("StoreId3")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("eLonca.Domain.Entities.Tenant", "Tenant")
+                    b.HasOne("eLonca.Domain.Entities.Tenant", null)
                         .WithMany("Customers")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Store");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("eLonca.Domain.Entities.User", b =>
@@ -1066,10 +1009,6 @@ namespace eLonca.Infrastructure.Migrations
             modelBuilder.Entity("eLonca.Domain.Entities.Store", b =>
                 {
                     b.Navigation("Categories");
-
-                    b.Navigation("CustomerOf");
-
-                    b.Navigation("Customers");
 
                     b.Navigation("Products");
 

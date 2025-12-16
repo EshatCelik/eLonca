@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsersService } from '../users.service';
 import { StoresService } from '../../stores/stores.service';
+import { SwalService } from '../../../core/swal.service';
 
 @Component({
   selector: 'app-user-info',
@@ -23,7 +24,8 @@ export class UserInfo implements OnInit {
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
     private readonly usersService: UsersService,
-    private readonly storesService: StoresService
+    private readonly storesService: StoresService,
+    private readonly swalService: SwalService
   ) {}
 
   ngOnInit(): void {
@@ -95,14 +97,15 @@ export class UserInfo implements OnInit {
     console.log('=== Updating user ===', updateData);
 
     this.usersService.update(this.user.id, updateData).subscribe({
-      next: () => {
+      next: (result) => {
         console.log('=== User updated successfully ===');
-        alert('Kullanıcı başarıyla güncellendi!');
+       this.swalService.confirm(result.message);
         this.isSaving = false;
         this.router.navigate(['/admin/users']);
       },
       error: (err) => {
-        this.errorMessage = err?.error?.message || 'Kullanıcı güncellenemedi.';
+       this.swalService.error(err.message);
+        
         this.isSaving = false;
         console.error('=== User update error ===', err);
         this.cdr.detectChanges();

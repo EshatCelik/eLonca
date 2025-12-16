@@ -1,0 +1,66 @@
+<div class="customer-edit-page">
+  <div class="header">
+    <h1>Müşteri Detayları</h1>
+    <button type="button" class="btn btn-secondary" (click)="onClose()">Kapat</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (customer) {
+    <div class="content">
+      <div class="info-section">
+        <h2>Müşteri Bilgileri</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Müşteri Kodu:</label>
+            <input type="text" [(ngModel)]="customer.customerCode" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Müşteri Adı:</label>
+            <input type="text" [(ngModel)]="customer.storeName" class="form-input" />
+          </div> 
+          <div class="info-item">
+            <label>Müşteri Tipi:</label>
+            <select [(ngModel)]="customer.customerType" class="form-input">
+              <option value="">Müşteri tipi seçin</option>
+              <option value="1">Bireysel</option>
+              <option value="2">Kurumsal</option>
+            </select>
+          </div>
+          <div class="info-item">
+            <label>İndirim Oranı:</label>
+            <input type="number" [(ngModel)]="customer.discountRate" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Telefon:</label>
+            <input type="text" [(ngModel)]="customer.phone" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Email:</label>
+            <input type="email" [(ngModel)]="customer.email" class="form-input" />
+          </div>
+          <!-- <div class="info-item full-width">
+            <label>Açıklama:</label>
+            <textarea [(ngModel)]="customer.description" class="form-input" rows="3"></textarea>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-danger" (click)="onDelete()" [disabled]="isSaving">
+          Sil
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="isSaving">
+          İptal
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+          {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+        </button>
+      </div>
+    </div>
+  } @if (!customer && !isLoading) {
+    <div class="error">Müşteri verisi yüklenemedi.</div>
+  }
+</div>

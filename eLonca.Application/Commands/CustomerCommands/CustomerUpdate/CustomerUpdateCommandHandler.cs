@@ -1,4 +1,5 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
@@ -8,10 +9,12 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
     public class CustomerUpdateCommandHandler : IRequestHandler<CustomerUpdateCommand, Result<StoreCustomer>>
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly IStoreRepository _storeRepository;
 
-        public CustomerUpdateCommandHandler(ICustomerRepository customerRepository)
+        public CustomerUpdateCommandHandler(ICustomerRepository customerRepository, IStoreRepository storeRepository)
         {
             _customerRepository = customerRepository;
+            _storeRepository = storeRepository;
         }
 
         public async Task<Result<StoreCustomer>> Handle(CustomerUpdateCommand request, CancellationToken cancellationToken)
@@ -20,15 +23,9 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
             if (!customer.IsSuccess)
                 return customer;
 
-            customer.Data.Address = request.Address;
-            customer.Data.FirstName = request.FirstName;
-            customer.Data.LastName = request.LastName;
-            customer.Data.PhoneNumber = request.PhoneNumber;
-            customer.Data.TaxNumber = request.TaxNumber;
-            customer.Data.Notes = request.Notes;
-            customer.Data.Email= request.Email;
             customer.Data.CustomerCode = request.CustomerCode;
-            customer.Data.CustomerType = request.CustomerType;
+            customer.Data.CustomerType = (CustomerType)request.CustomerType;
+            customer.Data.DiscountRate = request.DiscountRate; 
 
             var repsonse = await _customerRepository.Update(customer.Data, cancellationToken);
             return repsonse;
