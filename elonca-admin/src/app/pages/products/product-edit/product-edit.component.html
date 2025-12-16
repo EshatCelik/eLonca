@@ -1,0 +1,87 @@
+<div class="product-edit-page">
+  <div class="header">
+    <h1>Ürün Detayları</h1>
+    <button type="button" class="btn btn-secondary" (click)="onClose()">Kapat</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (product) {
+    <div class="content">
+      <div class="info-section">
+        <h2>Ürün Bilgileri</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Ürün Adı:</label>
+            <input type="text" [(ngModel)]="product.productName" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Barkod:</label>
+            <input type="text" [(ngModel)]="product.barcode" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Ürün Kodu:</label>
+            <input type="text" [(ngModel)]="product.productCode" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Alış Fiyatı:</label>
+            <input type="number" [(ngModel)]="product.purchasePrice" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Satış Fiyatı:</label>
+            <input type="number" [(ngModel)]="product.salePrice" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Min Stok Adedi:</label>
+            <input type="number" [(ngModel)]="product.minStockLevel" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Mağaza:</label>
+            <select [(ngModel)]="product.storeId" class="form-input">
+              <option value="">Mağaza seçin</option>
+              @for (store of stores; track store.id) {
+                <option [value]="store.id">{{ store.name || store.storeName }}</option>
+              }
+            </select>
+          </div>
+          <div class="info-item">
+            <label>Kategori:</label>
+            <select [(ngModel)]="product.categoryId" class="form-input">
+              <option value="">Kategori seçin</option>
+              @for (category of categories; track category.id) {
+                <option [value]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="info-item">
+            <label>Durum:</label>
+            <select [(ngModel)]="product.isActive" class="form-input">
+              <option [ngValue]="true">Aktif</option>
+              <option [ngValue]="false">Pasif</option>
+            </select>
+          </div>
+          <div class="info-item full-width">
+            <label>Açıklama:</label>
+            <textarea [(ngModel)]="product.description" class="form-input" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-danger" (click)="onDelete()" [disabled]="isSaving">
+          Sil
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="isSaving">
+          İptal
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+          {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+        </button>
+      </div>
+    </div>
+  } @if (!product && !isLoading) {
+    <div class="error">Ürün verisi yüklenemedi.</div>
+  }
+</div>

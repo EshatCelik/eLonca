@@ -16,6 +16,7 @@ import { AuthService } from '../core/auth.service';
           <a routerLink="users" routerLinkActive="active">Kullanıcılar</a>
           <a routerLink="stores" routerLinkActive="active">Mağazalar</a>
           <a routerLink="categories" routerLinkActive="active">Kategoriler</a>
+          <a routerLink="products" routerLinkActive="active">Ürünler</a>
           <a routerLink="customers" routerLinkActive="active">Müşteriler</a>
           <a routerLink="e-ledger" routerLinkActive="active">e-Defter</a>
           <a routerLink="sales" routerLinkActive="active">Satışlar</a>
@@ -24,7 +25,7 @@ import { AuthService } from '../core/auth.service';
       </aside>
       <div class="main">
         <header class="topbar">
-            <div class="alerts">Uyarılar (örnek)</div>
+          <div class="alerts">Uyarılar (örnek)</div>
           <div class="user">
             <span class="user-name">Admin Kullanıcı</span>
             <button class="logout" type="button" (click)="onLogout()">Çıkış</button>

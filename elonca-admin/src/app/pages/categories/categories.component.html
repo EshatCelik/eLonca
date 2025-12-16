@@ -1,86 +1,109 @@
 <div class="categories-page">
-  <h1>Kategoriler</h1>
-
-  <div class="toolbar">
-    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
-      Yeni Kategori
+  <div class="page-header">
+    <h1>Kategoriler</h1>
+    <button class="add-btn" (click)="onAddCategory()">
+      <span>+</span> Ekle
     </button>
-    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
-      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
-    </button>
-    @if (errorMessage) {
-      <span class="error">{{ errorMessage }}</span>
-    }
   </div>
+  
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
 
-  @if (showCreate) {
-    <div class="modal-overlay" (click)="closeCreate()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Yeni Kategori Oluştur</h2>
-          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+  @if (!isLoading && categories.length > 0) {
+    <table class="categories-table">
+      <thead>
+        <tr>
+          <th>Kategori Adı</th>
+          <th>Açıklama</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (category of categories; track category.id) {
+          <tr class="category-row">
+            <td (click)="onCategoryClick(category)">{{ category.name || '-' }}</td>
+            <td (click)="onCategoryClick(category)">{{ category.description || '-' }}</td>
+            <td (click)="onCategoryClick(category)">{{ category.isActive ? 'Aktif' : 'Pasif' }}</td>
+            <td class="actions">
+              <button class="delete-btn" (click)="onDeleteCategory(category, $event)">
+                Sil
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (!isLoading && categories.length === 0) {
+    <div class="no-data">Kategori bulunamadı.</div>
+  }
+
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="onCloseModal()">
+      <div class="modal-container panel-style" (click)="$event.stopPropagation()">
+        <div class="panel-header">
+          <h1>Yeni Kategori Ekle</h1>
+          <button type="button" class="btn btn-secondary" (click)="onCloseModal()">İptal</button>
         </div>
-        <div class="modal-body">
-          <form class="create-form" (ngSubmit)="onCreate()">
-            <label>
-              Kategori Adı
-              <input type="text" name="name" [(ngModel)]="createModel.name" required />
-            </label>
-            <label>
-              Açıklama
-              <textarea name="description" [(ngModel)]="createModel.description" rows="3"></textarea>
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name">
-                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
-                İptal
-              </button>
+
+        <div class="panel-content">
+          <div class="info-section">
+            <h2>Kategori Bilgileri</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Kategori Adı:</label>
+                <input type="text" [(ngModel)]="createModel.name" class="form-input" placeholder="Kategori adını girin" />
+              </div>
+              <div class="info-item">
+                <label>Renk:</label>
+                <div class="color-picker-wrapper">
+                  <select [(ngModel)]="createModel.color" class="form-input color-select">
+                    <option value="#007bff">Mavi</option>
+                    <option value="#28a745">Yeşil</option>
+                    <option value="#dc3545">Kırmızı</option>
+                    <option value="#ffc107">Sarı</option>
+                    <option value="#6f42c1">Mor</option>
+                    <option value="#fd7e14">Turuncu</option>
+                    <option value="#20c997">Turkuaz</option>
+                    <option value="#6c757d">Gri</option>
+                  </select>
+                  <div class="color-preview" [style.background-color]="createModel.color"></div>
+                </div>
+              </div>
+              <div class="info-item">
+                <label>Mağaza:</label>
+                <select [(ngModel)]="createModel.storeId" class="form-input">
+                  <option value="">Mağaza seçin</option>
+                  @for (store of stores; track store.id) {
+                    <option [value]="store.id">{{ store.name || store.storeName }}</option>
+                  }
+                </select>
+              </div>
+              <div class="info-item full-width">
+                <label>Açıklama:</label>
+                <textarea [(ngModel)]="createModel.description" class="form-input" placeholder="Açıklamayı girin" rows="3"></textarea>
+              </div>
             </div>
-          </form>
-          @if (createMessage) {
-            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
-              {{ createMessage }}
-            </div>
-          }
+          </div>
+
+          <div class="panel-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
+              İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createCategory()" [disabled]="isCreating">
+              @if (isCreating) {
+                <span class="spinner"></span>
+                Kaydediliyor...
+              } @else {
+                Kategori Ekle
+              }
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  }
-
-  @if (!isLoading && categories.length === 0 && !errorMessage) {
-    <p>Gösterilecek kategori bulunamadı.</p>
-  }
-
-  @if (categories.length > 0) {
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Kategori Adı</th>
-            <th>Açıklama</th>
-            <th>Durum</th>
-            <th>Oluşturulma Tarihi</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (c of categories; track $index) {
-            <tr>
-              <td>{{ c.name || '-' }}</td>
-              <td>{{ c.description || '-' }}</td>
-              <td>{{ statusLabel(c.status) }}</td>
-              <td>{{ (c.createdAt || c.createdDate) || '-' }}</td>
-              <td>
-                <button type="button" class="btn btn-danger" (click)="onDelete(c)" [disabled]="deletingId === getId(c) || isLoading">
-                  {{ deletingId === getId(c) ? 'Siliniyor...' : 'Sil' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
     </div>
   }
 </div>

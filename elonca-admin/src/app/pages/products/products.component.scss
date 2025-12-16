@@ -1,4 +1,4 @@
-.stores-page {
+.products-page {
   padding: 2rem;
   background: #f5f5f5;
   min-height: 100vh;
@@ -262,7 +262,7 @@
   margin: 2rem 0;
 }
 
-.stores-table {
+.products-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
@@ -282,7 +282,7 @@
   }
   
   tbody {
-    .store-row {
+    .product-row {
       cursor: pointer;
       
       &:hover {

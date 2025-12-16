@@ -9,8 +9,7 @@ namespace eLonca.Application.Commands.ProductCommands.ProductCreate
         public string ProductCode { get; set; } = string.Empty;
         public string ProductName { get; set; } = string.Empty;
         public decimal PurchasePrice { get; set; } // Satın alma fiyatı
-        public decimal SalePrice { get; set; } //Satış fiyatı
-        public decimal CurrentStock { get; set; }
+        public decimal SalePrice { get; set; } //Satış fiyatı 
         public decimal MinStockLevel { get; set; }
         public string Unit { get; set; } = "Adet";
         public string? Description { get; set; }

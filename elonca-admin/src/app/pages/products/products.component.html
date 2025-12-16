@@ -1,0 +1,143 @@
+<div class="products-page">
+  <div class="page-header">
+    <h1>Ürünler</h1>
+    <button class="add-btn" (click)="onAddProduct()">
+      <span>+</span> Ekle
+    </button>
+  </div>
+  
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (!isLoading && products.length > 0) {
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>Ürün Adı</th>
+          <th>Ürün Kodu</th>
+          <th>Alış Fiyatı</th>
+          <th>Satış Fiyatı</th>
+          <th>Stok</th>
+          <th>Min Stok Adedi</th>
+          <th>Mağaza</th>
+          <th>Kategori</th>
+          <th>Barkod</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (product of products; track product.id) {
+          <tr class="product-row">
+            <td (click)="onProductClick(product)">{{ product.productName || '-' }}</td>
+            <td (click)="onProductClick(product)">{{ product.productCode || '-' }}</td>
+            <td (click)="onProductClick(product)">{{ product.purchasePrice || '-' }}</td>
+            <td (click)="onProductClick(product)">{{ product.salePrice || '-' }}</td>
+            <td (click)="onProductClick(product)">{{ product.currentStock || 0 }} TL</td>
+            <td (click)="onProductClick(product)">{{ product.minStockLevel || 0 }} TL</td> 
+            <td (click)="onProductClick(product)">{{ getStoreName(product.storeId) }}</td>
+            <td (click)="onProductClick(product)">{{ getCategoryName(product.categoryId) }}</td>
+            <td (click)="onProductClick(product)">{{ product.barcode }}</td>
+            <td (click)="onProductClick(product)">{{ product.isActive ? 'Aktif' : 'Pasif' }}</td>
+            <td class="actions">
+              <button class="delete-btn" (click)="onDeleteProduct(product, $event)">
+                Sil
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (!isLoading && products.length === 0) {
+    <div class="no-data">Ürün bulunamadı.</div>
+  }
+
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="onCloseModal()">
+      <div class="modal-container panel-style" (click)="$event.stopPropagation()">
+        <div class="panel-header">
+          <h1>Yeni Ürün Ekle</h1>
+          <button type="button" class="btn btn-secondary" (click)="onCloseModal()">İptal</button>
+        </div>
+
+        <div class="panel-content">
+          <div class="info-section">
+            <h2>Ürün Bilgileri</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Ürün Adı:</label>
+                <input type="text" [(ngModel)]="createModel.productName" class="form-input" placeholder="Ürün adını girin" />
+              </div>
+              <div class="info-item">
+                <label>Ürün Kodu:</label>
+                <input type="text" [(ngModel)]="createModel.productCode" class="form-input" placeholder="Barkod girin" />
+              </div>
+              <div class="info-item">
+                <label>Barkod:</label>
+                <input type="text" [(ngModel)]="createModel.barcode" class="form-input" placeholder="Barkod girin" />
+              </div>
+              <div class="info-item">
+                <label>Alış Fiyatı:</label>
+                <input type="text" [(ngModel)]="createModel.purchasePrice" class="form-input" placeholder="SKU girin" />
+              </div>
+              <div class="info-item">
+                <label>Satış Fiyat:</label>
+                <input type="number" [(ngModel)]="createModel.salePrice" class="form-input" placeholder="Fiyat girin" />
+              </div>
+              <div class="info-item">
+                <label>Min Stok Adedi:</label>
+                <input type="number" [(ngModel)]="createModel.minStockLevel" class="form-input" placeholder="Stok girin" />
+              </div>
+              <div class="info-item">
+                <label>Mağaza:</label>
+                <select [(ngModel)]="createModel.storeId" class="form-input">
+                  <option value="">Mağaza seçin</option>
+                  @for (store of stores; track store.id) {
+                    <option [value]="store.id">{{ store.name || store.storeName }}</option>
+                  }
+                </select>
+              </div>
+              <div class="info-item">
+                <label>Kategori:</label>
+                <select [(ngModel)]="createModel.categoryId" class="form-input">
+                  <option value="">Kategori seçin</option>
+                  @for (category of categories; track category.id) {
+                    <option [value]="category.id">{{ category.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="info-item">
+                <label>Durum:</label>
+                <select [(ngModel)]="createModel.isActive" class="form-input">
+                  <option [ngValue]="true">Aktif</option>
+                  <option [ngValue]="false">Pasif</option>
+                </select>
+              </div>
+              <div class="info-item full-width">
+                <label>Açıklama:</label>
+                <textarea [(ngModel)]="createModel.description" class="form-input" placeholder="Açıklamayı girin" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
+              İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createProduct()" [disabled]="isCreating">
+              @if (isCreating) {
+                <span class="spinner"></span>
+                Kaydediliyor...
+              } @else {
+                Ürün Ekle
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

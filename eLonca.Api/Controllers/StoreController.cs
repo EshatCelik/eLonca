@@ -1,4 +1,5 @@
 ﻿using eLonca.Application.Commands.StoreCommands.StoreCreate;
+using eLonca.Application.Commands.StoreCommands.StoreDelete;
 using eLonca.Application.Queries.StoreQueries.GetAllStore;
 using eLonca.Application.Queries.StoreQueries.GetStoreById;
 using MediatR;
@@ -18,6 +19,12 @@ namespace eLonca.Api.Controllers
         //[Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(StoreCreateCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Delete(StoreDeleteCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);

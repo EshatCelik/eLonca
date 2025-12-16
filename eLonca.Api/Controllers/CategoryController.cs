@@ -1,4 +1,6 @@
 ﻿using eLonca.Application.Commands.CategoryCommands.CategoryCreate;
+using eLonca.Application.Commands.CategoryCommands.CategoryDelete;
+using eLonca.Application.Commands.CategoryCommands.CategoryUpdate;
 using eLonca.Application.Queries.CategoryQueries.GetAllCategory;
 using eLonca.Application.Queries.CategoryQueries.GetUserById;
 using eLonca.Application.Queries.StoreQueries.GetStoreById;
@@ -25,6 +27,12 @@ namespace eLonca.Api.Controllers
             return Ok(response);
         }
         [HttpPost]
+        public async Task<IActionResult> Update(CategoryUpdateCommand createCommand)
+        {
+            var response = await _mediator.Send(createCommand);
+            return Ok(response);
+        }
+        [HttpPost]
         public async Task<IActionResult>GetAll(GetAllCategoryQueryResponse getAllCategoryQueryResponse)
         {
             var response=await _mediator.Send(getAllCategoryQueryResponse);
@@ -32,6 +40,12 @@ namespace eLonca.Api.Controllers
         }
         [HttpPost]
         public async Task<IActionResult> GetById(GetCategoryByIdResponse getCategoryByIdResponse)
+        {
+            var response = await _mediator.Send(getCategoryByIdResponse);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Delete(CategoryDeleteResponse getCategoryByIdResponse)
         {
             var response = await _mediator.Send(getCategoryByIdResponse);
             return Ok(response);

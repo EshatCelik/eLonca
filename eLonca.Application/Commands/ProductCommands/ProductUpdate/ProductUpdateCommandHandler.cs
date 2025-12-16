@@ -21,7 +21,7 @@ namespace eLonca.Application.Commands.ProductCommands.ProductUpdate
 
         public async Task<Result<Product>> Handle(ProductUpdateCommand request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.ProductId);
+            var product = await _productRepository.GetByIdAsync(request.Id);
             if (product == null) { return product; }
 
             product.Data.Barcode = request.Barcode;

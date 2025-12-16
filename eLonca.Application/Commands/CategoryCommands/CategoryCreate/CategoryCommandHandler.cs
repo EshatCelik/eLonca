@@ -19,9 +19,8 @@ namespace eLonca.Application.Commands.CategoryCommands.CategoryCreate
             var category = new Category()
             {
                 Name = request.Name,
-                StoreId = request.StoreId,
-                TenantId = request.TenatId,
-                ColorCode = request.ColorCode,
+                StoreId = request.StoreId, 
+                ColorCode = request.Color,
                 Description = request.Description,
                 ParentCategoryId=request.ParentCategoryId
             };

@@ -4,14 +4,14 @@ import { Observable, map } from 'rxjs';
 import { BaseService } from '../../core/base.service';
 
 @Injectable({ providedIn: 'root' })
-export class CategoriesService extends BaseService {
+export class ProductsService extends BaseService {
   constructor(http: HttpClient) {
     super(http);
   }
 
   getAll(payload?: any): Observable<any[]> {
     const body = payload ?? {};
-    return this.post<any>('Category/GetAll', body).pipe(
+    return this.post<any>('Product/GetAll', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
           throw new Error(res?.message || 'İstek başarısız');
@@ -30,12 +30,12 @@ export class CategoriesService extends BaseService {
   }
 
   create(payload: any): Observable<any> {
-    return this.post<any>('Category/Create', payload);
+    return this.post<any>('Product/Create', payload);
   }
 
   getById(id: string | number): Observable<any> {
     const body = { id } as any;
-    return this.post<any>('Category/GetById', body).pipe(
+    return this.post<any>('Product/GetById', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
           throw new Error(res?.message || 'İstek başarısız');
@@ -47,11 +47,11 @@ export class CategoriesService extends BaseService {
 
   update(id: string | number, payload: any): Observable<any> {
     const body = { id, ...payload } as any;
-    return this.post<any>('Category/Update', body);
+    return this.post<any>('Product/Update', body);
   }
 
   override delete(id: string | number): Observable<any> {
     const body = { id } as any;
-    return this.post<any>('Category/Delete', body);
+    return this.post<any>('Product/Delete', body);
   }
 }
