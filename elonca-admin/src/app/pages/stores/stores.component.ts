@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { DetailModalComponent } from '../../shared/components/detail-modal/detail-modal.component';
 import { StoresService } from './stores.service';
 import { Router } from '@angular/router';
+import { SwalService } from '../../core/swal.service';
 
 @Component({
   selector: 'app-stores-page',
@@ -15,120 +15,119 @@ import { Router } from '@angular/router';
 export class StoresComponent implements OnInit {
   stores: any[] = [];
   isLoading = false;
-  errorMessage = '';
-  showCreate = false;
+  showCreateModal = false;
   isCreating = false;
-  deletingId: string | number | null = null;
   createModel: any = {
     name: '',
     address: '',
     phone: '',
     email: ''
   };
-  createMessage = '';
-  createSuccess = false;
 
   constructor(
-    private readonly storesService: StoresService,
-    private readonly router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private storesService: StoresService,
+    private swalService: SwalService
   ) {}
 
   ngOnInit(): void {
-    this.load();
+    console.log('=== StoresComponent LOADING ===');
+    this.loadStores();
   }
 
-  load(): void {
-    if (this.isLoading) return;
-    this.errorMessage = '';
+  loadStores(): void {
+    console.log('=== Loading stores ===');
     this.isLoading = true;
-
-    this.storesService
-      .getAll()
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (data: any) => {
-          const list = Array.isArray(data) ? data : (data?.items ?? data?.data ?? []);
-          this.stores = Array.isArray(list) ? list : [];
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Mağaza listesi alınamadı.';
-        }
-      });
+    this.cdr.detectChanges();
+    
+    this.storesService.getAll().subscribe({
+      next: (data: any) => {
+        this.stores = Array.isArray(data) ? data : (data?.data || []);
+        this.isLoading = false;
+        console.log('=== Real stores loaded ===', this.stores);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('=== Stores load error ===', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
-  statusLabel(v: any): string {
-    if (v === 1 || v === true || v === 'Active') return 'Aktif';
-    if (v === 0 || v === false || v === 'Passive') return 'Pasif';
-    return v ?? '-';
+  onAddStore(): void {
+    console.log('=== Add store clicked ===');
+    this.showCreateModal = true;
+    this.createModel = {
+      name: '',
+      address: '',
+      phone: '',
+      email: ''
+    };
   }
 
-  toggleCreate(): void {
-    if (this.isCreating) return;
-    this.showCreate = true;
-    this.createMessage = '';
-    this.createSuccess = false;
-    this.createModel = { name: '', address: '', phone: '', email: '' };
-  }
-
-  closeCreate(): void {
-    if (this.isCreating) return;
-    this.showCreate = false;
-    this.createMessage = '';
-    this.createSuccess = false;
-  }
-
-  onCreate(): void {
-    if (this.isCreating) return;
+  createStore(): void {
+    console.log('=== Creating store ===', this.createModel);
     this.isCreating = true;
-    this.storesService
-      .create(this.createModel)
-      .pipe(finalize(() => (this.isCreating = false)))
-      .subscribe({
-        next: () => {
-          this.createMessage = 'Mağaza başarıyla oluşturuldu.';
-          this.createSuccess = true;
-          this.createModel = { name: '', address: '', phone: '', email: '' };
-          this.load();
-        },
-        error: (err) => {
-          this.createMessage = err?.error?.message || 'Mağaza oluşturulamadı.';
-          this.createSuccess = false;
-        }
-      });
+    
+    this.storesService.create(this.createModel).subscribe({
+      next: (result) => {
+        this.showCreateModal = false;
+        this.isCreating = false;
+        this.loadStores();
+        this.swalService.success(result.message || 'Mağaza başarıyla oluşturuldu.');
+      },
+      error: (err) => {
+        console.error('Create error:', err);
+        this.isCreating = false;
+        this.swalService.error('Hata', 'Mağaza oluşturulurken bir hata oluştu.');
+      }
+    });
   }
 
-  onDelete(s: any): void {
-    const id = this.getId(s);
-    if (id == null || this.deletingId != null) return;
-    this.deletingId = id;
-    this.storesService
-      .delete(id)
-      .pipe(finalize(() => (this.deletingId = null)))
-      .subscribe({
-        next: () => {
-          this.load();
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Mağaza silinemedi.';
-        }
-      });
+  onCloseModal(): void {
+    this.showCreateModal = false;
+    this.isCreating = false;
+  }
+
+  onDeleteStore(store: any, event: Event): void {
+    event.stopPropagation();
+    console.log('=== Delete store clicked ===', store);
+    
+    const storeName = store.name || store.storeName || 'Bu mağaza';
+    const storeId = this.getId(store);
+    
+    if (storeId == null) {
+      console.error('Store ID not found');
+      return;
+    }
+    
+    this.swalService.deleteConfirm(storeName).then((result) => {
+      if (result.isConfirmed) {
+        this.storesService.delete(storeId).subscribe({
+          next: () => {
+            this.swalService.success('Mağaza silindi', `${storeName} başarıyla silindi.`);
+            this.loadStores();
+          },
+          error: (err) => {
+            console.error('Delete error:', err);
+            this.swalService.error('Hata', 'Mağaza silinirken bir hata oluştu.');
+          }
+        });
+      }
+    });
+  }
+
+  onStoreClick(store: any): void {
+    console.log('=== Store clicked ===', store);
+    const id = this.getId(store);
+    if (id != null) {
+      this.router.navigate(['/admin/stores', id, 'edit']);
+    }
   }
 
   getId(s: any): string | number | null {
     return s?.id ?? s?.storeId ?? s?.storeID ?? null;
-  }
-
-  onRowClick(store: any, event?: MouseEvent): void {
-    if (event && (event.target as HTMLElement).closest('button')) {
-      return;
-    }
-    
-    event?.preventDefault();
-    event?.stopPropagation();
-    
-    const id = this.getId(store);
-    if (id != null) {
-      this.router.navigate([`/admin/stores/${id}/edit`]);
-    }
   }
 }

@@ -1,98 +1,100 @@
 <div class="stores-page">
-  <h1>Mağazalar</h1>
-
-  <div class="toolbar">
-    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
-      Yeni Mağaza
+  <div class="page-header">
+    <h1>Mağazalar</h1>
+    <button class="add-btn" (click)="onAddStore()">
+      <span>+</span> Ekle
     </button>
-    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
-      {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
-    </button>
-    @if (errorMessage) {
-      <span class="error">{{ errorMessage }}</span>
-    }
   </div>
+  
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
 
-  @if (showCreate) {
-    <div class="modal-overlay" (click)="closeCreate()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Yeni Mağaza Oluştur</h2>
-          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+  @if (!isLoading && stores.length > 0) {
+    <table class="stores-table">
+      <thead>
+        <tr>
+          <th>Mağaza Adı</th>
+          <th>Adres</th>
+          <th>Telefon</th>
+          <th>E-posta</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (store of stores; track store.id) {
+          <tr class="store-row">
+            <td (click)="onStoreClick(store)">{{ store.name || store.storeName || '-' }}</td>
+            <td (click)="onStoreClick(store)">{{ store.address || '-' }}</td>
+            <td (click)="onStoreClick(store)">{{ store.phone || store.phoneNumber || '-' }}</td>
+            <td (click)="onStoreClick(store)">{{ store.email || '-' }}</td>
+            <td (click)="onStoreClick(store)">{{ store.isActive ? 'Aktif' : 'Pasif' }}</td>
+            <td class="actions">
+              <button class="delete-btn" (click)="onDeleteStore(store, $event)">
+                Sil
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (!isLoading && stores.length === 0) {
+    <div class="no-data">Mağaza bulunamadı.</div>
+  }
+
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="onCloseModal()">
+      <div class="modal-container panel-style" (click)="$event.stopPropagation()">
+        <div class="panel-header">
+          <h1>Yeni Mağaza Ekle</h1>
+          <button type="button" class="btn btn-secondary" (click)="onCloseModal()">İptal</button>
         </div>
-        <div class="modal-body">
-          <form class="create-form" (ngSubmit)="onCreate()">
-            <label>
-              Mağaza Adı
-              <input type="text" name="name" [(ngModel)]="createModel.name" required />
-            </label>
-            <label>
-              Adres
-              <textarea name="address" [(ngModel)]="createModel.address" rows="3"></textarea>
-            </label>
-            <label>
-              Telefon
-              <input type="text" name="phone" [(ngModel)]="createModel.phone" />
-            </label>
-            <label>
-              Email
-              <input type="email" name="email" [(ngModel)]="createModel.email" />
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name">
-                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
-                İptal
-              </button>
+
+        <div class="panel-content">
+          <div class="info-section">
+            <h2>Mağaza Bilgileri</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Mağaza Adı:</label>
+                <input type="text" [(ngModel)]="createModel.storeName" class="form-input" placeholder="Mağaza adını girin" />
+              </div>
+              <div class="info-item">
+                <label>Telefon:</label>
+                <input type="text" [(ngModel)]="createModel.phone" class="form-input" placeholder="0555 123 45 67" />
+              </div>
+              <div class="info-item">
+                <label>E Posta :</label>
+                <input type="email" [(ngModel)]="createModel.email" class="form-input" placeholder="eposta girin" />
+              </div>
+              <div class="info-item">
+                <label>Vergi No:</label>
+                <input type="text" [(ngModel)]="createModel.taxNumber" class="form-input" placeholder="vergi no girin" />
+              </div>
+              <div class="info-item full-width">
+                <label>Adres:</label>
+                <textarea [(ngModel)]="createModel.address" class="form-input" placeholder="Adresi girin" rows="3"></textarea>
+              </div>
             </div>
-          </form>
-          @if (createMessage) {
-            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
-              {{ createMessage }}
-            </div>
-          }
+          </div>
+
+          <div class="panel-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
+              İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createStore()" [disabled]="isCreating">
+              @if (isCreating) {
+                <span class="spinner"></span>
+                Kaydediliyor...
+              } @else {
+                Mağaza Ekle
+              }
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  }
-
-  @if (!isLoading && stores.length === 0 && !errorMessage) {
-    <p>Gösterilecek mağaza bulunamadı.</p>
-  }
-
-  @if (stores.length > 0) {
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Mağaza Adı</th>
-            <th>Adres</th>
-            <th>Telefon</th>
-            <th>Email</th>
-            <th>Durum</th>
-            <th>Oluşturulma Tarihi</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of stores; track $index) {
-            <tr (click)="onRowClick(s, $event)" [class.clickable-row]="true">
-              <td>{{ s.name || s.storeName || '-' }}</td>
-              <td>{{ s.address || '-' }}</td>
-              <td>{{ s.phone || s.phoneNumber || '-' }}</td>
-              <td>{{ s.email || '-' }}</td>
-              <td>{{ statusLabel(s.status) }}</td>
-              <td>{{ (s.createdAt || s.createdDate) || '-' }}</td>
-              <td>
-                <button type="button" class="btn btn-danger" (click)="onDelete(s)" [disabled]="deletingId === getId(s) || isLoading">
-                  {{ deletingId === getId(s) ? 'Siliniyor...' : 'Sil' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
     </div>
   }
 </div>

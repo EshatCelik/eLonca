@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { CategoriesService } from './categories.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { StoresService } from '../stores/stores.service';
+import { SwalService } from '../../core/swal.service';
 
 @Component({
   selector: 'app-categories-page',
@@ -12,117 +13,132 @@ import { Subscription } from 'rxjs';
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })
-export class CategoriesComponent implements OnInit, OnDestroy {
+export class CategoriesComponent implements OnInit {
   categories: any[] = [];
+  stores: any[] = [];
   isLoading = false;
-  errorMessage = '';
-  showCreate = false;
+  showCreateModal = false;
   isCreating = false;
-  deletingId: string | number | null = null;
   createModel: any = {
     name: '',
-    description: ''
+    description: '',
+    color: '#007bff',
+    storeId: ''
   };
-  createMessage = '';
-  createSuccess = false;
-  private routerSubscription?: Subscription;
 
   constructor(
-    private readonly categoriesService: CategoriesService,
-    private readonly router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private categoriesService: CategoriesService,
+    private swalService: SwalService,
+    private readonly storesService: StoresService
   ) {}
 
   ngOnInit(): void {
-    this.routerSubscription = this.router.events.subscribe(() => {
-      setTimeout(() => {
-        if (!this.isLoading) {
-          this.load();
-        }
-      }, 50);
+    console.log('=== CategoriesComponent LOADING ===');
+    this.loadCategories();
+    this.loadStores();
+  }
+  loadStores(): void {
+    this.storesService.getAll().subscribe({
+      next: (data: any) => {
+        this.stores = Array.isArray(data) ? data : (data?.data || []);
+        console.log('=== Stores loaded ===', this.stores);
+      },
+      error: (err: any) => {
+        console.error('Stores could not be loaded:', err);
+      }
+    });
+  }
+  loadCategories(): void {
+    console.log('=== Loading categories ===');
+    this.isLoading = true;
+    this.cdr.detectChanges();
+    
+    this.categoriesService.getAll().subscribe({
+      next: (data: any) => {
+        this.categories = Array.isArray(data) ? data : (data?.data || []);
+        this.isLoading = false;
+        console.log('=== Categories loaded ===', this.categories);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('=== Categories load error ===', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+  onAddCategory(): void {
+    console.log('=== Add category clicked ===');
+    this.showCreateModal = true;
+    this.createModel = {
+      name: '',
+      description: '',
+      color: '#007bff',
+      storeId: ''
+    };
   }
 
-  load(): void {
-    if (this.isLoading) return;
-    this.errorMessage = '';
-    this.isLoading = true;
-
-    this.categoriesService
-      .getAll()
-      .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe({
-        next: (data: any) => {
-          const list = Array.isArray(data) ? data : (data?.items ?? data?.data ?? []);
-          this.categories = Array.isArray(list) ? list : [];
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Kategori listesi alınamadı.';
-        }
-      });
-  }
-
-  statusLabel(v: any): string {
-    if (v === 1 || v === true || v === 'Active') return 'Aktif';
-    if (v === 0 || v === false || v === 'Passive') return 'Pasif';
-    return v ?? '-';
-  }
-
-  toggleCreate(): void {
-    if (this.isCreating) return;
-    this.showCreate = true;
-    this.createMessage = '';
-    this.createSuccess = false;
-    this.createModel = { name: '', description: '' };
-  }
-
-  closeCreate(): void {
-    if (this.isCreating) return;
-    this.showCreate = false;
-    this.createMessage = '';
-    this.createSuccess = false;
-  }
-
-  onCreate(): void {
-    if (this.isCreating) return;
+  createCategory(): void {
+    console.log('=== Creating category ===', this.createModel);
     this.isCreating = true;
-    this.categoriesService
-      .create(this.createModel)
-      .pipe(finalize(() => (this.isCreating = false)))
-      .subscribe({
-        next: () => {
-          this.createMessage = 'Kategori başarıyla oluşturuldu.';
-          this.createSuccess = true;
-          this.createModel = { name: '', description: '' };
-          this.load();
-        },
-        error: (err) => {
-          this.createMessage = err?.error?.message || 'Kategori oluşturulamadı.';
-          this.createSuccess = false;
-        }
-      });
+    
+    this.categoriesService.create(this.createModel).subscribe({
+      next: (result) => {
+        this.showCreateModal = false;
+        this.isCreating = false;
+        this.loadCategories();
+        this.swalService.success(result.message || 'Kategori başarıyla oluşturuldu.');
+      },
+      error: (err) => {
+        console.error('Create error:', err);
+        this.isCreating = false;
+        this.swalService.error('Hata', 'Kategori oluşturulurken bir hata oluştu.');
+      }
+    });
   }
 
-  onDelete(c: any): void {
-    const id = this.getId(c);
-    if (id == null || this.deletingId != null) return;
-    this.deletingId = id;
-    this.categoriesService
-      .delete(id)
-      .pipe(finalize(() => (this.deletingId = null)))
-      .subscribe({
-        next: () => {
-          this.load();
-        },
-        error: (err) => {
-          this.errorMessage = err?.error?.message || 'Kategori silinemedi.';
-        }
-      });
+  onCloseModal(): void {
+    this.showCreateModal = false;
+    this.isCreating = false;
+  }
+
+  onDeleteCategory(category: any, event: Event): void {
+    event.stopPropagation();
+    console.log('=== Delete category clicked ===', category);
+    
+    const categoryName = category.name || 'Bu kategori';
+    const categoryId = this.getId(category);
+    
+    if (categoryId == null) {
+      console.error('Category ID not found');
+      return;
+    }
+    
+    this.swalService.deleteConfirm(categoryName).then((result) => {
+      if (result.isConfirmed) {
+        this.categoriesService.delete(categoryId).subscribe({
+          next: () => {
+            this.swalService.success('Kategori silindi', `${categoryName} başarıyla silindi.`);
+            this.loadCategories();
+          },
+          error: (err) => {
+            console.error('Delete error:', err);
+            this.swalService.error('Hata', 'Kategori silinirken bir hata oluştu.');
+          }
+        });
+      }
+    });
+  }
+
+  onCategoryClick(category: any): void {
+    console.log('=== Category clicked ===', category);
+    const id = this.getId(category);
+    if (id != null) {
+      this.router.navigate(['/admin/categories', id, 'edit']);
+    }
   }
 
   getId(c: any): string | number | null {

@@ -20,7 +20,6 @@ namespace eLonca.Application.Commands.ProductCommands.ProductCreate
                 CategoryId = request.CategoryId,
                 StoreId = request.StoreId,
                 SalePrice = request.SalePrice,
-                CurrentStock = request.CurrentStock,
                 ProductCode = request.ProductCode,
                 ProductName = request.ProductName,
                 PurchasePrice = request.PurchasePrice,

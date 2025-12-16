@@ -30,7 +30,7 @@ namespace eLonca.Application.Commands.StoreCommands.StoreCreate
                 Phone = request.Phone,
                 Email = request.Email,
                 TaxNumber = request.TaxNumber,
-                LogoUrl = request.LogoUrl,
+                LogoUrl ="test logo", // TODO: daha sonra logo için geliştirme yapılacak
             };
             var result = await _storeRepository.CreateAsync(store, cancellationToken);
             return result;

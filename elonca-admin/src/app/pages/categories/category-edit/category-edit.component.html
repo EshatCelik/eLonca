@@ -1,0 +1,71 @@
+<div class="category-edit-page">
+  <div class="header">
+    <h1>Kategori Detayları</h1>
+    <button type="button" class="btn btn-secondary" (click)="onClose()">Kapat</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (category) {
+    <div class="content">
+      <div class="info-section">
+        <h2>Kategori Bilgileri</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Kategori Adı:</label>
+            <input type="text" [(ngModel)]="category.name" class="form-input" />
+          </div>
+          <div class="info-item">
+            <label>Durum:</label>
+            <select [(ngModel)]="category.isActive" class="form-input">
+              <option [ngValue]="true">Aktif</option>
+              <option [ngValue]="false">Pasif</option>
+            </select>
+          </div>
+          <div class="info-item">
+            <label>Renk:</label>
+            <div class="color-picker-wrapper">
+              <select [(ngModel)]="category.colorCode" class="form-input color-select">
+                <option value="#007bff">Mavi</option>
+                <option value="#28a745">Yeşil</option>
+                <option value="#dc3545">Kırmızı</option>
+                <option value="#ffc107">Sarı</option>
+                <option value="#6f42c1">Mor</option>
+                <option value="#fd7e14">Turuncu</option>
+                <option value="#20c997">Turkuaz</option>
+                <option value="#6c757d">Gri</option>
+              </select>
+              <div class="color-preview" [style.background-color]="category.colorCode"></div>
+            </div>
+          </div>
+          <div class="info-item">
+            <label>Mağaza:</label>
+            <select [(ngModel)]="category.storeId" class="form-input">
+              <option value="">Mağaza seçin</option>
+              @for (store of stores; track store.id) {
+                <option [value]="store.id">{{ store.name || store.storeName }}</option>
+              }
+            </select>
+          </div>
+          <div class="info-item full-width">
+            <label>Açıklama:</label>
+            <textarea [(ngModel)]="category.description" class="form-input" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions"> 
+        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="isSaving">
+          İptal
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+          {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+        </button>
+      </div>
+    </div>
+  } @if (!category && !isLoading) {
+    <div class="error">Kategori verisi yüklenemedi.</div>
+  }
+</div>

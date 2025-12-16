@@ -9,6 +9,9 @@ import { UserInfo } from './pages/users/user-info/user-info';
 import { StoresComponent } from './pages/stores/stores.component';
 import { StoreEditComponent } from './pages/stores/store-edit/store-edit.component';
 import { CategoriesComponent } from './pages/categories/categories.component';
+import { CategoryEditComponent } from './pages/categories/category-edit/category-edit.component';
+import { ProductsComponent } from './pages/products/products.component';
+import { ProductEditComponent } from './pages/products/product-edit/product-edit.component';
 import { CustomersComponent } from './pages/customers/customers.component';
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
 import { SalesComponent } from './pages/sales/sales.component';
@@ -36,6 +39,9 @@ export const routes: Routes = [
       { path: 'stores', component: StoresComponent },
       { path: 'stores/:id/edit', component: StoreEditComponent },
       { path: 'categories', component: CategoriesComponent },
+      { path: 'categories/:id/edit', component: CategoryEditComponent },
+      { path: 'products', component: ProductsComponent },
+      { path: 'products/:id/edit', component: ProductEditComponent },
       { path: 'customers', component: CustomersComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'sales', component: SalesComponent },

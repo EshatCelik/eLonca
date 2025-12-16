@@ -16,6 +16,6 @@ namespace eLonca.Application.Commands.StoreCommands.StoreCreate
         public string Phone { get; set; }
         public string Email { get; set; }
         public string TaxNumber { get; set; }
-        public string LogoUrl { get; set; }
+        public string? LogoUrl { get; set; }
     }
 }
