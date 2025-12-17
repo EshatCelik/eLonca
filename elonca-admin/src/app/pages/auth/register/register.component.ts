@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/auth.service';
   standalone: true,
   imports: [FormsModule, NgIf],
   templateUrl: './register.component.html',
-  styleUrl: '../login.component.scss'
+  styleUrl: '../login/login.component.scss'
 })
 export class RegisterComponent {
   tenantName = '';

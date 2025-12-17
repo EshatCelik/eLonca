@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [FormsModule, RouterLink, CommonModule],
   templateUrl: './login.component.html',
-  styleUrl: '../login.component.scss'
+  styleUrl: './login.component.scss'
 })
 export class LoginComponent extends BaseComponent {
   email = '';
