@@ -53,3 +53,38 @@
 .login-card button:hover {
   background: #1d4ed8;
 }
+
+.login-card .error-message {
+  margin: 0.5rem 0;
+}
+
+.login-card .error {
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 0.35rem;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.login-card .success-message {
+  margin: 0.5rem 0;
+}
+
+.login-card .info {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.login-card .info a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.login-card .info a:hover {
+  text-decoration: underline;
+}

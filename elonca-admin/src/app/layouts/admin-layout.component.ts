@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, Inject, PLATFORM_ID, HostListener, ElementRef, Renderer2, OnDestroy } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
+import { BaseComponent } from '../core/base.component';
 
 @Component({
   selector: 'app-admin-layout',
@@ -26,9 +27,11 @@ import { AuthService } from '../core/auth.service';
       <div class="main">
         <header class="topbar">
           <div class="alerts">Uyarılar (örnek)</div>
-          <div class="user">
-            <span class="user-name">Admin Kullanıcı</span>
-            <button class="logout" type="button" (click)="onLogout()">Çıkış</button>
+          <div class="user-dropdown">
+            <button class="user-button" (click)="toggleUserMenu()">
+              <span class="user-name">{{ getCurrentUserDisplayName() }}</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
           </div>
         </header>
         <main class="content">
@@ -39,10 +42,152 @@ import { AuthService } from '../core/auth.service';
   `,
   styleUrl: './admin-layout.component.scss'
 })
-export class AdminLayoutComponent {
-  constructor(private readonly authService: AuthService) {}
+export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
+  showUserMenu = false;
+
+  constructor(
+    @Inject(PLATFORM_ID) platformId: Object,
+    private readonly authService: AuthService,
+    private readonly el: ElementRef,
+    private readonly renderer: Renderer2,
+    private readonly router: Router
+  ) {
+    super(platformId);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event): void {
+    if (!this.el.nativeElement.contains(event.target)) {
+      this.removeDropdown();
+      this.showUserMenu = false;
+    }
+  }
+
+  toggleUserMenu(): void {
+    this.showUserMenu = !this.showUserMenu;
+    
+    if (this.showUserMenu) {
+      this.createDropdown();
+    } else {
+      this.removeDropdown();
+    }
+  }
+
+  private createDropdown(): void {
+    // Remove existing dropdown if any
+    this.removeDropdown();
+    
+    // Create dropdown element
+    const dropdown = this.renderer.createElement('div');
+    this.renderer.setStyle(dropdown, 'position', 'fixed');
+    this.renderer.setStyle(dropdown, 'top', '60px');
+    this.renderer.setStyle(dropdown, 'right', '20px');
+    this.renderer.setStyle(dropdown, 'min-width', '200px');
+    this.renderer.setStyle(dropdown, 'background', 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)');
+    this.renderer.setStyle(dropdown, 'border', '1px solid #e2e8f0');
+    this.renderer.setStyle(dropdown, 'border-radius', '12px');
+    this.renderer.setStyle(dropdown, 'padding', '8px 0');
+    this.renderer.setStyle(dropdown, 'box-shadow', '0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)');
+    this.renderer.setStyle(dropdown, 'z-index', '10000');
+    this.renderer.setStyle(dropdown, 'backdrop-filter', 'blur(10px)');
+    this.renderer.setStyle(dropdown, 'animation', 'slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1)');
+    
+    // Add menu items
+    const items = [
+      { text: 'Hesabım', action: 'account' },
+      { text: 'Şifre Değiştir', action: 'password' },
+      { text: 'Çıkış Yap', action: 'logout', color: '#dc3545' }
+    ];
+    
+    items.forEach((item, index) => {
+      if (index === 2) {
+        // Add divider
+        const divider = this.renderer.createElement('div');
+        this.renderer.setStyle(divider, 'height', '1px');
+        this.renderer.setStyle(divider, 'background', '#eee');
+        this.renderer.setStyle(divider, 'margin', '8px 0');
+        this.renderer.appendChild(dropdown, divider);
+      }
+      
+      const menuItem = this.renderer.createElement('a');
+      this.renderer.setProperty(menuItem, 'textContent', item.text);
+      this.renderer.setStyle(menuItem, 'display', 'flex');
+      this.renderer.setStyle(menuItem, 'align-items', 'center');
+      this.renderer.setStyle(menuItem, 'padding', '12px 20px');
+      this.renderer.setStyle(menuItem, 'color', item.color || '#475569');
+      this.renderer.setStyle(menuItem, 'text-decoration', 'none');
+      this.renderer.setStyle(menuItem, 'cursor', 'pointer');
+      this.renderer.setStyle(menuItem, 'transition', 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)');
+      this.renderer.setStyle(menuItem, 'font-weight', '500');
+      this.renderer.setStyle(menuItem, 'font-size', '0.875rem');
+      
+      // Add hover effect
+      this.renderer.listen(menuItem, 'mouseenter', () => {
+        this.renderer.setStyle(menuItem, 'background', item.color ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)');
+        this.renderer.setStyle(menuItem, 'transform', 'translateX(4px)');
+      });
+      
+      this.renderer.listen(menuItem, 'mouseleave', () => {
+        this.renderer.setStyle(menuItem, 'background', 'transparent');
+        this.renderer.setStyle(menuItem, 'transform', 'translateX(0)');
+      });
+      
+      this.renderer.listen(menuItem, 'click', () => {
+        this.handleMenuAction(item.action);
+      });
+      
+      this.renderer.appendChild(dropdown, menuItem);
+    });
+    
+    // Add to body
+    this.renderer.setAttribute(dropdown, 'data-user-dropdown', 'true');
+    this.renderer.appendChild(document.body, dropdown);
+  }
+
+  private removeDropdown(): void {
+    const existing = document.querySelector('[data-user-dropdown="true"]');
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  private handleMenuAction(action: string): void {
+    this.removeDropdown();
+    this.showUserMenu = false;
+    
+    switch (action) {
+      case 'account':
+        this.onMyAccount();
+        break;
+      case 'password':
+        this.onChangePassword();
+        break;
+      case 'logout':
+        this.onLogout();
+        break;
+    }
+  }
+
+  onMyAccount(): void {
+    this.removeDropdown();
+    this.showUserMenu = false;
+    this.router.navigate(['/admin/profile']);
+  }
+
+  onChangePassword(): void {
+    this.removeDropdown();
+    this.showUserMenu = false;
+    this.router.navigate(['/admin/change-password']);
+  }
 
   onLogout(): void {
+    this.removeDropdown();
+    this.showUserMenu = false;
     this.authService.logout();
+  }
+
+  ngOnDestroy(): void {
+    this.removeDropdown();
+    this.showUserMenu = false;
   }
 }

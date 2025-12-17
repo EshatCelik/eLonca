@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layouts/admin-layout.component';
-import { LoginComponent } from './pages/auth/login.component';
-import { RegisterComponent } from './pages/auth/register.component';
+import { LoginComponent } from './pages/auth/login/login.component';
+import { RegisterComponent } from './pages/auth/register/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { TenantsComponent } from './pages/tenants/tenants.component';
 import { UserListComponent } from './pages/users/user-list/user-list.component';
@@ -17,6 +17,8 @@ import { CustomerEditComponent } from './pages/customers/customer-edit/customer-
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
 import { SalesComponent } from './pages/sales/sales.component';
 import { ReceivablesComponent } from './pages/receivables/receivables.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { ChangePasswordComponent } from './pages/profile/change-password.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -48,6 +50,8 @@ export const routes: Routes = [
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'sales', component: SalesComponent },
       { path: 'receivables', component: ReceivablesComponent },
+      { path: 'profile', component: ProfileComponent },
+      { path: 'change-password', component: ChangePasswordComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

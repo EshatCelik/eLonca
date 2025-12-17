@@ -12,12 +12,10 @@ namespace eLonca.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
         private readonly IMediator _mediator;
 
-        public AuthController(IAuthService authService, IMediator mediator)
+        public AuthController(IMediator mediator)
         {
-            _authService = authService;
             _mediator = mediator;
         }
 

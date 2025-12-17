@@ -1,0 +1,64 @@
+<div class="profile-page">
+  <div class="header">
+    <h1>Hesabım</h1>
+    <button type="button" class="btn btn-secondary" (click)="onEditProfile()">Profili Düzenle</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (!isLoading) {
+    <div class="content">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="avatar">
+            <span class="avatar-text">{{ profileData.fullName.charAt(0).toUpperCase() }}</span>
+          </div>
+          <div class="profile-info">
+            <h2>{{ profileData.fullName }}</h2>
+            <p class="role">{{ profileData.role }}</p>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <div class="detail-section">
+            <h3>Kişisel Bilgiler</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Ad Soyad:</label>
+                <span>{{ profileData.fullName }}</span>
+              </div>
+              <div class="detail-item">
+                <label>E-posta:</label>
+                <span>{{ profileData.email }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Rol:</label>
+                <span>{{ profileData.role }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Kayıt Tarihi:</label>
+                <span>{{ profileData.createdAt }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3>Kurumsal Bilgiler</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Tenant:</label>
+                <span>{{ profileData.tenantName }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Mağaza ID:</label>
+                <span>{{ profileData.storeId }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

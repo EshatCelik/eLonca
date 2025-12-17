@@ -1,0 +1,42 @@
+<div class="login-wrapper">
+  <form class="login-card" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+    <h1>Admin Giriş</h1>
+    
+    <label>
+      E-posta / Kullanıcı Adı
+      <input
+        type="text"
+        name="email"
+        required
+        [(ngModel)]="email"
+        [disabled]="isLoading"
+      />
+    </label>
+    
+    <label>
+      Şifre
+      <input
+        type="password"
+        name="password"
+        required
+        [(ngModel)]="password"
+        [disabled]="isLoading"
+      />
+    </label>
+    
+    <button 
+      type="submit" 
+      [disabled]="loginForm.invalid || isLoading">
+      {{ isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap' }}
+    </button>
+    
+    <div class="error-message" *ngIf="errorMessage">
+      <p class="error">{{ errorMessage }}</p>
+    </div>
+    
+    <p class="info">
+      Hesabın yok mu?
+      <a routerLink="/register">Kayıt ol</a>
+    </p>
+  </form>
+</div>

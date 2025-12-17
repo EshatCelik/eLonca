@@ -1,0 +1,95 @@
+<div class="login-wrapper">
+  <form class="login-card" (ngSubmit)="onSubmit()" #registerForm="ngForm">
+    <h1>Tenant Kayıt</h1>
+
+    <label>
+      Firma Adı (TenantName)
+      <input
+        type="text"
+        name="tenantName"
+        required
+        [(ngModel)]="tenantName"
+      />
+    </label>
+
+    <label>
+      Firma Email (TenantEmail)
+      <input
+        type="email"
+        name="tenantEmail"
+        required
+        [(ngModel)]="tenantEmail"
+      />
+    </label>
+
+    <label>
+      Kullanıcı Adı (UserName)
+      <input
+        type="text"
+        name="userName"
+        required
+        [(ngModel)]="userName"
+      />
+    </label>
+
+    <label>
+      Ad
+      <input
+        type="text"
+        name="firstName"
+        required
+        [(ngModel)]="firstName"
+      />
+    </label>
+
+    <label>
+      Soyad
+      <input
+        type="text"
+        name="lastName"
+        required
+        [(ngModel)]="lastName"
+      />
+    </label>
+
+    <label>
+      Kullanıcı Email
+      <input
+        type="email"
+        name="userEmail"
+        required
+        [(ngModel)]="userEmail"
+      />
+    </label>
+
+    <label>
+      Şifre
+      <input
+        type="password"
+        name="password"
+        required
+        [(ngModel)]="password"
+      />
+    </label>
+
+    <label>
+      Şifre Tekrar
+      <input
+        type="password"
+        name="passwordConfirm"
+        required
+        [(ngModel)]="passwordConfirm"
+      />
+    </label>
+
+    <button type="submit" [disabled]="registerForm.invalid">Kayıt Ol</button>
+    
+    <div class="error-message" *ngIf="errorMessage">
+      <p class="error">{{ errorMessage }}</p>
+    </div>
+    
+    <div class="success-message" *ngIf="successMessage">
+      <p class="info">{{ successMessage }}</p>
+    </div>
+  </form>
+</div>
