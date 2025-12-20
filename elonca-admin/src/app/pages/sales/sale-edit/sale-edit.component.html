@@ -1,135 +1,138 @@
 <div class="sale-edit-page">
   <div class="page-header">
-    <h1>Satış Düzenle</h1>
+    <h1>Satış Detayı</h1>
     <div class="header-actions">
       <button type="button" class="btn btn-secondary" (click)="onClose()">
-        Geri Dön
-      </button>
-      <button type="button" class="btn btn-danger" (click)="onDelete()" [disabled]="isLoading">
-        Sil
-      </button>
+        <i class="fas fa-arrow-left"></i> Geri Dön
+      </button> 
       <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving || isLoading">
-        {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+        <i class="fas fa-save"></i> {{ isSaving ? 'Güncelleniyor...' : 'Güncelle' }}
       </button>
     </div>
   </div>
 
   @if (isLoading) {
-    <div class="loading">Yükleniyor...</div>
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Yükleniyor...</p>
+    </div>
   }
 
   @if (!isLoading && sale) {
-    <div class="form-container">
-      <form class="sale-form" (ngSubmit)="onSave()">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="customerSelect">Müşteri</label>
-            <select 
-              id="customerSelect" 
-              [(ngModel)]="sale.customerId" 
-              name="customerId"
-              class="form-control"
-              (change)="calculateTotal()"
-            >
-              <option value="">Müşteri seçin</option>
-              @for (customer of customers; track customer.id) {
-                <option [value]="customer.id">{{ customer.name || customer.firstName + ' ' + customer.lastName }}</option>
-              }
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="productName">Ürün Adı</label>
-            <input 
-              type="text" 
-              id="productName" 
-              [(ngModel)]="sale.productName" 
-              name="productName"
-              class="form-control"
-              placeholder="Ürün adını girin"
-              required
-            />
-          </div>
-        </div>
+    <!-- Özet Kartı -->
+    <div class="summary-card">
+      <h4>Özet Bilgiler</h4>
+      <div class="amount">{{ formatCurrency(sale.totalAmount) }}</div>
+      <div class="status">
+        <span class="payment-type-badge" [ngClass]="{
+          'cash': sale.paymentType === 1,
+          'card': sale.paymentType === 2,
+          'bank': sale.paymentType === 3,
+          'credit': sale.paymentType === 4,
+          'debt': sale.paymentType === 5
+        }">
+          {{ paymentTypeLabel(sale.paymentType) }}
+        </span>
+        <span class="payment-status-badge" [ngClass]="{
+          'paid': sale.paymentStatus === 1,
+          'partial': sale.paymentStatus === 2,
+          'pending': sale.paymentStatus === 3,
+          'cancelled': sale.paymentStatus === 4
+        }">
+          {{ paymentStatusLabel(sale.paymentStatus) }}
+        </span>
+        <span class="payment-status-badge" [ngClass]="{
+          'paid': sale.isActive,
+          'cancelled': !sale.isActive
+        }">
+          {{ sale.isActive ? 'Aktif' : 'Pasif' }}
+        </span>
+      </div> 
+    </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="quantity">Miktar</label>
-            <input 
-              type="number" 
-              id="quantity" 
-              [(ngModel)]="sale.quantity" 
-              name="quantity"
-              class="form-control"
-              (input)="calculateTotal()"
-              min="1"
-              required
-            />
+    <div class="sale-details">
+      <!-- Genel Bilgiler -->
+      <div class="detail-section">
+        <h3><i class="fas fa-info-circle"></i>Genel Bilgiler</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Fatura No</label>
+            <input type="text" [(ngModel)]="sale.invoiceNumber" class="form-control" placeholder="Fatura numarası" />
           </div>
+          <div class="detail-item">
+            <label>Satış Tarihi</label>
+            <div class="form-control readonly">{{ formatDate(sale.saleDate) }}</div>
+          </div>
+          <div class="detail-item">
+            <label>Toplam Tutar</label>
+            <input type="number" [(ngModel)]="sale.totalAmount" class="form-control" step="0.01" placeholder="0.00" />
+          </div>   
+        </div>
+        <div class="detail-grid">  
           
-          <div class="form-group">
-            <label for="unitPrice">Birim Fiyat</label>
-            <input 
-              type="number" 
-              id="unitPrice" 
-              [(ngModel)]="sale.unitPrice" 
-              name="unitPrice"
-              class="form-control"
-              (input)="calculateTotal()"
-              min="0"
-              step="0.01"
-              required
-            />
+          <div class="detail-item full-width">
+            <textarea [(ngModel)]="sale.notes" class="form-control" rows="4" placeholder="Satışla ilgili notlar..."></textarea>
           </div>
         </div>
+      </div>  
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="totalAmount">Toplam Tutar</label>
-            <input 
-              type="number" 
-              id="totalAmount" 
-              [(ngModel)]="sale.totalAmount" 
-              name="totalAmount"
-              class="form-control"
-              readonly
-            />
+      <!-- Satış Ürünleri -->
+      <div class="detail-section">
+        <h3><i class="fas fa-shopping-cart"></i>Satış Ürünleri</h3>
+        @if (sale.saleItems && sale.saleItems.length > 0) {
+          <div class="items-table">
+            <div class="table-header">
+              <div class="header-cell">Ürün Kodu</div>
+              <div class="header-cell">Ürün Adı</div>
+              <div class="header-cell">Miktar</div>
+              <div class="header-cell">Birim Fiyat</div>
+              <div class="header-cell">İndirim</div>
+              <div class="header-cell">Toplam Fiyat</div>
+            </div>
+            @for (item of sale.saleItems; track item.id) {
+              <div class="table-row">
+                <div class="table-cell">{{ item.productCode || '-' }}</div>
+                <div class="table-cell product-name">{{ item.productName || '-' }}</div>
+                <div class="table-cell quantity">{{ item.quantity || 0 }}</div>
+                <div class="table-cell price">{{ formatCurrency(item.unitPrice) }}</div>
+                <div class="table-cell discount">
+                  @if (item.discount) {
+                    {{ item.discount }}%
+                  } @else if (item.customerDiscount && item.customerDiscount > 0) {
+                    {{ item.customerDiscount }}%
+                  } @else {
+                    -
+                  }
+                </div>
+                <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div>
+              </div>
+            }
+            <div class="table-footer">
+              <div class="footer-cell"></div>
+              <div class="footer-cell"></div>
+              <div class="footer-cell"></div>
+              <div class="footer-cell"></div>
+              <div class="footer-cell"><strong>Toplam:</strong></div>
+              <div class="footer-cell total-amount">{{ formatCurrency(sale.totalAmount) }}</div>
+            </div>
           </div>
-          
-          <div class="form-group">
-            <label for="status">Durum</label>
-            <select 
-              id="status" 
-              [(ngModel)]="sale.status" 
-              name="status"
-              class="form-control"
-            >
-              <option value="1">Aktif</option>
-              <option value="0">Pasif</option>
-            </select>
+        } @else {
+          <div class="no-items">
+            <i class="fas fa-box-open"></i>
+            <p>Bu satışta ürün bulunmamaktadır.</p>
           </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group full-width">
-            <label for="notes">Notlar</label>
-            <textarea 
-              id="notes" 
-              [(ngModel)]="sale.notes" 
-              name="notes"
-              class="form-control"
-              rows="3"
-              placeholder="Ek notlar..."
-            ></textarea>
-          </div>
-        </div>
-      </form>
+        }
+      </div> 
     </div>
   }
 
   @if (!isLoading && !sale) {
-    <div class="error-message">
-      Satış bilgileri bulunamadı.
+    <div class="error-container">
+      <h3><i class="fas fa-exclamation-triangle"></i> Satış bulunamadı</h3>
+      <p>İstediğiniz satış bilgileri mevcut değil veya silinmiş olabilir.</p>
+      <button type="button" class="btn btn-primary" (click)="onClose()">
+        <i class="fas fa-arrow-left"></i> Geri Dön
+      </button>
     </div>
   }
 </div>
