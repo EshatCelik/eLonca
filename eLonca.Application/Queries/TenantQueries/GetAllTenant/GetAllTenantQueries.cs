@@ -3,7 +3,7 @@ using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
-namespace eLonca.Application.Queries.TenantQueries
+namespace eLonca.Application.Queries.TenantQueries.GetAllTenant
 {
     public class GetAllTenantQueries : IRequestHandler<GetAllTenantResponse, Result<List<Tenant>>>
     {

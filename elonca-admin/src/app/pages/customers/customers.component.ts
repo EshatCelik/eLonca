@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angu
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { CustomersService } from './customers.service';
+import { CustomerSearchService } from './customer-search.service';
 import { StoresService } from '../stores/stores.service';
 import { Router } from '@angular/router';
 import { SwalService } from '../../core/swal.service';
@@ -39,6 +40,7 @@ export class CustomersComponent extends BaseComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private customersService: CustomersService,
+    private customerSearchService: CustomerSearchService,
     private storesService: StoresService,
     private swalService: SwalService
   ) {
@@ -53,16 +55,39 @@ export class CustomersComponent extends BaseComponent implements OnInit {
 
   setupCurrentUserStoreId(): void {
     this.refreshUserData(); // BaseComponent method
-    this.createModel.userStoreId = this.currentStoreId || this.currentTenantId;
+    
+    // TenantId'yi doğrudan localStorage'dan al (SSR kontrolü ile)
+    let tenantId = null;
+    if (this.isBrowser()) {
+      try {
+        tenantId = localStorage.getItem('tenant_id');
+        console.log('=== Tenant ID from localStorage ===', tenantId);
+      } catch (error) {
+        console.log('=== localStorage access failed ===', error);
+      }
+    } else {
+      console.log('=== Running on server - localStorage not available ===');
+    }
+    
+    this.createModel.userStoreId = this.currentStoreId || tenantId || this.currentTenantId;
     console.log('=== Current user store ID ===', this.createModel.userStoreId);
   }
 
   loadCustomers(): void {
     console.log('=== Loading customers ===');
+    
+    // SSR'de API çağrısı yapma (SSL certificate sorunu)
+    if (!this.isBrowser()) {
+      console.log('=== Running on server - skipping customer load ===');
+      return;
+    }
+    
     this.isLoading = true;
     this.cdr.detectChanges();
-    
-    this.customersService.getAll().subscribe({
+    const model={
+      storeId:this.currentStoreId
+    }
+    this.customersService.getAll(model).subscribe({
       next: (data: any) => {
         this.customers = Array.isArray(data) ? data : (data?.data || []);
         this.isLoading = false;
@@ -102,7 +127,7 @@ export class CustomersComponent extends BaseComponent implements OnInit {
     }
 
     this.isSearching = true;
-    this.storesService.getAllStoreByName({ storeName: this.searchQuery }).subscribe({
+    this.customerSearchService.searchByName(this.searchQuery, this.currentStoreId).subscribe({
       next: (data: any) => {
         this.searchResults = Array.isArray(data) ? data : (data?.data || []);
         this.isSearching = false;
@@ -203,7 +228,9 @@ export class CustomersComponent extends BaseComponent implements OnInit {
     console.log('=== Extracted IDs ===', ids);
     
     if (ids != null && ids.storeId && ids.storeCustomerId) { 
-      this.router.navigate(['/admin/customers', ids.storeId, ids.storeCustomerId, 'edit']);
+      if (this.isBrowser()) {
+        this.router.navigate(['/admin/customers', ids.id,'edit']);
+      }
     } else {
       console.error('=== No valid customer IDs found ===');
       this.swalService.error('Hata', 'Müşteri ID bulunamadı. Detay sayfasına gidilemiyor.');

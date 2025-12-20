@@ -9,8 +9,8 @@ export class CustomerSearchService extends BaseService {
     super(http);
   }
 
-  searchByName(storeName: string): Observable<any[]> {
-    const body = { storeName } as any;
+  searchByName(storeName: string, storeId?: string): Observable<any[]> {
+    const body = { storeName, storeId } as any;
     return this.post<any>('Customer/SearchByName', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
@@ -28,9 +28,5 @@ export class CustomerSearchService extends BaseService {
       })
     );
   }
-
-  addToMyCustomers(customerId: string | number): Observable<any> {
-    const body = { customerId } as any;
-    return this.post<any>('Customer/AddToMyCustomers', body);
-  }
+ 
 }

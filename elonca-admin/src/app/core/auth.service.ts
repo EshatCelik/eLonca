@@ -1,25 +1,62 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { tap, catchError, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _isAuthenticated = signal(false);
-
+  private readonly _isAuthenticated = signal<boolean>(false);
   private readonly apiBase = 'https://localhost:7145/api/Auth';
   private readonly tokenKey = 'auth_token';
   private readonly tenantIdKey = 'tenant_id';
 
-  readonly isAuthenticated = this._isAuthenticated;
+  readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
   constructor(
     private readonly router: Router,
-    private readonly http: HttpClient
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {
+    // Geçici olarak her zaman authenticated yap
+    this._isAuthenticated.set(true);
+    console.log('User temporarily authenticated from constructor');
+    
+    // Sadece browser'da token kontrolü yap
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeAuth();
+    } else {
+      console.log('Running on server - skipping auth initialization');
+      // Server'da false olarak başla, browser'da güncellenecek
+      this._isAuthenticated.set(false);
+    }
+  }
+
+  // Browser'da auth kontrolünü tetiklemek için public method
+  checkAuthOnBrowser(): void {
+    // Geçici olarak devre dışı bırak
+    console.log('Auth check temporarily disabled');
+    
+    // if (isPlatformBrowser(this.platformId)) {
+    //   console.log('Browser auth check triggered');
+    //   this.initializeAuth();
+    // }
+  }
+
+  private initializeAuth(): void {
     const token = this.getToken();
-    const tenantId = this.getTenantId();
-    this._isAuthenticated.set(!!token);
+    console.log('Initial auth check - Token exists:', !!token);
+    
+    // Eğer token varsa ve geçerliyse authenticated olarak işaretle
+    if (token) {
+      this._isAuthenticated.set(true);
+      console.log('User authenticated from stored token');
+      console.log('Signal value after set:', this._isAuthenticated());
+    } else {
+      this._isAuthenticated.set(false);
+      console.log('No token found - user not authenticated');
+      console.log('Signal value after set:', this._isAuthenticated());
+    }
   }
 
   login(userName: string, password: string) {
@@ -69,9 +106,17 @@ export class AuthService {
   }
 
   getToken(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      console.log('Running on server - cannot access localStorage');
+      return null;
+    }
+    
     try {
-      return localStorage.getItem(this.tokenKey);
+      const token = localStorage.getItem(this.tokenKey);
+      console.log('Browser - Token from localStorage:', !!token);
+      return token;
     } catch {
+      console.log('Browser - localStorage access failed');
       return null;
     }
   }

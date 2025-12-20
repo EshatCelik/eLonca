@@ -1,6 +1,6 @@
 ﻿using eLonca.Application.Commands.StoreCommands.StoreCreate;
 using eLonca.Application.Commands.StoreCommands.StoreDelete;
-using eLonca.Application.Queries;
+using eLonca.Application.Queries.CustomerQueries.GetAllCustomerByName;
 using eLonca.Application.Queries.StoreQueries.GetAllStore;
 using eLonca.Application.Queries.StoreQueries.GetStoreById;
 using MediatR;

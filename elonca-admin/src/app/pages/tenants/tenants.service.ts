@@ -37,4 +37,14 @@ export class TenantsService extends BaseService {
     const body = { id } as any;
     return this.post<any>('Tenant/Delete', body);
   }
+
+  getById(id: string | number): Observable<any> {
+    const body = { id } as any;
+    return this.post<any>('Tenant/GetById', body);
+  }
+
+  update(id: string | number, payload: any): Observable<any> {
+    const body = { ...payload, id } as any;
+    return this.post<any>('Tenant/Update', body);
+  }
 }

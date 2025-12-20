@@ -54,7 +54,7 @@ namespace eLonca.Infrastructure.Persistence
                 modelBuilder.Entity<Sale>().HasQueryFilter(s => s.TenantId == tenantId);
                 modelBuilder.Entity<SaleItem>().HasQueryFilter(si => si.TenantId == tenantId);
                 modelBuilder.Entity<StockMovement>().HasQueryFilter(sm => sm.TenantId == tenantId);
-                modelBuilder.Entity<Store>().HasQueryFilter(s => s.TenantId == tenantId);
+                //modelBuilder.Entity<Store>().HasQueryFilter(s => s.TenantId == tenantId);
             }
 
             base.OnModelCreating(modelBuilder);

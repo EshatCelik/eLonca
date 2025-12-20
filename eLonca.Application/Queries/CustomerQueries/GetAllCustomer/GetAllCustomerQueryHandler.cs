@@ -31,7 +31,7 @@ namespace eLonca.Application.Queries.CustomerQueries.GetAllCustomer
             {
                 return Result<List<StoreCustomerDto>>.Failure(null, "Tenant bulunamadı", 400);
             }
-            var customer = await _customerRepository.GetAllStoreCustomer(tenant.Data, cancellationToken);
+            var customer = await _customerRepository.GetAllStoreCustomer(request.StoreId, cancellationToken);
 
             return customer;
         } 

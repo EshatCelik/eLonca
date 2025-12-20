@@ -2,7 +2,7 @@
   <h1>Tenantlar</h1>
 
   <div class="toolbar">
-    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
+    <button type="button" class="btn btn-primary" (click)="onAddTenant()" [disabled]="isCreating">
       Yeni Kiracı Ekle
     </button> 
     @if (errorMessage) {
@@ -10,15 +10,15 @@
     }
   </div>
 
-  @if (showCreate) {
-    <div class="modal-overlay" (click)="closeCreate()">
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="onCloseModal()">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h2>Yeni Kiracı Oluştur</h2>
-          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
+          <button type="button" class="modal-close" (click)="onCloseModal()">×</button>
         </div>
         <div class="modal-body">
-          <form class="create-form" (ngSubmit)="onCreate()">
+          <form class="create-form" (ngSubmit)="onCreateTenant()">
             <label>
               Ad
               <input type="text" name="name" [(ngModel)]="createModel.name" required />
@@ -35,7 +35,7 @@
               <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.name || !createModel.contractEmail">
                 {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
               </button>
-              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
+              <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
                 İptal
               </button>
             </div>
@@ -72,7 +72,7 @@
         </thead>
         <tbody>
           @for (t of tenants; track $index) {
-            <tr (click)="onRowClick(t, $event)" [class.clickable-row]="true">
+            <tr (click)="onTenantClick(t)" [class.clickable-row]="true">
               <td>{{ t.name || '-' }}</td>
               <td>{{ t.contractEmail || '-' }}</td>
               <td>{{ t.contractPhone || '-' }}</td>
@@ -82,7 +82,7 @@
               <td>{{ t.maxStores ?? '-' }}</td>
               <td>{{ (t.subscriptionEndDate || t.subscriptionEnd) || '-' }}</td>
               <td>
-                <button type="button" class="btn btn-danger" (click)="onDelete(t)" [disabled]="deletingId === getId(t) || isLoading">
+                <button type="button" class="btn btn-danger" (click)="onDeleteTenant(t, $event)" [disabled]="deletingId === getId(t) || isLoading">
                   {{ deletingId === getId(t) ? 'Siliniyor...' : 'Sil' }}
                 </button>
               </td>

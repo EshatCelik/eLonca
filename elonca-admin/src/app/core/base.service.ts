@@ -21,7 +21,8 @@ export class BaseService {
   }
 
   post<T = any>(endpoint: string, body?: any): Observable<T> {
-    return this.http.post<T>(`${this.apiBase}/${endpoint}`, body);
+    const headers = { 'Content-Type': 'application/json' };
+    return this.http.post<T>(`${this.apiBase}/${endpoint}`, body, { headers });
   }
 
   put<T = any>(endpoint: string, body?: any): Observable<T> {

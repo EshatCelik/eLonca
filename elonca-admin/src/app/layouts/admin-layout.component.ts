@@ -2,6 +2,7 @@ import { Component, Inject, PLATFORM_ID, HostListener, ElementRef, Renderer2, On
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 import { BaseComponent } from '../core/base.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-layout',
@@ -44,6 +45,7 @@ import { BaseComponent } from '../core/base.component';
 })
 export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
   showUserMenu = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -53,6 +55,23 @@ export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
     private readonly router: Router
   ) {
     super(platformId);
+    
+    // Browser'da auth kontrolünü tetikle ve yönlendir
+    setTimeout(() => {
+      this.authService.checkAuthOnBrowser();
+      
+      // 100ms sonra auth durumunu kontrol et
+      setTimeout(() => {
+        // Geçici olarak auth kontrolünü devre dışı bırak
+        // if (!this.authService.isAuthenticated()) {
+        //   console.log('Not authenticated - redirecting to login');
+        //   this.router.navigate(['/login']);
+        // } else {
+        //   console.log('Authenticated - staying on page');
+        // }
+        console.log('Auth check temporarily disabled');
+      }, 100);
+    }, 0);
   }
 
   @HostListener('document:click', ['$event'])
@@ -141,13 +160,17 @@ export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
     
     // Add to body
     this.renderer.setAttribute(dropdown, 'data-user-dropdown', 'true');
-    this.renderer.appendChild(document.body, dropdown);
+    if (this.isBrowser()) {
+      this.renderer.appendChild(document.body, dropdown);
+    }
   }
 
   private removeDropdown(): void {
-    const existing = document.querySelector('[data-user-dropdown="true"]');
-    if (existing) {
-      existing.remove();
+    if (this.isBrowser()) {
+      const existing = document.querySelector('[data-user-dropdown="true"]');
+      if (existing) {
+        existing.remove();
+      }
     }
   }
 
@@ -189,5 +212,11 @@ export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.removeDropdown();
     this.showUserMenu = false;
+    // Tüm subscription'ları temizle
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  override getCurrentUserDisplayName(): string {
+    return this.currentUser?.fullName || this.currentUser?.email || 'Admin';
   }
 }
