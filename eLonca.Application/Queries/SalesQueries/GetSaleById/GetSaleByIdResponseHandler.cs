@@ -1,11 +1,12 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.DTOs;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
 namespace eLonca.Application.Queries.SalesQueries.GetSaleById
 {
-    public class GetSaleByIdResponseHandler : IRequestHandler<GetSaleByIdResponse, Result<Sale>>
+    public class GetSaleByIdResponseHandler : IRequestHandler<GetSaleByIdResponse, Result<GetAllSalesDto>>
     {
         private readonly ISaleRepository _saleRepository;
 
@@ -14,12 +15,12 @@ namespace eLonca.Application.Queries.SalesQueries.GetSaleById
             _saleRepository = saleRepository;
         }
 
-        public async Task<Result<Sale>> Handle(GetSaleByIdResponse request, CancellationToken cancellationToken)
+        public async Task<Result<GetAllSalesDto>> Handle(GetSaleByIdResponse request, CancellationToken cancellationToken)
         {
-            var sale = await _saleRepository.GetByIdAsync(request.Id);
+            var sale = await _saleRepository.GetSaleById(request.Id,cancellationToken);
             if (!sale.IsSuccess)
             {
-                return Result<Sale>.Failure(sale.Errors, sale.Message, sale.StatusCode);
+                return Result<GetAllSalesDto>.Failure(sale.Errors, sale.Message, sale.StatusCode);
             }
             return sale;
         }

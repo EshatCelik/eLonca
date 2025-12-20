@@ -73,6 +73,7 @@
           <th>Toplam Tutar</th>
           <th>Tarih</th>
           <th>Ödeme Tipi</th>
+          <th>Durum</th>
           <th>İşlemler</th>
         </tr>
       </thead>
@@ -85,6 +86,14 @@
             <td (click)="onSaleClick(sale)">{{ sale.totalAmount || '-' }}</td>
             <td (click)="onSaleClick(sale)">{{ (sale.createdAt || sale.saleDate) || '-' }}</td>
             <td (click)="onSaleClick(sale)">{{ statusLabel(sale.paymentType) }}</td>
+            <td (click)="onSaleClick(sale)">{{ sale.isActive }}</td>
+            <td>
+                
+                  <button type="button" class="delete-btn"  >
+                    {{ sale.isActive ? 'Aktif' : 'Pasif' }}
+                  </button>
+
+            </td>
             <td>
               <button type="button" class="delete-btn" (click)="onDelete(sale)" [disabled]="deletingId === getId(sale) || isLoading">
                 {{ deletingId === getId(sale) ? 'Siliniyor...' : 'Sil' }}

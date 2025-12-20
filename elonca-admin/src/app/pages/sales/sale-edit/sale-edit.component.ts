@@ -1,26 +1,24 @@
 import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, timeout, catchError } from 'rxjs';
 import { of } from 'rxjs';
 import { SalesService } from '../sales.service';
-import { CustomersService } from '../../customers/customers.service';
 import { SwalService } from '../../../core/swal.service';
 import { BaseComponent } from '../../../core/base.component';
 
 @Component({
   selector: 'app-sale-edit',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './sale-edit.component.html',
   styleUrls: ['./sale-edit.component.scss']
 })
 export class SaleEditComponent extends BaseComponent implements OnInit {
   sale: any = null;
-  customers: any[] = [];
   isLoading = false;
   isSaving = false;
-  createModel: any = {};
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -28,7 +26,6 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private salesService: SalesService,
-    private customersService: CustomersService,
     private swalService: SwalService
   ) {
     super(platformId);
@@ -36,13 +33,11 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSale();
-    this.loadCustomers();
   }
 
   loadSale(): void {
     if (this.isLoading) return;
     
-    // SSR'de API çağrısı yapma (SSL certificate sorunu)
     if (!this.isBrowser()) {
       console.log('=== SaleEdit - Running on server - skipping sale load ===');
       return;
@@ -72,31 +67,26 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (data: any) => {
-          if (data) {
-            this.sale = data;
+        next: (response: any) => {
+          console.log('=== SaleEdit - API Response ===', response);
+          
+          if (response?.isSuccess && response?.data) {
+            this.sale = response.data;
+            console.log('=== SaleEdit - Sale loaded ===', this.sale);
+          } else {
+            this.swalService.error('Hata', response?.message || 'Satış bilgileri alınamadı.');
           }
+          
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.log('=== SaleEdit - Load error ===', err);
+          this.swalService.error('Hata', 'Satış bilgileri yüklenemedi.');
           this.isLoading = false;
           this.cdr.detectChanges();
         }
       });
-  }
-
-  loadCustomers(): void {
-    if (!this.isBrowser()) {
-      console.log('=== SaleEdit - Running on server - skipping customers load ===');
-      return;
-    }
-    
-    this.customersService.getAll({}).subscribe({
-      next: (data: any) => {
-        const list = Array.isArray(data) ? data : (data?.items ?? data?.data ?? []);
-        this.customers = Array.isArray(list) ? list : [];
-      },
-      error: (err: any) => {
-        console.error('Müşteri listesi alınamadı:', err);
-      }
-    });
   }
 
   onSave(): void {
@@ -106,24 +96,39 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
 
     const updateData = {
       id: this.sale.id,
-      customerId: this.sale.customerId,
-      productName: this.sale.productName,
-      quantity: this.sale.quantity,
-      unitPrice: this.sale.unitPrice,
-      totalAmount: this.sale.totalAmount
+      invoiceNumber: this.sale.invoiceNumber,
+      totalAmount: this.sale.totalAmount,
+      paidAmount: this.sale.paidAmount,
+      paymentType: this.sale.paymentType,
+      paymentStatus: this.sale.paymentStatus,
+      notes: this.sale.notes,
+      storeId: this.sale.storeId,
+      storeCustomerId: this.sale.storeCustomerId
     };
+
+    console.log('=== SaleEdit - Updating sale ===', updateData);
 
     this.salesService
       .update(this.sale.id, updateData)
-      .pipe(finalize(() => {
-        this.isSaving = false;
-        this.cdr.detectChanges();
-      }))
+      .pipe(
+        timeout(10000),
+        finalize(() => {
+          this.isSaving = false;
+          this.cdr.detectChanges();
+        })
+      )
       .subscribe({
-        next: () => {
-          this.swalService.success('Başarılı!', 'Satış bilgileri başarıyla güncellendi.');
+        next: (response: any) => {
+          console.log('=== SaleEdit - Update response ===', response);
+          
+          if (response?.isSuccess) {
+            this.swalService.success('Başarılı!', 'Satış bilgileri başarıyla güncellendi.');
+          } else {
+            this.swalService.error('Hata!', response?.message || 'Satış güncellenemedi.');
+          }
         },
         error: (err: any) => {
+          console.log('=== SaleEdit - Update error ===', err);
           this.swalService.error('Hata!', err?.error?.message || 'Satış güncellenemedi.');
         }
       });
@@ -136,16 +141,23 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
   onDelete(): void {
     if (!this.sale) return;
     
-    const saleInfo = this.sale.productName || `Satış #${this.sale.id}`;
+    const saleInfo = `Fatura #${this.sale.invoiceNumber || this.sale.id}`;
     
     this.swalService.deleteConfirm(saleInfo).then((result: any) => {
       if (result.isConfirmed) {
         this.salesService.delete(this.sale.id).subscribe({
-          next: () => {
-            this.swalService.success('Satış silindi', `${saleInfo} başarıyla silindi.`);
-            this.router.navigate(['/admin/sales']);
+          next: (response: any) => {
+            console.log('=== SaleEdit - Delete response ===', response);
+            
+            if (response?.isSuccess) {
+              this.swalService.success('Satış silindi', `${saleInfo} başarıyla silindi.`);
+              this.router.navigate(['/admin/sales']);
+            } else {
+              this.swalService.error('Hata', response?.message || 'Satış silinemedi.');
+            }
           },
           error: (err: any) => {
+            console.log('=== SaleEdit - Delete error ===', err);
             this.swalService.error('Hata', 'Satış silinirken bir hata oluştu.');
           }
         });
@@ -153,9 +165,48 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     });
   }
 
-  calculateTotal(): void {
-    if (this.sale) {
-      this.sale.totalAmount = (this.sale.quantity || 0) * (this.sale.unitPrice || 0);
+  paymentTypeLabel(paymentType: number): string {
+    const types = {
+      1: 'Nakit',
+      2: 'Kredi Kartı',
+      3: 'Banka Havale',
+      4: 'Kredi',
+      5: 'Borç'
+    };
+    return types[paymentType as keyof typeof types] || 'Bilinmeyen';
+  }
+
+  paymentStatusLabel(paymentStatus: number): string {
+    const statuses = {
+      1: 'Ödendi',
+      2: 'Kısmi Ödeme',
+      3: 'Beklemede',
+      4: 'İptal Edildi'
+    };
+    return statuses[paymentStatus as keyof typeof statuses] || 'Bilinmeyen';
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '-';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
     }
+  }
+
+  formatCurrency(amount: number): string {
+    if (amount == null) return '-';
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY'
+    }).format(amount);
   }
 }
