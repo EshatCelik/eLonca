@@ -1,6 +1,5 @@
 ﻿using eLonca.Common.DTOs;
 using eLonca.Common.Models;
-using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
@@ -17,7 +16,7 @@ namespace eLonca.Application.Queries.UserQueries.GetUserById
 
         public async Task<Result<StoreCustomerDto>> Handle(GetCustomerByIdQueryResponse request, CancellationToken cancellationToken)
         {
-            var customer = await _customerRepository.GetByIdStoreCustomer(request.StoreId, request.StoreCustomerId, cancellationToken);
+            var customer = await _customerRepository.GetByIdStoreCustomer(  request.Id, cancellationToken);
             if (!customer.IsSuccess)
             {
                 return Result<StoreCustomerDto>.Failure(null, "Müşteri bulunamadı", 400);

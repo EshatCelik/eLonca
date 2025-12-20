@@ -3,20 +3,20 @@ using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
-namespace eLonca.Application.Queries.StoreQueries
+namespace eLonca.Application.Queries.CustomerQueries.GetAllCustomerByName
 {
-    public class GetStoreByNameQueryHandler : IRequestHandler<GetAllStoreByNameQueryResponse, Result<List<Store>>>
+    public class GetAllCustomerByNameQueryHandler : IRequestHandler<GetAllStoreByNameQueryResponse, Result<List<Store>>>
     {
         private readonly IStoreRepository _storeRepository;
 
-        public GetStoreByNameQueryHandler(IStoreRepository storeRepository)
+        public GetAllCustomerByNameQueryHandler(IStoreRepository storeRepository)
         {
             _storeRepository = storeRepository;
         }
 
         public async Task<Result<List<Store>>> Handle(GetAllStoreByNameQueryResponse request, CancellationToken cancellationToken)
         {
-            var stores= await _storeRepository.GetAllAsync(x=>x.StoreName.Contains(request.StoreName),cancellationToken);
+            var stores = await _storeRepository.GetAllStoreForSearch(request.StoreId, request.StoreName);
             return stores;
         }
     }

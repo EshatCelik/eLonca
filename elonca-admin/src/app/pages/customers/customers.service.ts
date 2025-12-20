@@ -10,7 +10,9 @@ export class CustomersService extends BaseService {
   }
 
   getAll(payload?: any): Observable<any[]> {
-    const body = payload ?? {};
+    const body = {
+      storeId: payload?.storeId || payload
+    };
     return this.post<any>('Customer/GetAll', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
@@ -33,8 +35,8 @@ export class CustomersService extends BaseService {
     return this.post<any>('Customer/Create', payload);
   }
 
-  getById(storeId: string | number ,storeCustomerId :string): Observable<any> {
-    const body = { storeId,storeCustomerId } as any;
+  getById(id: string | number): Observable<any> {
+    const body = { id } as any;
     return this.post<any>('Customer/GetById', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {

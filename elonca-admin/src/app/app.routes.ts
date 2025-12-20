@@ -4,6 +4,7 @@ import { LoginComponent } from './pages/auth/login/login.component';
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { TenantsComponent } from './pages/tenants/tenants.component';
+import { TenantEditComponent } from './pages/tenants/tenant-edit.component';
 import { UserListComponent } from './pages/users/user-list/user-list.component';
 import { UserInfo } from './pages/users/user-info/user-info';
 import { StoresComponent } from './pages/stores/stores.component';
@@ -33,10 +34,11 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard], // Geçici olarak devre dışı
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'tenants', component: TenantsComponent },
+      { path: 'tenants/:id/edit', component: TenantEditComponent },
       { path: 'users', component: UserListComponent },
       { path: 'users/:id/edit', component: UserInfo },
       { path: 'stores', component: StoresComponent },
@@ -46,6 +48,7 @@ export const routes: Routes = [
       { path: 'products', component: ProductsComponent },
       { path: 'products/:id/edit', component: ProductEditComponent },
       { path: 'customers', component: CustomersComponent },
+      { path: 'customers/:id/edit', component: CustomerEditComponent },
       { path: 'customers/:storeId/:customerStoreId/edit', component: CustomerEditComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'sales', component: SalesComponent },

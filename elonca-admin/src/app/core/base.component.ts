@@ -51,6 +51,7 @@ export class BaseComponent {
         this.currentUserFullName = parsed.fullName || '';
         this.currentUserRole = parsed.role || '';
         this.currentTenant = parsed.tenant || null;
+        this.currentTenantId = parsed.tenantId || parsed.tenant?.id || null;
         this.currentStoreId=parsed.storeId||null;
         
         console.log('=== Current user loaded ===', {

@@ -1,6 +1,7 @@
 ﻿using eLonca.Application.Commands.CustomerCommands.CustomerCreate;
 using eLonca.Application.Commands.CustomerCommands.CustomerDelete;
 using eLonca.Application.Queries.CustomerQueries.GetAllCustomer;
+using eLonca.Application.Queries.CustomerQueries.GetAllCustomerByName;
 using eLonca.Application.Queries.UserQueries.GetUserById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -47,11 +48,11 @@ namespace eLonca.Api.Controllers
             var response = await _mediator.Send(getCustomerByIdQueryResponse);
             return Ok(response);
         }
-        //[HttpPost]
-        //public async Task<IActionResult>SearchByName(GetCustomerByNameQueryResponse getCustomerByName)
-        //{
-        //    var response = await _mediator.Send(getCustomerByName);
-        //    return Ok(response);
-        //}
+        [HttpPost]
+        public async Task<IActionResult> SearchByName(GetAllStoreByNameQueryResponse getAllStoreByNameQueryResponse)
+        {
+            var response = await _mediator.Send(getAllStoreByNameQueryResponse);
+            return Ok(response);
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, timeout, catchError } from 'rxjs';
@@ -6,27 +6,32 @@ import { of } from 'rxjs';
 import { CustomersService } from '../customers.service';
 import { SwalService } from '../../../core/swal.service';
 import { StoresService } from '../../stores/stores.service';
+import { BaseComponent } from '../../../core/base.component';
 
 @Component({
   selector: 'app-customer-edit',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './customer-edit.component.html',
-  styleUrl: './customer-edit.component.scss'
+  styleUrls: ['./customer-edit.component.scss']
 })
-export class CustomerEditComponent implements OnInit {
+export class CustomerEditComponent extends BaseComponent implements OnInit {
   customer: any = null;
   isLoading = false;
   isSaving = false;
+  createModel: any = {};
 
   constructor(
-    private readonly customersService: CustomersService,
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly swalService: SwalService,
-    private readonly storeService:StoresService
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object,
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private customersService: CustomersService,
+    private swalService: SwalService,
+    private storeService: StoresService
+  ) {
+    super(platformId);
+  }
 
   ngOnInit(): void {
     this.loadCustomer();
@@ -35,23 +40,23 @@ export class CustomerEditComponent implements OnInit {
   loadCustomer(): void {
     if (this.isLoading) return;
     
+    if (!this.isBrowser()) {
+      console.log('=== Running on server - skipping customer load ===');
+      return;
+    }
+    
     this.isLoading = true;
 
-    const storeId = this.route.snapshot.paramMap.get('storeId');
-    const customerStoreId = this.route.snapshot.paramMap.get('customerStoreId');
-
-    if (!storeId) {
+    const id = this.route.snapshot.paramMap.get('id');
+    
+    if (!id) {
       this.swalService.error('Hata', 'Müşteri ID bulunamadı.');
       this.isLoading = false;
       return;
     }
-    if (!customerStoreId) {
-      this.swalService.error('Hata', 'Müşteri ID bulunamadı.');
-      this.isLoading = false;
-      return;
-    }
+    
     this.customersService
-      .getById(storeId,customerStoreId)
+      .getById(id)
       .pipe(
         timeout(10000),
         catchError((err: any) => {
@@ -113,7 +118,7 @@ export class CustomerEditComponent implements OnInit {
     
     const customerName = `${this.customer.firstName || ''} ${this.customer.lastName || ''}`.trim() || 'Bu müşteri';
     
-    this.swalService.deleteConfirm(customerName).then((result) => {
+    this.swalService.deleteConfirm(customerName).then((result: any) => {
       if (result.isConfirmed) {
         this.customersService.delete(this.customer.id).subscribe({
           next: () => {
