@@ -1,109 +1,110 @@
 <div class="sales-page">
-  <h1>Satışlar</h1>
-
-  <div class="toolbar">
-    <button type="button" class="btn btn-primary" (click)="toggleCreate()" [disabled]="isCreating">
-      Yeni Satış
-    </button>
-    <button type="button" class="btn btn-secondary" (click)="load()" [disabled]="isLoading">
+  <div class="page-header">
+    <h1>Satışlar</h1>
+    <button class="refresh-btn" (click)="load()" [disabled]="isLoading">
       {{ isLoading ? 'Yükleniyor...' : 'Yenile' }}
     </button>
-    @if (errorMessage) {
-      <span class="error">{{ errorMessage }}</span>
-    }
+  </div>
+  
+  <!-- Filtreler -->
+  <div class="filters-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Ürün veya müşteri adıyla ara..."
+          class="filter-input"
+        />
+      </div>
+      
+      <div class="filter-group">
+        <input 
+          type="date" 
+          [(ngModel)]="dateFilter"
+          class="filter-input"
+        />
+      </div>
+      
+      <div class="filter-group">
+        <select 
+          [(ngModel)]="customerFilter"
+          class="filter-input"
+        >
+          <option value="">Tüm Müşteriler</option>
+          @for (customer of uniqueCustomers; track customer) {
+            <option [value]="customer">{{ customer }}</option>
+          }
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <select 
+          [(ngModel)]="statusFilter"
+          class="filter-input"
+        >
+          <option value="">Tüm Durumlar</option>
+          <option value="1">Aktif</option>
+          <option value="0">Pasif</option>
+        </select>
+      </div>
+      
+      <button type="button" class="clear-filters-btn" (click)="clearFilters()">
+        Temizle
+      </button>
+    </div>
   </div>
 
-  @if (showCreate) {
-    <div class="modal-overlay" (click)="closeCreate()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Yeni Satış Oluştur</h2>
-          <button type="button" class="modal-close" (click)="closeCreate()">×</button>
-        </div>
-        <div class="modal-body">
-          <form class="create-form" (ngSubmit)="onCreate()">
-            <label>
-              Müşteri
-              <select name="customerId" [(ngModel)]="createModel.customerId" required>
-                <option value="">Müşteri seçin</option>
-                @for (customer of customers; track customer.id) {
-                  <option [value]="customer.id">{{ customer.name }}</option>
-                }
-              </select>
-            </label>
-            <label>
-              Ürün Adı
-              <input type="text" name="productName" [(ngModel)]="createModel.productName" required />
-            </label>
-            <label>
-              Miktar
-              <input type="number" name="quantity" [(ngModel)]="createModel.quantity" required />
-            </label>
-            <label>
-              Birim Fiyat
-              <input type="number" name="unitPrice" [(ngModel)]="createModel.unitPrice" required />
-            </label>
-            <label>
-              Toplam Tutar
-              <input type="number" name="totalAmount" [(ngModel)]="createModel.totalAmount" readonly />
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="isCreating || !createModel.customerId || !createModel.productName || !createModel.quantity || !createModel.unitPrice">
-                {{ isCreating ? 'Kaydediliyor...' : 'Ekle' }}
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (!isLoading && errorMessage) {
+    <div class="error-message">{{ errorMessage }}</div>
+  }
+
+  @if (!isLoading && filteredSales.length > 0) {
+    <table class="sales-table">
+      <thead>
+        <tr>
+          <th>Müşteri</th>
+          <th>Ürün Adı</th>
+          <th>Miktar</th> 
+          <th>Toplam Tutar</th>
+          <th>Tarih</th>
+          <th>Ödeme Tipi</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sale of filteredSales; track sale.id) {
+          <tr class="sale-row">
+            <td (click)="testClick(); onSaleClick(sale)">{{sale.storeName || sale.customer?.name || '-' }}</td>
+            <td (click)="onSaleClick(sale)">{{ sale.notes || '-' }}</td>
+            <td (click)="onSaleClick(sale)">{{ sale.paidAmount || '-' }}</td> 
+            <td (click)="onSaleClick(sale)">{{ sale.totalAmount || '-' }}</td>
+            <td (click)="onSaleClick(sale)">{{ (sale.createdAt || sale.saleDate) || '-' }}</td>
+            <td (click)="onSaleClick(sale)">{{ statusLabel(sale.paymentType) }}</td>
+            <td>
+              <button type="button" class="delete-btn" (click)="onDelete(sale)" [disabled]="deletingId === getId(sale) || isLoading">
+                {{ deletingId === getId(sale) ? 'Siliniyor...' : 'Sil' }}
               </button>
-              <button type="button" class="btn btn-secondary" (click)="closeCreate()" [disabled]="isCreating">
-                İptal
-              </button>
-            </div>
-          </form>
-          @if (createMessage) {
-            <div class="modal-message" [class.success]="createSuccess" [class.error]="!createSuccess">
-              {{ createMessage }}
-            </div>
-          }
-        </div>
-      </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (!isLoading && filteredSales.length === 0 && sales.length > 0) {
+    <div class="no-results">
+      Filtrelere uygun satış bulunamadı.
     </div>
   }
 
   @if (!isLoading && sales.length === 0 && !errorMessage) {
-    <p>Gösterilecek satış bulunamadı.</p>
-  }
-
-  @if (sales.length > 0) {
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Müşteri </th>
-            <th>Ürün Adı</th>
-            <th>Satış Miktarı</th>
-            <th>Birim Fiyat</th>
-            <th>Toplam Tutar</th>
-            <th>Tarih</th>
-            <th>Durum</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of sales; track $index) {
-            <tr>
-              <td>{{ s.customerName || s.customer?.name || '-' }}</td>
-              <td>{{ s.productName || '-' }}</td>
-              <td>{{ s.quantity || '-' }}</td>
-              <td>{{ s.unitPrice || '-' }}</td>
-              <td>{{ s.totalAmount || '-' }}</td>
-              <td>{{ (s.createdAt || s.saleDate) || '-' }}</td>
-              <td>{{ statusLabel(s.status) }}</td>
-              <td>
-                <button type="button" class="btn btn-danger" (click)="onDelete(s)" [disabled]="deletingId === getId(s) || isLoading">
-                  {{ deletingId === getId(s) ? 'Siliniyor...' : 'Sil' }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="no-results">
+      Gösterilecek satış bulunamadı.
     </div>
   }
 </div>

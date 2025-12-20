@@ -17,6 +17,7 @@ import { CustomersComponent } from './pages/customers/customers.component';
 import { CustomerEditComponent } from './pages/customers/customer-edit/customer-edit.component';
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
 import { SalesComponent } from './pages/sales/sales.component';
+import { SaleEditComponent } from './pages/sales/sale-edit/sale-edit.component';
 import { ReceivablesComponent } from './pages/receivables/receivables.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ChangePasswordComponent } from './pages/profile/change-password.component';
@@ -52,6 +53,7 @@ export const routes: Routes = [
       { path: 'customers/:storeId/:customerStoreId/edit', component: CustomerEditComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'sales', component: SalesComponent },
+      { path: 'sales/:id/edit', component: SaleEditComponent },
       { path: 'receivables', component: ReceivablesComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'change-password', component: ChangePasswordComponent },

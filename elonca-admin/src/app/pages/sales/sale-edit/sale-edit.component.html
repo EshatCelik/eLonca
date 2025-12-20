@@ -1,0 +1,135 @@
+<div class="sale-edit-page">
+  <div class="page-header">
+    <h1>Satış Düzenle</h1>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        Geri Dön
+      </button>
+      <button type="button" class="btn btn-danger" (click)="onDelete()" [disabled]="isLoading">
+        Sil
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving || isLoading">
+        {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Yükleniyor...</div>
+  }
+
+  @if (!isLoading && sale) {
+    <div class="form-container">
+      <form class="sale-form" (ngSubmit)="onSave()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customerSelect">Müşteri</label>
+            <select 
+              id="customerSelect" 
+              [(ngModel)]="sale.customerId" 
+              name="customerId"
+              class="form-control"
+              (change)="calculateTotal()"
+            >
+              <option value="">Müşteri seçin</option>
+              @for (customer of customers; track customer.id) {
+                <option [value]="customer.id">{{ customer.name || customer.firstName + ' ' + customer.lastName }}</option>
+              }
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="productName">Ürün Adı</label>
+            <input 
+              type="text" 
+              id="productName" 
+              [(ngModel)]="sale.productName" 
+              name="productName"
+              class="form-control"
+              placeholder="Ürün adını girin"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Miktar</label>
+            <input 
+              type="number" 
+              id="quantity" 
+              [(ngModel)]="sale.quantity" 
+              name="quantity"
+              class="form-control"
+              (input)="calculateTotal()"
+              min="1"
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="unitPrice">Birim Fiyat</label>
+            <input 
+              type="number" 
+              id="unitPrice" 
+              [(ngModel)]="sale.unitPrice" 
+              name="unitPrice"
+              class="form-control"
+              (input)="calculateTotal()"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="totalAmount">Toplam Tutar</label>
+            <input 
+              type="number" 
+              id="totalAmount" 
+              [(ngModel)]="sale.totalAmount" 
+              name="totalAmount"
+              class="form-control"
+              readonly
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="status">Durum</label>
+            <select 
+              id="status" 
+              [(ngModel)]="sale.status" 
+              name="status"
+              class="form-control"
+            >
+              <option value="1">Aktif</option>
+              <option value="0">Pasif</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="notes">Notlar</label>
+            <textarea 
+              id="notes" 
+              [(ngModel)]="sale.notes" 
+              name="notes"
+              class="form-control"
+              rows="3"
+              placeholder="Ek notlar..."
+            ></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (!isLoading && !sale) {
+    <div class="error-message">
+      Satış bilgileri bulunamadı.
+    </div>
+  }
+</div>

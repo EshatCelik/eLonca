@@ -5,6 +5,7 @@
         Cash = 1,
         CreditCard = 2,
         BankTransfer = 3,
-        Credit = 4
+        Credit = 4,
+        Dept=5
     }
 }

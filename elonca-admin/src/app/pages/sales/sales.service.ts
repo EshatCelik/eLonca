@@ -33,6 +33,16 @@ export class SalesService extends BaseService {
     return this.post<any>('Sale/Create', payload);
   }
 
+  getById(id: string | number): Observable<any> {
+    const body = { id };
+    return this.post<any>('Sale/GetById', body);
+  }
+
+  update(id: string | number, payload: any): Observable<any> {
+    const body = { id, ...payload };
+    return this.post<any>('Sale/Update', body);
+  }
+
   override delete(id: string | number): Observable<any> {
     const body = { id } as any;
     return this.post<any>('Sale/Delete', body);
