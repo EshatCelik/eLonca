@@ -1,17 +1,13 @@
 ﻿using eLonca.Application.Services.TenantService;
+using eLonca.Common.DTOs;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace eLonca.Application.Queries.SalesQueries
+namespace eLonca.Application.Queries.SalesQueries.GetAllSale
 {
-    public class GetAllSalesQueryHandler : IRequestHandler<GetAllSalesQueryResponse, Result<List<Sale>>>
+    public class GetAllSalesQueryHandler : IRequestHandler<GetAllSalesQueryResponse, Result<List<GetAllSalesDto>>>
     {
         private readonly ITenantService _tenantService;
         private readonly ISaleRepository _saleRepository;
@@ -22,17 +18,17 @@ namespace eLonca.Application.Queries.SalesQueries
             _saleRepository = saleRepository;
         }
 
-        public async Task<Result<List<Sale>>> Handle(GetAllSalesQueryResponse request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetAllSalesDto>>> Handle(GetAllSalesQueryResponse request, CancellationToken cancellationToken)
         {
             var tenant = _tenantService.GetTenantId();
             if (!tenant.IsSuccess)
             {
-                return Result<List<Sale>>.Failure(null, "Tenant bulunamadı", 400);
+                return Result<List<GetAllSalesDto>>.Failure(null, "Tenant bulunamadı", 400);
             }
 
             var sales = await _saleRepository.GetAllSales(tenant.Data, cancellationToken);
 
-            return Result<List<Sale>>.Success(sales.Data, "Satış Listesi", 200);
+            return Result<List<GetAllSalesDto>>.Success(sales.Data, "Satış Listesi", 200);
         }
     }
 }

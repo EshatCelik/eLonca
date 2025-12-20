@@ -25,10 +25,45 @@ namespace eLonca.Infrastructure.Repositories
             return Result<StoreCustomer>.Success(customer, "Müşteri bulundu", 200);
         }
 
-        public async Task<Result<List<Sale>>> GetAllSales(Guid tenantId, CancellationToken cancellationToken)
-        { 
-            var sales= _dbContext.Sales.Where(x=>x.TenantId==tenantId).Include(x=>x.SaleItems).ToList(); 
-            return Result<List<Sale>>.Success(sales, "Satış listesi", 200);
+        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid tenantId, CancellationToken cancellationToken)
+        {
+            var sales = (from s in _dbContext.Sales
+                         join st in _dbContext.Stores on s.StoreId equals st.Id
+                         join sc in _dbContext.StoreCustomers on s.StoreCustomerId equals sc.Id into scGroup
+                         from sc in scGroup.DefaultIfEmpty()
+                         where s.TenantId == tenantId
+                         select new GetAllSalesDto()
+                         {
+                             Id = s.Id,
+                             SaleDate = s.SaleDate.ToString("dd/MM/yyyy"), // veya "dd.MM.yyyy"
+                             InvoiceNumber = s.InvoiceNumber,
+                             TotalAmount = s.TotalAmount,
+                             PaidAmount = s.PaidAmount,
+                             RemainingAmount = s.RemainingAmount,
+                             PaymentType = s.PaymentType,
+                             PaymentStatus = s.PaymentStatus,
+                             Notes = s.Notes,
+                             StoreId = st.Id,
+                             StoreName = st.StoreName,
+                             StoreCutomerId = s.StoreCustomerId,
+                             CustomerCode = sc != null ? sc.CustomerCode : null,
+                             SaleItems = (from si in _dbContext.SaleItems
+                                          join p in _dbContext.Products on si.ProductId equals p.Id
+                                          where si.SaleId == s.Id
+                                          select new SaleItemDto()
+                                          {
+                                              Id = si.Id,
+                                              ProductId = si.ProductId,
+                                              ProductName = p.ProductName,
+                                              ProductCode = p.ProductCode,
+                                              Quantity = si.Quantity,
+                                              UnitPrice = si.UnitPrice,
+                                              Discount = si.Discount,
+                                              CustomerDiscount = si.CustomerDiscount,
+                                              TotalPrice = si.TotalPrice
+                                          }).ToList()
+                         }).ToList();
+            return Result<List<GetAllSalesDto>>.Success(sales, "Satış listesi", 200);
         }
 
         public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list, Guid storeId, Guid customerId)
