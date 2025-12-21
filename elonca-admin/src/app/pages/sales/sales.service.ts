@@ -48,6 +48,16 @@ export class SalesService extends BaseService {
     return this.post<any>('SaleItem/Create', body);
   }
 
+  updateSaleItem(id: string, payload: any): Observable<any> {
+    const body = { id, ...payload };
+    return this.post<any>('SaleItem/Update', body);
+  }
+
+  deleteSaleItem(id: string): Observable<any> {
+    const body = { id };
+    return this.post<any>('SaleItem/Delete', body);
+  }
+
   override delete(id: string | number): Observable<any> {
     const body = { id } as any;
     return this.post<any>('Sale/Delete', body);

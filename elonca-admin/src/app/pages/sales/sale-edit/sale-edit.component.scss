@@ -398,11 +398,13 @@ textarea.form-control {
   background: white;
   border-bottom: 1px solid #e1e8ed;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .table-row:hover {
   background: #f0f8ff;
   transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .table-row:last-child {

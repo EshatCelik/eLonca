@@ -33,6 +33,18 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     totalPrice: 0
   };
 
+  // Item detay modal için
+  showItemDetailModal = false;
+  isUpdatingItem = false;
+  selectedItem: any = null;
+  editItem = {
+    id: '',
+    quantity: 1,
+    unitPrice: 0,
+    discount: 0,
+    totalPrice: 0
+  };
+
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private route: ActivatedRoute,
@@ -360,5 +372,133 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       this.sale.paidAmount = this.sale.totalAmount; // Ödenen tutarı güncelle
       this.sale.remainingAmount = 0;
     }
+  }
+
+  // Item detay modal method'ları
+  onItemClick(item: any): void {
+    this.selectedItem = item;
+    this.editItem = {
+      id: item.id,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      discount: item.discount || 0,
+      totalPrice: item.totalPrice||0
+    };
+    this.showItemDetailModal = true;
+  }
+
+  closeItemDetailModal(): void {
+    this.showItemDetailModal = false;
+    this.selectedItem = null;
+    this.editItem = {
+      id: '',
+      quantity: 1,
+      unitPrice: 0,
+      discount: 0,
+      totalPrice: 0
+    };
+  }
+
+  calculateEditItemTotal(): void {
+    const subtotal = this.editItem.quantity * this.editItem.unitPrice;
+    const discountAmount = subtotal * (this.editItem.discount / 100);
+    this.editItem.totalPrice = subtotal - discountAmount;
+  }
+
+  updateSaleItem(): void {
+    if (!this.editItem.id || this.isUpdatingItem) return;
+    
+    this.isUpdatingItem = true;
+    
+    const updatePayload = {
+      quantity: this.editItem.quantity,
+      unitPrice: this.editItem.unitPrice,
+      discount: this.editItem.discount,
+      totalPrice: this.editItem.totalPrice,
+      productId:this.selectedItem.productId,
+      saleId:this.sale.id
+    };
+    
+    console.log('=== Updating sale item ===', updatePayload);
+    
+    this.salesService.updateSaleItem(this.editItem.id, updatePayload)
+      .pipe(
+        timeout(10000),
+        catchError((err: any) => {
+          console.log('=== SaleItem update error ===', err);
+          this.swalService.error('Hata!', 'Ürün güncellenirken bir hata oluştu.');
+          this.isUpdatingItem = false;
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== SaleItem update response ===', response);
+          
+          if (response?.isSuccess) {
+            // Başarılı olursa satışı yeniden yükle
+            this.loadSale();
+            this.closeItemDetailModal();
+            this.swalService.success('Başarılı!', 'Ürün güncellendi.');
+          } else {
+            this.swalService.error('Hata!', response?.message || 'Ürün güncellenemedi.');
+          }
+          
+          this.isUpdatingItem = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.log('=== SaleItem update error ===', err);
+          this.swalService.error('Hata!', 'Ürün güncellenirken bir hata oluştu.');
+          this.isUpdatingItem = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  deleteSaleItem(): void {
+    if (!this.editItem.id) return;
+    
+    this.swalService.deleteConfirm('Bu ürünü silmek istediğinizden emin misiniz?').then((result: any) => {
+      if (result.isConfirmed) {
+        this.isUpdatingItem = true;
+        
+        console.log('=== Deleting sale item ===', this.editItem.id);
+        
+        this.salesService.deleteSaleItem(this.editItem.id)
+          .pipe(
+            timeout(10000),
+            catchError((err: any) => {
+              console.log('=== SaleItem delete error ===', err);
+              this.swalService.error('Hata!', 'Ürün silinirken bir hata oluştu.');
+              this.isUpdatingItem = false;
+              return of(null);
+            })
+          )
+          .subscribe({
+            next: (response: any) => {
+              console.log('=== SaleItem delete response ===', response);
+              
+              if (response?.isSuccess) {
+                // Başarılı olursa satışı yeniden yükle
+                this.loadSale();
+                this.closeItemDetailModal();
+                this.swalService.success('Başarılı!', 'Ürün silindi.');
+              } else {
+                this.swalService.error('Hata!', response?.message || 'Ürün silinemedi.');
+              }
+              
+              this.isUpdatingItem = false;
+              this.cdr.detectChanges();
+            },
+            error: (err: any) => {
+              console.log('=== SaleItem delete error ===', err);
+              this.swalService.error('Hata!', 'Ürün silinirken bir hata oluştu.');
+              this.isUpdatingItem = false;
+              this.cdr.detectChanges();
+            }
+          });
+      }
+    });
   }
 }
