@@ -85,8 +85,7 @@
             <td (click)="onSaleClick(sale)">{{ sale.paidAmount || '-' }}</td> 
             <td (click)="onSaleClick(sale)">{{ sale.totalAmount || '-' }}</td>
             <td (click)="onSaleClick(sale)">{{ (sale.createdAt || sale.saleDate) || '-' }}</td>
-            <td (click)="onSaleClick(sale)">{{ statusLabel(sale.paymentType) }}</td>
-            <td (click)="onSaleClick(sale)">{{ sale.isActive }}</td>
+            <td (click)="onSaleClick(sale)">{{ statusLabel(sale.paymentType) }}</td> 
             <td>
                 
                   <button type="button" class="delete-btn"  >

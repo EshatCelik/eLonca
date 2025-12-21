@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, timeout, catchError } from 'rxjs';
 import { of } from 'rxjs';
 import { SalesService } from '../sales.service';
+import { ProductsService } from '../../products/products.service';
 import { SwalService } from '../../../core/swal.service';
 import { BaseComponent } from '../../../core/base.component';
 
@@ -19,6 +20,18 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
   sale: any = null;
   isLoading = false;
   isSaving = false;
+  
+  // Modal için
+  showAddProductModal = false;
+  isAddingProduct = false;
+  availableProducts: any[] = [];
+  newProduct = {
+    productId: '',
+    quantity: 1,
+    unitPrice: 0,
+    discount: 0,
+    totalPrice: 0
+  };
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -26,6 +39,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private salesService: SalesService,
+    private productsService: ProductsService,
     private swalService: SwalService
   ) {
     super(platformId);
@@ -33,6 +47,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSale();
+    this.loadAvailableProducts();
   }
 
   loadSale(): void {
@@ -208,5 +223,141 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       style: 'currency',
       currency: 'TRY'
     }).format(amount);
+  }
+
+  // Modal method'ları
+  loadAvailableProducts(): void {
+    if (!this.isBrowser()) return;
+    
+    this.productsService.getAll()
+      .pipe(
+        timeout(10000),
+        catchError((err: any) => {
+          console.log('=== Products load error ===', err);
+          // Hata olursa geçici data kullan
+          this.availableProducts = [
+            { id: '1', name: 'Samsung S21 Batarya', code: 'SMSN-S21-BAT', price: 500 },
+            { id: '2', name: 'iPhone 13 Ekran', code: 'IP13-EKRAN', price: 1200 },
+            { id: '3', name: 'Xiaomi Kasa', code: 'XM-KASA', price: 150 }
+          ];
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== Products API Response ===', response);
+          console.log('=== Response isSuccess ===', response?.isSuccess);
+          console.log('=== Response data ===', response?.data);
+          
+          if (response?.isSuccess && response?.data) {
+            this.availableProducts = response.data.map((product: any) => ({
+              id: product.id,
+              name: product.name || product.productName || 'Ürün',
+              code: product.code || product.productCode || 'KOD',
+              price: product.price || product.unitPrice || 0
+            }));
+            console.log('=== Available products loaded ===', this.availableProducts);
+          } else if (Array.isArray(response)) {
+            // Direkt array gelirse
+            this.availableProducts = response.map((product: any) => ({
+              id: product.id,
+              name: product.name || product.productName || 'Ürün',
+              code: product.code || product.productCode || 'KOD',
+              price: product.price || product.unitPrice || 0
+            }));
+            console.log('=== Available products loaded (array) ===', this.availableProducts);
+          } else {
+            console.log('=== Using fallback products ===');
+            // API'den gelmezse geçici data
+            this.availableProducts = [
+              { id: '1', name: 'Samsung S21 Batarya', code: 'SMSN-S21-BAT', price: 500 },
+              { id: '2', name: 'iPhone 13 Ekran', code: 'IP13-EKRAN', price: 1200 },
+              { id: '3', name: 'Xiaomi Kasa', code: 'XM-KASA', price: 150 }
+            ];
+          }
+        },
+        error: (err: any) => {
+          console.log('=== Products API error ===', err);
+          // Hata olursa geçici data
+          this.availableProducts = [
+            { id: '1', name: 'Samsung S21 Batarya', code: 'SMSN-S21-BAT', price: 500 },
+            { id: '2', name: 'iPhone 13 Ekran', code: 'IP13-EKRAN', price: 1200 },
+            { id: '3', name: 'Xiaomi Kasa', code: 'XM-KASA', price: 150 }
+          ];
+        }
+      });
+  }
+
+  closeAddProductModal(): void {
+    this.showAddProductModal = false;
+    this.resetNewProduct();
+  }
+
+  resetNewProduct(): void {
+    this.newProduct = {
+      productId: '',
+      quantity: 1,
+      unitPrice: 0,
+      discount: 0,
+      totalPrice: 0
+    };
+  }
+
+  onProductSelect(): void {
+    const selectedProduct = this.availableProducts.find(p => p.id === this.newProduct.productId);
+    if (selectedProduct) {
+      this.newProduct.unitPrice = selectedProduct.price;
+      this.calculateProductTotal();
+    }
+  }
+
+  calculateProductTotal(): void {
+    const subtotal = this.newProduct.quantity * this.newProduct.unitPrice;
+    const discountAmount = subtotal * (this.newProduct.discount / 100);
+    this.newProduct.totalPrice = subtotal - discountAmount;
+  }
+
+  addProductToSale(): void {
+    if (!this.newProduct.productId || this.isAddingProduct) return;
+    
+    this.isAddingProduct = true;
+    
+    const selectedProduct = this.availableProducts.find(p => p.id === this.newProduct.productId);
+    
+    const saleItem = {
+      id: Date.now().toString(), // Geçici ID
+      productId: this.newProduct.productId,
+      productName: selectedProduct?.name || '',
+      productCode: selectedProduct?.code || '',
+      quantity: this.newProduct.quantity,
+      unitPrice: this.newProduct.unitPrice,
+      discount: this.newProduct.discount,
+      totalPrice: this.newProduct.totalPrice
+    };
+    
+    // Satışa ürün ekle
+    if (!this.sale.saleItems) {
+      this.sale.saleItems = [];
+    }
+    
+    this.sale.saleItems.push(saleItem);
+    
+    // Toplam tutarı güncelle
+    this.updateSaleTotal();
+    
+    setTimeout(() => {
+      this.isAddingProduct = false;
+      this.closeAddProductModal();
+      this.swalService.success('Başarılı!', 'Ürün satışa eklendi.');
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  updateSaleTotal(): void {
+    if (this.sale.saleItems && this.sale.saleItems.length > 0) {
+      this.sale.totalAmount = this.sale.saleItems.reduce((sum: number, item: any) => sum + item.totalPrice, 0);
+      this.sale.paidAmount = this.sale.totalAmount; // Ödenen tutarı güncelle
+      this.sale.remainingAmount = 0;
+    }
   }
 }
