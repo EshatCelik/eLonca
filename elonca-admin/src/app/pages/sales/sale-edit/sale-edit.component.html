@@ -62,10 +62,6 @@
           <div class="detail-item">
             <label>Satış Tarihi</label>
             <div class="form-control readonly">{{ formatDate(sale.saleDate) }}</div>
-          </div>
-          <div class="detail-item">
-            <label>Toplam Tutar</label>
-            <input type="number" [(ngModel)]="sale.totalAmount" class="form-control" step="0.01" placeholder="0.00" />
           </div>   
         </div>
         <div class="detail-grid">  
@@ -168,7 +164,7 @@
             </div>
             <div class="form-item">
               <label>Birim Fiyat</label>
-              <input type="number" [(ngModel)]="newProduct.unitPrice" class="form-control" min="0" step="0.01" (input)="calculateProductTotal()" />
+              <input type="number" [readonly]="true" [(ngModel)]="newProduct.unitPrice" class="form-control" min="0" step="0.01" (input)="calculateProductTotal()" />
             </div>
             <div class="form-item">
               <label>İndirim (%)</label>

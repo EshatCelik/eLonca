@@ -10,5 +10,6 @@ namespace eLonca.Domain.Interfaces
         Task<Result<StoreCustomer>> CheckCustomerRelation(Guid? storeId,Guid? storeCustomerId,CancellationToken cancellationToken);
         Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid tenantId, CancellationToken cancellationToken); 
         Task<Result<GetAllSalesDto>> GetSaleById(Guid id, CancellationToken cancellationToken); 
+        Task<Result<List<SaleItem>>> GetAllSaleItemById(Guid saleId, CancellationToken cancellationToken); 
     }
 }
