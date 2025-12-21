@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, timeout, catchError } from 'rxjs';
 import { of } from 'rxjs';
@@ -11,14 +12,15 @@ import { BaseComponent } from '../../../core/base.component';
 @Component({
   selector: 'app-customer-edit',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './customer-edit.component.html',
   styleUrls: ['./customer-edit.component.scss']
 })
-export class CustomerEditComponent extends BaseComponent implements OnInit {
+export class CustomerEditComponent extends BaseComponent implements OnInit, AfterViewInit {
   customer: any = null;
   isLoading = false;
   isSaving = false;
+  isDeleting = false;
   createModel: any = {};
 
   constructor(
@@ -35,6 +37,13 @@ export class CustomerEditComponent extends BaseComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCustomer();
+  }
+
+  ngAfterViewInit(): void {
+    // Ensure change detection runs after view is initialized
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 100);
   }
 
   loadCustomer(): void {
@@ -71,7 +80,12 @@ export class CustomerEditComponent extends BaseComponent implements OnInit {
             this.customer = data;
           }
           this.isLoading = false;
+          // Force change detection
           this.cdr.detectChanges();
+          // Additional force after a small delay
+          setTimeout(() => {
+            this.cdr.detectChanges();
+          }, 50);
         }
       });
   }
@@ -84,13 +98,13 @@ export class CustomerEditComponent extends BaseComponent implements OnInit {
     const updateData = {
       id: this.customer.id,
       customerCode: this.customer.customerCode,
-      firstName: this.customer.firstName,
-      lastName: this.customer.lastName,
+      storeName: this.customer.storeName,
       customerType: this.customer.customerType,
       discountRate: this.customer.discountRate,
-      phoneNumber: this.customer.phoneNumber,
+      phone: this.customer.phone,
       email: this.customer.email,
-      address: this.customer.address
+      address: this.customer.address,
+      isActive: this.customer.isActive
     };
 
     this.customersService
@@ -107,6 +121,35 @@ export class CustomerEditComponent extends BaseComponent implements OnInit {
           this.swalService.error('Hata!', err?.error?.message || 'Müşteri güncellenemedi.');
         }
       });
+  }
+
+  deleteCustomer(): void {
+    if (!this.customer) return;
+    
+    const customerName = this.customer.storeName || 'Bu müşteri';
+    
+    this.swalService.deleteConfirm(customerName).then((result: any) => {
+      if (result.isConfirmed) {
+        this.isDeleting = true;
+        
+        this.customersService.delete(this.customer.id).subscribe({
+          next: () => {
+            this.swalService.success('Müşteri silindi', `${customerName} başarıyla silindi.`);
+            this.router.navigate(['/admin/customers']);
+          },
+          error: (err: any) => {
+            this.swalService.error('Hata', 'Müşteri silinirken bir hata oluştu.');
+            this.isDeleting = false;
+          }
+        });
+      }
+    });
+  }
+
+  getCustomerType(type: any): string {
+    if (type == 1) return "Bireysel";
+    else if (type == 2) return "Kurumsal";
+    else return type || 'Bireysel';
   }
 
   onClose(): void {

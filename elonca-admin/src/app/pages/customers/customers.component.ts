@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { CustomersService } from './customers.service';
 import { CustomerSearchService } from './customer-search.service';
@@ -11,7 +12,7 @@ import { BaseComponent } from '../../core/base.component';
 @Component({
   selector: 'app-customers-page',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.scss'
 })
@@ -20,6 +21,7 @@ export class CustomersComponent extends BaseComponent implements OnInit {
   isLoading = false;
   showCreateModal = false;
   isCreating = false;
+  deletingId: string | null = null;
   createModel: any = {
     storeId: '',
     firstName: '',
@@ -201,14 +203,18 @@ export class CustomersComponent extends BaseComponent implements OnInit {
     
     this.swalService.deleteConfirm(customerName).then((result) => {
       if (result.isConfirmed) {
+        this.deletingId = customerId.id;
+        
         this.customersService.delete(customerId.id).subscribe({
           next: () => {
             this.swalService.success('Müşteri silindi', `${customerName} başarıyla silindi.`);
+            this.deletingId = null;
             this.loadCustomers();
           },
-          error: (err: any) => {
+          error: (err) => {
             console.error('Delete error:', err);
             this.swalService.error('Hata', 'Müşteri silinirken bir hata oluştu.');
+            this.deletingId = null;
           }
         });
       }
