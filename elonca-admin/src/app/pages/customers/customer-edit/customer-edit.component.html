@@ -1,66 +1,126 @@
 <div class="customer-edit-page">
-  <div class="header">
-    <h1>Müşteri Detayları</h1>
-    <button type="button" class="btn btn-secondary" (click)="onClose()">Kapat</button>
+  <div class="page-header">
+    <div class="header-content">
+       
+      <div class="header-info">
+        <span class="customer-code-display">{{ customer?.customerCode || '-' }}</span>
+        <span class="status-badge" [ngClass]="{
+          'active': customer?.isActive,
+          'inactive': !customer?.isActive
+        }">
+          {{ customer?.isActive ? 'Aktif' : 'Pasif' }}
+        </span> 
+        <p class="customer-type">{{ getCustomerType(customer?.customerType) }}</p>
+
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        <i class="fas fa-arrow-left"></i> Geri Dön
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+        <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+      </button>
+    </div>
   </div>
 
   @if (isLoading) {
-    <div class="loading">Yükleniyor...</div>
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Yükleniyor...</p>
+    </div>
   }
 
-  @if (customer) {
-    <div class="content">
-      <div class="info-section">
-        <h2>Müşteri Bilgileri</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Müşteri Kodu:</label>
-            <input type="text" [(ngModel)]="customer.customerCode" class="form-input" />
+  @if (!isLoading && !customer) {
+    <div class="error-container">
+      <h3>Müşteri bulunamadı</h3>
+      <p>API'den veri alınamadı</p>
+    </div>
+  }
+
+  @if (customer && !isLoading) {
+    <div class="content-container">
+      <div class="customer-card"> 
+
+        <div class="card-body">
+          <div class="info-section">
+            <h3><i class="fas fa-info-circle"></i> Müşteri Bilgileri</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label><i class="fas fa-barcode"></i> Müşteri Kodu</label>
+                <input type="text" [(ngModel)]="customer.customerCode" class="form-input" placeholder="Müşteri kodu" />
+              </div>
+              <div class="info-item">
+                <label><i class="fas fa-store"></i> Mağaza Adı</label>
+                <input type="text" [(ngModel)]="customer.storeName" class="form-input" placeholder="Mağaza adı" />
+              </div>
+              <div class="info-item">
+                <label><i class="fas fa-tag"></i> Müşteri Tipi</label>
+                <select [(ngModel)]="customer.customerType" class="form-input">
+                  <option value="">Müşteri tipi seçin</option>
+                  <option value="1">Bireysel</option>
+                  <option value="2">Kurumsal</option>
+                </select>
+              </div>
+              <div class="info-item">
+                <label><i class="fas fa-percentage"></i> İndirim Oranı</label>
+                <div class="input-with-icon">
+                  <input type="number" [(ngModel)]="customer.discountRate" class="form-input" placeholder="0" min="0" max="100" step="0.01" />
+                  <span class="input-icon">%</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="info-item">
-            <label>Müşteri Adı:</label>
-            <input type="text" [(ngModel)]="customer.storeName" class="form-input" />
-          </div> 
-          <div class="info-item">
-            <label>Müşteri Tipi:</label>
-            <select [(ngModel)]="customer.customerType" class="form-input">
-              <option value="">Müşteri tipi seçin</option>
-              <option value="1">Bireysel</option>
-              <option value="2">Kurumsal</option>
-            </select>
+
+          <div class="info-section">
+            <h3><i class="fas fa-phone-alt"></i> İletişim Bilgileri</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label><i class="fas fa-phone"></i> Telefon</label>
+                <input type="tel" [(ngModel)]="customer.phone" class="form-input" placeholder="Telefon numarası" />
+              </div>
+              <div class="info-item">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" [(ngModel)]="customer.email" class="form-input" placeholder="Email adresi" />
+              </div>
+              <div class="info-item full-width">
+                <label><i class="fas fa-map-marker-alt"></i> Adres</label>
+                <textarea [(ngModel)]="customer.address" class="form-input" placeholder="Adres bilgileri" rows="3"></textarea>
+              </div>
+            </div>
           </div>
-          <div class="info-item">
-            <label>İndirim Oranı:</label>
-            <input type="number" [(ngModel)]="customer.discountRate" class="form-input" />
+
+          <div class="info-section">
+            <h3><i class="fas fa-cog"></i> Diğer Ayarlar</h3>
+            <div class="settings-grid">
+              <div class="setting-item">
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="customer.isActive" />
+                  <span class="slider"></span>
+                </label>
+                <div class="setting-info">
+                  <h4>Aktif Müşteri</h4>
+                  <p>Bu müşterinin sistemde aktif olup olmadığını belirler</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="info-item">
-            <label>Telefon:</label>
-            <input type="text" [(ngModel)]="customer.phone" class="form-input" />
-          </div>
-          <div class="info-item">
-            <label>Email:</label>
-            <input type="email" [(ngModel)]="customer.email" class="form-input" />
-          </div>
-          <!-- <div class="info-item full-width">
-            <label>Açıklama:</label>
-            <textarea [(ngModel)]="customer.description" class="form-input" rows="3"></textarea>
-          </div> -->
         </div>
       </div>
 
-      <div class="actions">
-        <button type="button" class="btn btn-danger" (click)="onDelete()" [disabled]="isSaving">
-          Sil
+      <div class="action-buttons">
+        <button type="button" class="btn btn-danger" (click)="deleteCustomer()" [disabled]="isDeleting">
+          <i class="fas fa-trash"></i> {{ isDeleting ? 'Siliniyor...' : 'Müşteriyi Sil' }}
         </button>
-        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="isSaving">
-          İptal
-        </button>
-        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
-          {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
-        </button>
+        <div class="right-buttons">
+          <button type="button" class="btn btn-secondary" (click)="onClose()">
+            <i class="fas fa-times"></i> İptal
+          </button>
+          <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+            <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
+          </button>
+        </div>
       </div>
     </div>
-  } @if (!customer && !isLoading) {
-    <div class="error">Müşteri verisi yüklenemedi.</div>
   }
 </div>

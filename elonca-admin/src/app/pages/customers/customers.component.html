@@ -1,53 +1,77 @@
 <div class="customers-page">
   <div class="page-header">
     <h1>Müşteriler</h1>
-    <button class="add-btn" (click)="onAddCustomer()">
-      <span>+</span> Ekle
+    <button class="btn btn-primary add-btn" (click)="onAddCustomer()">
+      <i class="fas fa-plus"></i> Yeni Müşteri
     </button>
   </div>
   
   @if (isLoading) {
-    <div class="loading">Yükleniyor...</div>
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Yükleniyor...</p>
+    </div>
   }
 
   @if (!isLoading && customers.length > 0) {
-    <table class="customers-table">
-      <thead>
-        <tr>
-          <th>Müşteri Kodu</th>
-          <th>Müşteri Adı</th>
-          <th>Indirim Oranı</th>
-          <th>Telefon</th>
-          <th>Email</th>
-          <th>Müşteri Tipi</th>
-          <th>Durum</th>
-          <th>İşlemler</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (customer of customers; track customer.id) {
-          <tr class="customer-row">
-            <td (click)="onCustomerClick(customer)">{{ customer.customerCode || '-' }}</td>
-            <td (click)="onCustomerClick(customer)">{{ customer.storeName || '-' }}</td>
-            <td (click)="onCustomerClick(customer)">{{ customer.discountRate || '-' }}</td>
-            <td (click)="onCustomerClick(customer)">{{ customer.phone || '-' }}</td>
-            <td (click)="onCustomerClick(customer)">{{ customer.email || '-' }}</td>
-            <td (click)="onCustomerClick(customer)">{{ getCustomerType(customer.customerType) || '-' }}</td>
-            <td (click)="onCustomerClick(customer)">{{ customer.isActive==true?'Aktif':"Pasif" }}</td>
-
-            <td class="actions">
-              <button class="delete-btn" (click)="onDeleteCustomer(customer, $event)">
-                Sil
-              </button>
-            </td>
+    <div class="customers-table-container">
+      <table class="customers-table">
+        <thead>
+          <tr>
+            <th>Müşteri Kodu</th>
+            <th>Müşteri Adı</th>
+            <th>İndirim Oranı</th>
+            <th>Telefon</th>
+            <th>Email</th>
+            <th>Müşteri Tipi</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (customer of customers; track customer.id) {
+            <tr class="customer-row" (click)="onCustomerClick(customer)">
+              <td class="customer-code">{{ customer.customerCode || '-' }}</td>
+              <td class="customer-storeName">{{ customer.storeName  }}</td>
+              <td class="discount-rate">
+                @if (customer.discountRate || customer.discount) {
+                  <span class="discount-badge">{{ customer.discountRate || customer.discount || 0 }}%</span>
+                } @else {
+                  -
+                }
+              </td>
+              <td class="customer-phone">{{ customer.phoneNumber || customer.phone || '-' }}</td>
+              <td class="customer-email">{{ customer.email || '-' }}</td>
+              <td class="customer-type">{{ getCustomerType( customer.customerType) }}</td>
+              <td class="customer-status">
+                <span class="status-badge" [ngClass]="{
+                  'active': customer.isActive,
+                  'inactive': !customer.isActive
+                }">
+                  {{ customer.isActive ? 'Aktif' : 'Pasif' }}
+                </span>
+              </td>
+              <td class="customer-actions">
+                <button class="btn btn-sm btn-danger" (click)="onDeleteCustomer(customer, $event); $event.stopPropagation()" [disabled]="deletingId === getId(customer)">
+                  <i class="fas fa-trash"></i> {{ deletingId === getId(customer) ? 'Siliniyor...' : 'Sil' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 
   @if (!isLoading && customers.length === 0) {
-    <div class="no-data">Müşteri bulunamadı.</div>
+    <div class="empty-state">
+      <i class="fas fa-users"></i>
+      <h3>Müşteri Bulunamadı</h3>
+      <p>Henüz kayıtlı müşteri bulunmamaktadır.</p>
+      <button class="btn btn-primary" (click)="onAddCustomer()">
+        <i class="fas fa-plus"></i> İlk Müşteriyi Ekle
+      </button>
+    </div>
   }
 
   @if (showCreateModal) {
