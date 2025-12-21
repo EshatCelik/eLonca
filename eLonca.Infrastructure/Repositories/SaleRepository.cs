@@ -25,9 +25,15 @@ namespace eLonca.Infrastructure.Repositories
             return Result<StoreCustomer>.Success(customer, "Müşteri bulundu", 200);
         }
 
+        public async Task<Result<List<SaleItem>>> GetAllSaleItemById(Guid saleId, CancellationToken cancellationToken)
+        { 
+            var list=  _dbContext.SaleItems.Where(x=>x.SaleId == saleId).ToList();
+            return Result<List<SaleItem>>.Success(list, "Liste başarılı", 200);
+        }
+
         public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid tenantId, CancellationToken cancellationToken)
         {
-            var sales = (from s in _dbContext.Sales
+            var sales = (from s in _dbContext.Sales 
                          join st in _dbContext.Stores on s.StoreId equals st.Id
                          join sc in _dbContext.StoreCustomers on s.StoreCustomerId equals sc.Id into scGroup
                          from sc in scGroup.DefaultIfEmpty()
@@ -64,6 +70,11 @@ namespace eLonca.Infrastructure.Repositories
                                               TotalPrice = si.TotalPrice
                                           }).ToList()
                          }).ToList();
+
+            foreach (var sale in sales)
+            {
+                sale.TotalAmount = sale.SaleItems.Sum(x => x.TotalPrice);
+            }
             return Result<List<GetAllSalesDto>>.Success(sales, "Satış listesi", 200);
         }
 
@@ -141,9 +152,12 @@ namespace eLonca.Infrastructure.Repositories
                                               UnitPrice = si.UnitPrice,
                                               Discount = si.Discount,
                                               CustomerDiscount = si.CustomerDiscount,
-                                              TotalPrice = si.TotalPrice
+                                              TotalPrice = si.TotalPrice,
+                                              CreateDate=si.CreateAt.ToString("dd/MM/yyy")
                                           }).ToList()
                          }).FirstOrDefault();
+
+            sales.TotalAmount = sales.SaleItems.Sum(x => x.TotalPrice);
             return Result<GetAllSalesDto>.Success(sales, "Satış listesi", 200);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using eLonca.Application.Commands.SaleCommand.SaleCreate;
+using eLonca.Application.Commands.SaleCommand.SaleUpdate;
 using eLonca.Application.Queries.SalesQueries.GetAllSale;
 using eLonca.Application.Queries.SalesQueries.GetSaleById;
 using MediatR;
@@ -31,6 +32,12 @@ namespace eLonca.Api.Controllers
         public async Task<IActionResult> GetById(GetSaleByIdResponse getSaleByIdResponse)
         {
             var response = await _mediator.Send(getSaleByIdResponse);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateSaleResponse  updateSaleResponse)
+        {
+            var response = await _mediator.Send(updateSaleResponse);
             return Ok(response);
         }
     }

@@ -7,10 +7,12 @@
         public Guid? ProductId { get; set; }
         public decimal? Quantity { get; set; }
         public decimal? UnitPrice { get; set; }
+        public decimal? TotalAmount { get; set; }
         public decimal? Discount { get; set; }
         public decimal? CustomerDiscount { get; set; }
         public decimal? TotalPrice { get; set; }
         public string ProductName { get; set; }
         public string ProductCode { get; set; }
+        public string CreateDate { get; set; }
     }
 }

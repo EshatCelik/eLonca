@@ -33,6 +33,18 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     totalPrice: 0
   };
 
+  // Item detay modal için
+  showItemDetailModal = false;
+  isUpdatingItem = false;
+  selectedItem: any = null;
+  editItem = {
+    id: '',
+    quantity: 1,
+    unitPrice: 0,
+    discount: 0,
+    totalPrice: 0
+  };
+
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private route: ActivatedRoute,
@@ -118,7 +130,8 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       paymentStatus: this.sale.paymentStatus,
       notes: this.sale.notes,
       storeId: this.sale.storeId,
-      storeCustomerId: this.sale.storeCustomerId
+      storeCustomerId: this.sale.storeCustomerId,
+      saleItems:this.sale.saleItems
     };
 
     console.log('=== SaleEdit - Updating sale ===', updateData);
@@ -233,13 +246,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       .pipe(
         timeout(10000),
         catchError((err: any) => {
-          console.log('=== Products load error ===', err);
-          // Hata olursa geçici data kullan
-          this.availableProducts = [
-            { id: '1', name: 'Samsung S21 Batarya', code: 'SMSN-S21-BAT', price: 500 },
-            { id: '2', name: 'iPhone 13 Ekran', code: 'IP13-EKRAN', price: 1200 },
-            { id: '3', name: 'Xiaomi Kasa', code: 'XM-KASA', price: 150 }
-          ];
+          console.log('=== Products load error ===', err); 
           return of(null);
         })
       )
@@ -254,7 +261,8 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
               id: product.id,
               name: product.name || product.productName || 'Ürün',
               code: product.code || product.productCode || 'KOD',
-              price: product.price || product.unitPrice || 0
+              price: product.salePrice || 0,
+              discount:product.discount  // discount yapılacak
             }));
             console.log('=== Available products loaded ===', this.availableProducts);
           } else if (Array.isArray(response)) {
@@ -263,27 +271,15 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
               id: product.id,
               name: product.name || product.productName || 'Ürün',
               code: product.code || product.productCode || 'KOD',
-              price: product.price || product.unitPrice || 0
+              price: product.salePrice   || 0
             }));
             console.log('=== Available products loaded (array) ===', this.availableProducts);
-          } else {
-            console.log('=== Using fallback products ===');
-            // API'den gelmezse geçici data
-            this.availableProducts = [
-              { id: '1', name: 'Samsung S21 Batarya', code: 'SMSN-S21-BAT', price: 500 },
-              { id: '2', name: 'iPhone 13 Ekran', code: 'IP13-EKRAN', price: 1200 },
-              { id: '3', name: 'Xiaomi Kasa', code: 'XM-KASA', price: 150 }
-            ];
-          }
+          }  
         },
         error: (err: any) => {
           console.log('=== Products API error ===', err);
           // Hata olursa geçici data
-          this.availableProducts = [
-            { id: '1', name: 'Samsung S21 Batarya', code: 'SMSN-S21-BAT', price: 500 },
-            { id: '2', name: 'iPhone 13 Ekran', code: 'IP13-EKRAN', price: 1200 },
-            { id: '3', name: 'Xiaomi Kasa', code: 'XM-KASA', price: 150 }
-          ];
+           
         }
       });
   }
@@ -324,33 +320,50 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     
     const selectedProduct = this.availableProducts.find(p => p.id === this.newProduct.productId);
     
-    const saleItem = {
-      id: Date.now().toString(), // Geçici ID
+    const saleItemPayload = {
       productId: this.newProduct.productId,
-      productName: selectedProduct?.name || '',
-      productCode: selectedProduct?.code || '',
       quantity: this.newProduct.quantity,
       unitPrice: this.newProduct.unitPrice,
       discount: this.newProduct.discount,
       totalPrice: this.newProduct.totalPrice
     };
     
-    // Satışa ürün ekle
-    if (!this.sale.saleItems) {
-      this.sale.saleItems = [];
-    }
+    console.log('=== Creating sale item ===', saleItemPayload);
     
-    this.sale.saleItems.push(saleItem);
-    
-    // Toplam tutarı güncelle
-    this.updateSaleTotal();
-    
-    setTimeout(() => {
-      this.isAddingProduct = false;
-      this.closeAddProductModal();
-      this.swalService.success('Başarılı!', 'Ürün satışa eklendi.');
-      this.cdr.detectChanges();
-    }, 1000);
+    // Direkt veritabanına kaydet
+    this.salesService.createSaleItem(this.sale.id, saleItemPayload)
+      .pipe(
+        timeout(10000),
+        catchError((err: any) => {
+          console.log('=== SaleItem create error ===', err);
+          this.swalService.error('Hata!', 'Ürün eklenirken bir hata oluştu.');
+          this.isAddingProduct = false;
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== SaleItem create response ===', response);
+          
+          if (response?.isSuccess && response?.data) {
+            // Başarılı olursa satışı yeniden yükle
+            this.loadSale();
+            this.closeAddProductModal();
+            this.swalService.success('Başarılı!', 'Ürün satışa eklendi.');
+          } else {
+            this.swalService.error('Hata!', response?.message || 'Ürün eklenemedi.');
+          }
+          
+          this.isAddingProduct = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.log('=== SaleItem create error ===', err);
+          this.swalService.error('Hata!', 'Ürün eklenirken bir hata oluştu.');
+          this.isAddingProduct = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   updateSaleTotal(): void {
@@ -359,5 +372,133 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       this.sale.paidAmount = this.sale.totalAmount; // Ödenen tutarı güncelle
       this.sale.remainingAmount = 0;
     }
+  }
+
+  // Item detay modal method'ları
+  onItemClick(item: any): void {
+    this.selectedItem = item;
+    this.editItem = {
+      id: item.id,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      discount: item.discount || 0,
+      totalPrice: item.totalPrice||0
+    };
+    this.showItemDetailModal = true;
+  }
+
+  closeItemDetailModal(): void {
+    this.showItemDetailModal = false;
+    this.selectedItem = null;
+    this.editItem = {
+      id: '',
+      quantity: 1,
+      unitPrice: 0,
+      discount: 0,
+      totalPrice: 0
+    };
+  }
+
+  calculateEditItemTotal(): void {
+    const subtotal = this.editItem.quantity * this.editItem.unitPrice;
+    const discountAmount = subtotal * (this.editItem.discount / 100);
+    this.editItem.totalPrice = subtotal - discountAmount;
+  }
+
+  updateSaleItem(): void {
+    if (!this.editItem.id || this.isUpdatingItem) return;
+    
+    this.isUpdatingItem = true;
+    
+    const updatePayload = {
+      quantity: this.editItem.quantity,
+      unitPrice: this.editItem.unitPrice,
+      discount: this.editItem.discount,
+      totalPrice: this.editItem.totalPrice,
+      productId:this.selectedItem.productId,
+      saleId:this.sale.id
+    };
+    
+    console.log('=== Updating sale item ===', updatePayload);
+    
+    this.salesService.updateSaleItem(this.editItem.id, updatePayload)
+      .pipe(
+        timeout(10000),
+        catchError((err: any) => {
+          console.log('=== SaleItem update error ===', err);
+          this.swalService.error('Hata!', 'Ürün güncellenirken bir hata oluştu.');
+          this.isUpdatingItem = false;
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== SaleItem update response ===', response);
+          
+          if (response?.isSuccess) {
+            // Başarılı olursa satışı yeniden yükle
+            this.loadSale();
+            this.closeItemDetailModal();
+            this.swalService.success('Başarılı!', 'Ürün güncellendi.');
+          } else {
+            this.swalService.error('Hata!', response?.message || 'Ürün güncellenemedi.');
+          }
+          
+          this.isUpdatingItem = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.log('=== SaleItem update error ===', err);
+          this.swalService.error('Hata!', 'Ürün güncellenirken bir hata oluştu.');
+          this.isUpdatingItem = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  deleteSaleItem(): void {
+    if (!this.editItem.id) return;
+    
+    this.swalService.deleteConfirm('Bu ürünü silmek istediğinizden emin misiniz?').then((result: any) => {
+      if (result.isConfirmed) {
+        this.isUpdatingItem = true;
+        
+        console.log('=== Deleting sale item ===', this.editItem.id);
+        
+        this.salesService.deleteSaleItem(this.editItem.id)
+          .pipe(
+            timeout(10000),
+            catchError((err: any) => {
+              console.log('=== SaleItem delete error ===', err);
+              this.swalService.error('Hata!', 'Ürün silinirken bir hata oluştu.');
+              this.isUpdatingItem = false;
+              return of(null);
+            })
+          )
+          .subscribe({
+            next: (response: any) => {
+              console.log('=== SaleItem delete response ===', response);
+              
+              if (response?.isSuccess) {
+                // Başarılı olursa satışı yeniden yükle
+                this.loadSale();
+                this.closeItemDetailModal();
+                this.swalService.success('Başarılı!', 'Ürün silindi.');
+              } else {
+                this.swalService.error('Hata!', response?.message || 'Ürün silinemedi.');
+              }
+              
+              this.isUpdatingItem = false;
+              this.cdr.detectChanges();
+            },
+            error: (err: any) => {
+              console.log('=== SaleItem delete error ===', err);
+              this.swalService.error('Hata!', 'Ürün silinirken bir hata oluştu.');
+              this.isUpdatingItem = false;
+              this.cdr.detectChanges();
+            }
+          });
+      }
+    });
   }
 }
