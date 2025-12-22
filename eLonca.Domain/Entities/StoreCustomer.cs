@@ -8,7 +8,7 @@ namespace eLonca.Domain.Entities
     {
         public string CustomerCode { get; set; } = string.Empty; 
         public CustomerType CustomerType { get; set; }  
-        public int DiscountRate { get; set; }       
+        public double DiscountRate { get; set; }       
         public Guid StoreId { get; set; }  // Navigation: Ana mağaza       
         public Guid CustomerStoreId { get; set; }   // Navigation: Müşteri olan mağaza
 

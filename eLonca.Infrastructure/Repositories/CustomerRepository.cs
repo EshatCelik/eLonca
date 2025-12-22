@@ -67,6 +67,7 @@ namespace eLonca.Infrastructure.Repositories
                                Email = s.Email,
                                LogoUrl = s.LogoUrl,
                                Phone = s.Phone,
+                               IsActive=c.IsActive,
                                TaxNumber = s.TaxNumber,
                                DiscountRate = c.DiscountRate,
                                CustomerType = c.CustomerType,

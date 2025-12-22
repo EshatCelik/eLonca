@@ -25,7 +25,8 @@ namespace eLonca.Application.Commands.CustomerCommands.CustomerCreate
 
             customer.Data.CustomerCode = request.CustomerCode;
             customer.Data.CustomerType = (CustomerType)request.CustomerType;
-            customer.Data.DiscountRate = request.DiscountRate; 
+            customer.Data.DiscountRate = request.DiscountRate;
+            customer.Data.IsActive = request.IsActive;
 
             var repsonse = await _customerRepository.Update(customer.Data, cancellationToken);
             return repsonse;

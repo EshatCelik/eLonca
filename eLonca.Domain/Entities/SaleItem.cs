@@ -9,7 +9,7 @@ namespace eLonca.Domain.Entities
         public decimal? Quantity { get; set; }
         public decimal? UnitPrice { get; set; }
         public decimal? Discount { get; set; }
-        public decimal? CustomerDiscount { get; set; }
+        public Double? CustomerDiscount { get; set; }
         public decimal? TotalPrice { get; set; }
 
         // Navigation
