@@ -19,7 +19,7 @@
         <i class="fas fa-arrow-left"></i> Geri Dön
       </button>
       <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
-        <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+        <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Güncelle' }}
       </button>
     </div>
   </div>
@@ -109,17 +109,7 @@
       </div>
 
       <div class="action-buttons">
-        <button type="button" class="btn btn-danger" (click)="deleteCustomer()" [disabled]="isDeleting">
-          <i class="fas fa-trash"></i> {{ isDeleting ? 'Siliniyor...' : 'Müşteriyi Sil' }}
-        </button>
-        <div class="right-buttons">
-          <button type="button" class="btn btn-secondary" (click)="onClose()">
-            <i class="fas fa-times"></i> İptal
-          </button>
-          <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
-            <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
-          </button>
-        </div>
+         
       </div>
     </div>
   }
