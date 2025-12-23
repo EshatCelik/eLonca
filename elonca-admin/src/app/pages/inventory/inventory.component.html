@@ -1,0 +1,373 @@
+<div class="inventory-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-boxes"></i>
+        Stoklarım
+      </h1>
+      <p>Ürün stoklarınızı yönetin</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="openProductSelectModal()">
+        <i class="fas fa-plus"></i>
+        Yeni Ürün Ekle
+      </button>
+    </div>
+  </div>
+
+  <div class="inventory-content">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ inventory.length }}</div>
+          <div class="stat-label">Toplam Ürün</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getInStockCount() }}</div>
+          <div class="stat-label">Stokta Olan</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getLowStockCount() }}</div>
+          <div class="stat-label">Düşük Stok</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getOutOfStockCount() }}</div>
+          <div class="stat-label">Stokta Yok</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="inventory-table-container">
+      <div class="table-header">
+        <h2>Stok Listesi</h2>
+        <div class="table-actions">
+          <button class="btn btn-secondary btn-sm" (click)="loadInventory()">
+            <i class="fas fa-sync"></i>
+            Yenile
+          </button>
+        </div>
+      </div>
+
+      @if (isLoading) {
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p>Stoklar yükleniyor...</p>
+        </div>
+      } @else if (inventory.length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-box-open"></i>
+          <h3>Stokta ürün bulunmuyor</h3>
+          <p>Stokunuza ürün eklemek için "Yeni Ürün Ekle" butonuna tıklayın.</p>
+          <button class="btn btn-primary" (click)="openProductSelectModal()">
+            <i class="fas fa-plus"></i>
+            İlk Ürünü Ekle
+          </button>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="inventory-table">
+            <thead>
+              <tr>
+                <th>Ürün Kodu</th>
+                <th>Ürün Adı</th>
+                <th>Stok Miktarı</th>
+                <th>Durum</th>
+                <th>Satış Fiyatı</th>
+                <th>Son Güncelleme</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of inventory; track item.id) {
+                <tr>
+                  <td>
+                    <span class="product-code">{{ item.code }}</span>
+                  </td>
+                  <td>
+                    <div class="product-info">
+                      <div class="product-name">{{ item.name }}</div>
+                      @if (item.description) {
+                        <div class="product-description">{{ item.description }}</div>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="stock-quantity">{{ item.stockQuantity }}</span>
+                  </td>
+                  <td>
+                    @let status = getStockStatus(item.stockQuantity);
+                    <span class="stock-status {{ status.class }}">{{ status.text }}</span>
+                  </td>
+                  <td>
+                    <span class="price">{{ formatCurrency(item.salePrice) }}</span>
+                  </td>
+                  <td>
+                    <span class="last-updated">{{ formatDate(item.lastUpdated) }}</span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-primary" (click)="openUpdateModal(item)" title="Stok Güncelle">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-success" (click)="openAddModal(); selectedInventoryItem = item" title="Stok Ekle">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                      <button class="btn btn-sm btn-warning" (click)="openUpdateModal(item); operation = 'remove'" title="Stok Çıkar">
+                        <i class="fas fa-minus"></i>
+                      </button>
+                      <button class="btn btn-sm btn-danger" (click)="deleteItem(item)" title="Sil">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Product Select Modal -->
+@if (showProductSelectModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content product-select-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-content">
+          <h3>
+            <i class="fas fa-plus"></i>
+            Ürün Seç
+          </h3>
+          <button class="modal-close" (click)="closeModals()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="modal-body">
+        @if (isLoadingProducts) {
+          <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Ürünler yükleniyor...</p>
+          </div>
+        } @else if (availableProducts.length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>Ürün bulunmuyor</h3>
+            <p>Önce ürün eklemeniz gerekiyor.</p>
+          </div>
+        } @else {
+          <div class="product-selector">
+            <label>Ürün Seçin</label>
+            <select class="form-input" [(ngModel)]="selectedProduct" (change)="selectProduct()">
+              <option value="">Ürün seçin...</option>
+              @for (product of availableProducts; track product.id) {
+                <option [value]="product.id">{{ product.name }} ({{ product.code }})</option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add Product Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content add-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-content">
+          <h3>
+            <i class="fas fa-plus"></i>
+            Stoka Ürün Ekle
+          </h3>
+          <button class="modal-close" (click)="closeModals()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="modal-body">
+        @if (selectedInventoryItem) {
+          <div class="selected-product">
+            <div class="product-header">
+              <h4>{{ selectedInventoryItem.name }}</h4>
+              <span class="product-code">{{ selectedInventoryItem.code }}</span>
+            </div>
+            <div class="product-details">
+              <div class="detail-item">
+                <span class="label">Satış Fiyatı:</span>
+                <span class="value">{{ formatCurrency(selectedInventoryItem.salePrice) }}</span>
+              </div>
+            </div>
+          </div>
+        }
+        
+        <div class="form-section">
+          <div class="input-group">
+            <label for="quantity">Stok Miktarı</label>
+            <input 
+              type="number" 
+              id="quantity" 
+              class="form-input" 
+              [(ngModel)]="quantity" 
+              min="1"
+              placeholder="Miktar girin"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <div class="footer-actions">
+          <button class="btn btn-secondary" (click)="closeModals()">
+            <i class="fas fa-times"></i>
+            İptal
+          </button>
+          <button class="btn btn-primary" (click)="addNewProduct()" [disabled]="isSaving || !quantity || quantity <= 0">
+            <i class="fas fa-save"></i>
+            {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Update Stock Modal -->
+@if (showUpdateModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content update-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-content">
+          <h3>
+            <i class="fas fa-edit"></i>
+            Stok Güncelle
+          </h3>
+          <button class="modal-close" (click)="closeModals()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="modal-body">
+        @if (selectedInventoryItem) {
+          <div class="selected-product">
+            <div class="product-header">
+              <h4>{{ selectedInventoryItem.name }}</h4>
+              <span class="product-code">{{ selectedInventoryItem.code }}</span>
+            </div>
+            <div class="current-stock">
+              <span class="label">Mevcut Stok:</span>
+              <span class="value">{{ selectedInventoryItem.stockQuantity }}</span>
+            </div>
+          </div>
+        }
+        
+        <div class="operation-tabs">
+          <button 
+            class="tab-btn" 
+            [class.active]="operation === 'set'" 
+            (click)="operation = 'set'"
+          >
+            <i class="fas fa-edit"></i>
+            Stok Belirle
+          </button>
+          <button 
+            class="tab-btn" 
+            [class.active]="operation === 'add'" 
+            (click)="operation = 'add'"
+          >
+            <i class="fas fa-plus"></i>
+            Stok Ekle
+          </button>
+          <button 
+            class="tab-btn" 
+            [class.active]="operation === 'remove'" 
+            (click)="operation = 'remove'"
+          >
+            <i class="fas fa-minus"></i>
+            Stok Çıkar
+          </button>
+        </div>
+        
+        <div class="form-section">
+          <div class="input-group">
+            <label for="updateQuantity">
+              @if (operation === 'set') {
+                Yeni Stok Miktarı
+              } @else {
+                Miktar
+              }
+            </label>
+            <input 
+              type="number" 
+              id="updateQuantity" 
+              class="form-input" 
+              [(ngModel)]="quantity" 
+              min="1"
+              placeholder="Miktar girin"
+            >
+            @if (operation === 'remove' && selectedInventoryItem && quantity > selectedInventoryItem.stockQuantity) {
+              <div class="warning-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                Stokta yeterli ürün yok. Mevcut: {{ selectedInventoryItem.stockQuantity }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <div class="footer-actions">
+          <button class="btn btn-secondary" (click)="closeModals()">
+            <i class="fas fa-times"></i>
+            İptal
+          </button>
+          @if (operation === 'set') {
+            <button class="btn btn-primary" (click)="updateStock()" [disabled]="isSaving || !quantity || quantity < 0">
+              <i class="fas fa-save"></i>
+              {{ isSaving ? 'Güncelleniyor...' : 'Güncelle' }}
+            </button>
+          } @else if (operation === 'add') {
+            <button class="btn btn-success" (click)="adjustStock('add')" [disabled]="isSaving || !quantity || quantity <= 0">
+              <i class="fas fa-plus"></i>
+              {{ isSaving ? 'Ekleniyor...' : 'Ekle' }}
+            </button>
+          } @else {
+            <button class="btn btn-warning" (click)="adjustStock('remove')" [disabled]="isSaving || !quantity || quantity <= 0 || (selectedInventoryItem && quantity > selectedInventoryItem.stockQuantity)">
+              <i class="fas fa-minus"></i>
+              {{ isSaving ? 'Çıkarılıyor...' : 'Çıkar' }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

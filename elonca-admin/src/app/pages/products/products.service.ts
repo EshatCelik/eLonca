@@ -54,4 +54,9 @@ export class ProductsService extends BaseService {
     const body = { id } as any;
     return this.post<any>('Product/Delete', body);
   }
+
+  updateStock(id: string | number, stockData: any): Observable<any> {
+    const body = { id, ...stockData } as any;
+    return this.post<any>('Product/UpdateStock', body);
+  }
 }
