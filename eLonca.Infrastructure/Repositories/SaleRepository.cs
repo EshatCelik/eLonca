@@ -104,7 +104,7 @@ namespace eLonca.Infrastructure.Repositories
                     var customerDiscountAmount = Convert.ToDouble(lineTotal * customerRate / 100); // 300 * 10/100 =30
 
                     var totalPrice = Convert.ToDouble(lineTotal - customerDiscountAmount - productDiscountAmount);  // 300 - 30 =270 olacaktır
-                    item.CustomerDiscount = customerRate != null ? customerRate : 0M;
+                    item.CustomerDiscount = customerRate != null ? customerRate : 0;
                     item.TotalPrice = Convert.ToDecimal(totalPrice);
                     item.Product = product.Result.Data;
                 }

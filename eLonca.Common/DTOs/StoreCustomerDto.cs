@@ -18,7 +18,7 @@ namespace eLonca.Common.DTOs
         public DateTime CreateAt { get; set; }
 
         public CustomerType CustomerType { get; set; }
-        public decimal DiscountRate { get; set; }
+        public double DiscountRate { get; set; }
 
     }
 }

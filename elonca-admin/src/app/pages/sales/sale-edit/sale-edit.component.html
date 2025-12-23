@@ -164,7 +164,7 @@
             </div>
             <div class="form-item">
               <label>Birim Fiyat</label>
-              <input type="number" [readonly]="true" [(ngModel)]="newProduct.unitPrice" class="form-control" min="0" step="0.01" (input)="calculateProductTotal()" />
+              <input type="number" [readonly]="true" [(ngModel)]="newProduct.unitPrice" class="form-control" min="0" step="1" (input)="calculateProductTotal()" />
             </div>
             <div class="form-item">
               <label>İndirim (%)</label>

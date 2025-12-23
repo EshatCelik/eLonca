@@ -1,8 +1,34 @@
 <div class="customer-edit-page">
-  <div class="page-header">
-    <div class="header-content">
-       
-      <div class="header-info">
+  <!-- Top Section -->
+  <div class="top-section">
+    <!-- Financial Summary -->
+    @if (customer && !isLoading) {
+      <div class="financial-summary-wrapper">
+        <div class="financial-summary receivable" [ngClass]="financialStatus === 'positive' || financialStatus === 'neutral' ? 'positive' : 'neutral'">
+          <div class="financial-icon">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+          <div class="financial-content">
+            <span class="financial-label">Alacağım</span>
+            <span class="financial-amount">{{ totalReceivable | currency:'TRY' }}</span>
+          </div>
+        </div>
+        
+        <div class="financial-summary payable" [ngClass]="financialStatus === 'negative' ? 'negative' : 'neutral'">
+          <div class="financial-icon">
+            <i class="fas fa-arrow-up"></i>
+          </div>
+          <div class="financial-content">
+            <span class="financial-label">Borcum</span>
+            <span class="financial-amount">{{ totalPayable | currency:'TRY' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Customer Info Bar -->
+    <div class="customer-info-bar">
+      <div class="customer-details">
         <span class="customer-code-display">{{ customer?.customerCode || '-' }}</span>
         <span class="status-badge" [ngClass]="{
           'active': customer?.isActive,
@@ -11,16 +37,16 @@
           {{ customer?.isActive ? 'Aktif' : 'Pasif' }}
         </span> 
         <p class="customer-type">{{ getCustomerType(customer?.customerType) }}</p>
-
       </div>
-    </div>
-    <div class="header-actions">
-      <button type="button" class="btn btn-secondary" (click)="onClose()">
-        <i class="fas fa-arrow-left"></i> Geri Dön
-      </button>
-      <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
-        <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
-      </button>
+      
+      <div class="action-buttons">
+        <button type="button" class="btn btn-secondary" (click)="onClose()">
+          <i class="fas fa-arrow-left"></i> Geri Dön
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+          <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Güncelle' }}
+        </button>
+      </div>
     </div>
   </div>
 
@@ -41,7 +67,7 @@
   @if (customer && !isLoading) {
     <div class="content-container">
       <div class="customer-card"> 
-
+ 
         <div class="card-body">
           <div class="info-section">
             <h3><i class="fas fa-info-circle"></i> Müşteri Bilgileri</h3>
@@ -108,17 +134,360 @@
         </div>
       </div>
 
+      <!-- Sales Section -->
+      <div class="data-card">
+        <div class="card-header">
+          <h3><i class="fas fa-shopping-cart"></i> Satışlarım</h3>
+          <button type="button" class="btn btn-primary btn-sm" (click)="openSalesModal()">
+            <i class="fas fa-plus"></i> Satış Ekle
+          </button>
+        </div>
+        <div class="card-body">
+          @if (isLoadingSales) {
+            <div class="loading-small">
+              <div class="loading-spinner-small"></div>
+              <span>Satışlar yükleniyor...</span>
+            </div>
+          } @else if (sales.length === 0) {
+            <div class="empty-state">
+              <i class="fas fa-shopping-cart"></i>
+              <h4>Henüz satış kaydı yok</h4>
+              <p>"Satış Ekle" butonuna tıklayarak ilk satışınızı ekleyin</p>
+            </div>
+          } @else {
+            <div class="sales-table-container">
+              <table class="sales-table">
+                <thead>
+                  <tr>
+                    <th><i class="fas fa-box"></i> Ürün</th>
+                    <th><i class="fas fa-calendar"></i> Tarih</th>
+                    <th><i class="fas fa-money-bill"></i> Tutar</th>
+                    <th><i class="fas fa-info-circle"></i> Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (sale of sales; track sale.id) {
+                    <tr>
+                      <td class="product-cell">
+                        <div class="product-info">
+                          <i class="fas fa-cube product-icon"></i>
+                          <div>
+                            <div class="product-name">{{ sale.description }}</div>
+                            <small class="product-category">Satış</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="date-cell">{{ sale.date | date:'dd.MM.yyyy' }}</td>
+                      <td class="amount-cell">{{ sale.amount | currency:'TRY' }}</td>
+                      <td class="status-cell">
+                        <span class="status-badge" [ngClass]="{
+                          'paid': sale.status === 'paid',
+                          'pending': sale.status === 'pending'
+                        }">
+                          <i class="fas" [ngClass]="{
+                            'fa-check-circle': sale.status === 'paid',
+                            'fa-clock': sale.status === 'pending'
+                          }"></i>
+                          {{ sale.status === 'paid' ? 'Ödendi' : 'Bekliyor' }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Debts Section -->
+      <div class="data-card">
+        <div class="card-header">
+          <h3><i class="fas fa-credit-card"></i> Borçlar</h3>
+          <button type="button" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Yeni Borç
+          </button>
+        </div>
+        <div class="card-body">
+          @if (isLoadingDebts) {
+            <div class="loading-small">
+              <div class="loading-spinner-small"></div>
+              <span>Yükleniyor...</span>
+            </div>
+          } @else if (debts.length === 0) {
+            <div class="empty-state">
+              <i class="fas fa-credit-card"></i>
+              <p>Borç kaydı bulunmuyor</p>
+            </div>
+          } @else {
+            <div class="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Açıklama</th>
+                    <th>Tutar</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (debt of debts; track debt.id) {
+                    <tr>
+                      <td>{{ debt.date | date:'dd.MM.yyyy' }}</td>
+                      <td>{{ debt.description }}</td>
+                      <td class="amount negative">{{ debt.amount | currency:'TRY' }}</td>
+                      <td>
+                        <span class="status-badge active">
+                          Aktif
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+
       <div class="action-buttons">
-        <button type="button" class="btn btn-danger" (click)="deleteCustomer()" [disabled]="isDeleting">
-          <i class="fas fa-trash"></i> {{ isDeleting ? 'Siliniyor...' : 'Müşteriyi Sil' }}
-        </button>
-        <div class="right-buttons">
-          <button type="button" class="btn btn-secondary" (click)="onClose()">
-            <i class="fas fa-times"></i> İptal
-          </button>
-          <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
-            <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet' }}
-          </button>
+         
+      </div>
+    </div>
+  }
+
+  <!-- Sales Modal -->
+  @if (showSalesModal) {
+    <div class="modal-overlay" (click)="closeSalesModal()">
+      <div class="modal-content sales-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="header-content">
+            <h3><i class="fas fa-shopping-cart"></i> Yeni Satış Ekle</h3>
+            <button type="button" class="modal-close" (click)="closeSalesModal()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Products Section -->
+          <div class="products-section">
+            <div class="section-header">
+              <h4><i class="fas fa-box"></i> Satış Ürünleri</h4>
+              <button type="button" class="btn btn-primary btn-sm" (click)="openProductModal()">
+                <i class="fas fa-plus"></i> Ürün Ekle
+              </button>
+            </div>
+            
+            @if (saleProducts.length === 0) {
+              <div class="empty-products">
+                <i class="fas fa-box-open"></i>
+                <p>Henüz ürün eklenmedi</p>
+                <small>"Ürün Ekle" butonuna tıklayarak ürün ekleyin</small>
+              </div>
+            } @else {
+              <div class="products-list">
+                @for (product of saleProducts; track product.id) {
+                  <div class="product-item">
+                    <div class="product-info">
+                      <div class="product-name">{{ product.productName }}</div>
+                      <div class="product-details">
+                        <span class="product-code">{{ product.productCode }}</span>
+                        <span class="product-quantity">{{ product.quantity }} adet</span>
+                        <span class="product-price">{{ formatCurrency(product.unitPrice) }}</span>
+                      </div>
+                    </div>
+                    <div class="product-pricing">
+                      <div class="pricing-row">
+                        <span>Ara Toplam:</span>
+                        <span>{{ formatCurrency(product.subtotal) }}</span>
+                      </div>
+                      @if (product.discountAmount > 0) {
+                        <div class="pricing-row discount">
+                          <span>İndirim:</span>
+                          <span>-{{ formatCurrency(product.discountAmount) }}</span>
+                        </div>
+                      }
+                      <div class="pricing-row total">
+                        <span>Toplam:</span>
+                        <span>{{ formatCurrency(product.totalPrice) }}</span>
+                      </div>
+                    </div>
+                    <div class="product-actions">
+                      <button type="button" class="btn btn-danger btn-sm" (click)="removeProductFromSale(product.id)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          
+          <!-- Sale Details Section -->
+          <div class="sale-details-section">
+            <div class="section-title">
+              <i class="fas fa-info-circle"></i>
+              <span>Satış Bilgileri</span>
+            </div>
+            
+            <div class="details-grid">
+              <div class="detail-item">
+                <label><i class="fas fa-calendar"></i> Tarih</label>
+                <input type="date" [(ngModel)]="newSale.date" class="form-input">
+              </div>
+              
+              <div class="detail-item">
+                <label><i class="fas fa-info-circle"></i> Durum</label>
+                <select [(ngModel)]="newSale.status" class="form-input">
+                  <option value="paid">Ödendi</option>
+                  <option value="pending">Bekliyor</option>
+                </select>
+              </div>
+              
+              <div class="detail-item full-width">
+                <label><i class="fas fa-align-left"></i> Açıklama</label>
+                <textarea [(ngModel)]="newSale.description" class="form-input" placeholder="Satış açıklaması..." rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Total Summary -->
+          <div class="total-summary">
+            <div class="summary-card">
+              <div class="summary-row">
+                <span>Genel Toplam:</span>
+                <span class="total-amount">{{ formatCurrency(newSale.totalAmount) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <div class="footer-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeSalesModal()">
+              <i class="fas fa-times"></i> İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="updateSaveNewSale()" [disabled]="isSavingSale || saleProducts.length === 0">
+              <i class="fas fa-save"></i> {{ isSavingSale ? 'Kaydediliyor...' : 'Kaydet' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Product Selection Modal -->
+  @if (showProductModal) {
+    <div class="modal-overlay" (click)="closeProductModal()">
+      <div class="modal-content product-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="header-content">
+            <h3><i class="fas fa-box"></i> Ürün Seç</h3>
+            <button type="button" class="modal-close" (click)="closeProductModal()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Product Selection -->
+          <div class="product-selection">
+            <div class="section-title">
+              <i class="fas fa-search"></i>
+              <span>Ürün Seçimi</span>
+            </div>
+            
+            <div class="product-selector">
+              <select [(ngModel)]="selectedProduct" class="form-input" (change)="onProductSelect()">
+                <option value="">Ürün seçin</option>
+                @for (product of availableProducts; track product.id) {
+                  <option [value]="product.id">{{ product.name }} - {{ formatCurrency(product.price) }}</option>
+                }
+              </select>
+            </div>
+            
+            @if (selectedProduct) {
+              <div class="selected-product-info">
+                <div class="product-details">
+                  <div class="product-detail-item">
+                    <label>Ürün Kodu:</label>
+                    <span>{{ getSelectedProductCode() }}</span>
+                  </div>
+                  <div class="product-detail-item">
+                    <label>Birim Fiyat:</label>
+                    <span>{{ formatCurrency(getSelectedProductPrice()) }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+          
+          <!-- Quantity and Discount -->
+          <div class="quantity-discount-section">
+            <div class="section-title">
+              <i class="fas fa-calculator"></i>
+              <span>Miktar ve İndirim</span>
+            </div>
+            
+            <div class="quantity-discount-grid">
+              <div class="input-item">
+                <label><i class="fas fa-cubes"></i> Miktar</label>
+                <input type="number" [(ngModel)]="productQuantity" class="form-input" placeholder="1" min="1">
+              </div>
+              
+              <div class="input-item">
+                <label><i class="fas fa-percentage"></i> İndirim (%)</label>
+                <input type="number" [(ngModel)]="productDiscount" class="form-input" placeholder="0" min="0" max="100">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Calculation Preview -->
+          @if (selectedProduct && productQuantity > 0) {
+            <div class="calculation-preview">
+              <div class="section-title">
+                <i class="fas fa-calculator"></i>
+                <span>Hesaplama</span>
+              </div>
+              
+              <div class="calculation-details">
+                <div class="calc-row">
+                  <span>Birim Fiyat:</span>
+                  <span>{{ formatCurrency(getSelectedProductPrice()) }}</span>
+                </div>
+                <div class="calc-row">
+                  <span>Miktar:</span>
+                  <span>{{ productQuantity }} adet</span>
+                </div>
+                <div class="calc-row">
+                  <span>Ara Toplam:</span>
+                  <span>{{ formatCurrency(getSelectedProductPrice() * productQuantity) }}</span>
+                </div>
+                @if (productDiscount > 0) {
+                  <div class="calc-row discount">
+                    <span>İndirim:</span>
+                    <span>-{{ formatCurrency((getSelectedProductPrice() * productQuantity) * (productDiscount / 100)) }}</span>
+                  </div>
+                }
+                <div class="calc-row total">
+                  <span>Toplam:</span>
+                  <span>{{ formatCurrency((getSelectedProductPrice() * productQuantity) - ((getSelectedProductPrice() * productQuantity) * (productDiscount / 100))) }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="modal-footer">
+          <div class="footer-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeProductModal()">
+              <i class="fas fa-times"></i> İptal
+            </button>
+            <button type="button" class="btn btn-primary" (click)="addProductToSale()" [disabled]="!selectedProduct || productQuantity <= 0">
+              <i class="fas fa-plus"></i> Satışa Ekle
+            </button>
+          </div>
         </div>
       </div>
     </div>
