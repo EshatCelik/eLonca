@@ -1,12 +1,12 @@
 ﻿using eLonca.Application.Services.TenantService;
+using eLonca.Common.DTOs;
 using eLonca.Common.Models;
-using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
 
 namespace eLonca.Application.Queries.StockQueries.GetAllStockQuery
 {
-    public class GetAllStockQueryHandler : IRequestHandler<GetAllStockQuery, Result<List<StockMovement>>>
+    public class GetAllStockQueryHandler : IRequestHandler<GetAllStockQuery, Result<List<StockMovementDto>>>
     {
         private readonly IStockRepository _stockRepository;
         private readonly ITenantService _tenantService;
@@ -18,9 +18,9 @@ namespace eLonca.Application.Queries.StockQueries.GetAllStockQuery
             _tenantService = tenantService;
         }
 
-        public async Task<Result<List<StockMovement>>> Handle(GetAllStockQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<StockMovementDto>>> Handle(GetAllStockQuery request, CancellationToken cancellationToken)
         {
-            var stock = await _stockRepository.GetAllAsync(x => x.TenantId == _tenantService.GetTenantId().Data, cancellationToken);
+            var stock =   _stockRepository.GetAllStock( _tenantService.GetTenantId().Data).Result;
             return stock;
         }
     }

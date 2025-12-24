@@ -1,4 +1,5 @@
-﻿using eLonca.Domain.Entities.BaseEntities; 
+﻿using eLonca.Common.Enums;
+using eLonca.Domain.Entities.BaseEntities; 
 
 namespace eLonca.Domain.Entities
 {
@@ -18,13 +19,5 @@ namespace eLonca.Domain.Entities
         public Sale? Sale { get; set; } = null!;
         public Store? Store { get; set; } = null!;
         public Product? Product { get; set; } = null!;
-    }
-
-    public enum MovementType
-    {
-        In = 1,
-        Out = 2,
-        Adjustment = 3,
-        Return = 4
     }
 }
