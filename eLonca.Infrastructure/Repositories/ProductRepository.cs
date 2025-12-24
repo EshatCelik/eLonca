@@ -1,4 +1,5 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.Enums;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;

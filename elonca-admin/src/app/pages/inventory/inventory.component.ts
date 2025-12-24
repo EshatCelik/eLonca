@@ -74,21 +74,31 @@ export class InventoryComponent extends BaseComponent implements OnInit {
             this.inventory = response.data.map((item: any) => ({
               id: item.productId || item.id,
               name: item.productName || item.name || 'Ürün',
-              code: item.productCode || item.code || 'KOD',
-              stockQuantity: item.stockQuantity || 0,
-              salePrice: item.salePrice || 0,
-              description: item.description || '',
-              lastUpdated: item.lastUpdated || new Date().toISOString()
+              productCode: item.productCode  , 
+              movementType: item.movementType || 0,
+              stockInQuantity: item.stockInQuantity || 0, 
+              stockOutQuantity: item.stockOutQuantity || 0, 
+              totalStock:item.stockInQuantity   - item.stockOutQuantity  ,
+              minStockLevel: item.minStockLevel || 0,
+              productSalePrice: item.productSalePrice || 0,
+              productPurchasePrice: item.productPurchasePrice || 0, 
+              description: item.notes || '',
+              movementDate: item.movementDate
             }));
           } else if (Array.isArray(response)) {
             this.inventory = response.map((item: any) => ({
               id: item.productId || item.id,
               name: item.productName || item.name || 'Ürün',
-              code: item.productCode || item.code || 'KOD',
-              stockQuantity: item.stockQuantity || 0,
-              salePrice: item.salePrice || 0,
-              description: item.description || '',
-              lastUpdated: item.lastUpdated || new Date().toISOString()
+              productCode: item.productCode  , 
+              movementType: item.movementType || 0,
+              stockInQuantity: item.stockInQuantity || 0, 
+              stockOutQuantity: item.stockOutQuantity || 0, 
+              totalStock:item.stockInQuantity  - item.stockOutQuantity  ,
+              minStockLevel: item.minStockLevel || 0,
+              productSalePrice: item.productSalePrice || 0,
+              productPurchasePrice: item.productPurchasePrice || 0, 
+              description: item.notes || '',
+              movementDate: item.movementDate
             }));
           }
           
@@ -150,7 +160,19 @@ export class InventoryComponent extends BaseComponent implements OnInit {
         }
       });
   }
-
+  getStockStatus(totalStock: number, minStockLevel: number): { text: string, class: string } {
+    if (totalStock <= 0) {
+      return { text: 'Stokta Yok', class: 'status-out' };
+    } else if (totalStock < minStockLevel && minStockLevel > 0) {
+      return { text: 'Kritik Seviye', class: 'status-critical' };
+    } else if (totalStock <= minStockLevel * 1.5) {
+      return { text: 'Düşük Stok', class: 'status-low' };
+    } else if (totalStock <= minStockLevel * 3) {
+      return { text: 'Normal Stok', class: 'status-normal' };
+    } else {
+      return { text: 'Yüksek Stok', class: 'status-high' };
+    }
+  }
   openAddModal(): void {
     this.showAddModal = true;
     this.resetForm();
@@ -386,15 +408,29 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     });
   }
 
-  getStockStatus(quantity: number): { class: string; text: string } {
-    if (quantity === 0) {
-      return { class: 'out-of-stock', text: 'Stokta Yok' };
-    } else if (quantity <= 10) {
-      return { class: 'low-stock', text: 'Düşük Stok' };
-    } else if (quantity <= 50) {
-      return { class: 'medium-stock', text: 'Normal Stok' };
-    } else {
-      return { class: 'high-stock', text: 'Yüksek Stok' };
+  // getStockStatus(quantity: number): { class: string; text: string } {
+  //   if (quantity === 0) {
+  //     return { class: 'out-of-stock', text: 'Stokta Yok' };
+  //   } else if (quantity <= 10) {
+  //     return { class: 'low-stock', text: 'Düşük Stok' };
+  //   } else if (quantity <= 50) {
+  //     return { class: 'medium-stock', text: 'Normal Stok' };
+  //   } else {
+  //     return { class: 'high-stock', text: 'Yüksek Stok' };
+  //   }
+  // }
+  getStockInorOutStatus(type: number): { class: string; text: string } {
+    if (type === 1) {
+      return { class: 'out-of-stock', text: 'Stok Girişi' };
+    } else if (type === 2) {
+      return { class: 'low-stock', text: 'Stok Çıkışı' };
+    } else if (type === 3) {
+      return { class: 'medium-stock', text: 'Stok Düzenleme' };
+    } else if(type===4) {
+      return { class: 'high-stock', text: 'Stoğa Geri Yükleme' };
+    }
+    else{
+      return { class: 'high-stock', text: 'Stok Tipi Bulunamadı' };
     }
   }
 

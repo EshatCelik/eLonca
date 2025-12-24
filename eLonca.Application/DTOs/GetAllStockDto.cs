@@ -1,4 +1,4 @@
-﻿using eLonca.Domain.Entities;
+﻿using eLonca.Common.Enums;
 
 namespace eLonca.Application.DTOs
 {

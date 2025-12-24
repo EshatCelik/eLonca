@@ -314,36 +314,86 @@
                 font-size: 16px;
                 color: #2c3e50;
               }
-
+              .stock-in {
+                color: #28a745;
+                font-weight: 600;
+              }
+              
+              .stock-out {
+                color: #dc3545;
+                font-weight: 600;
+              }
+              
+              .total-stock {
+                font-weight: 700;
+                font-size: 1.1em;
+              }
+              
+              .total-stock.low-stock {
+                color: #dc3545;
+                animation: blink 1s infinite;
+              }
+              
+              @keyframes blink {
+                0%, 50%, 100% { opacity: 1; }
+                25%, 75% { opacity: 0.5; }
+              }
               .stock-status {
                 padding: 4px 12px;
                 border-radius: 20px;
                 font-size: 12px;
                 font-weight: 600;
                 text-transform: uppercase;
+                letter-spacing: 0.5px;
 
-                &.out-of-stock {
+                &.status-out {
                   background: #f8d7da;
-                  color: #dc3545;
+                  color: #721c24;
+                  border: 1px solid #f5c6cb;
                 }
 
-                &.low-stock {
+                &.status-critical {
+                  background: #f8d7da;
+                  color: #721c24;
+                  border: 1px solid #f5c6cb;
+                  animation: pulse 1.5s infinite;
+                }
+
+                &.status-low {
                   background: #fff3cd;
-                  color: #ffc107;
+                  color: #856404;
+                  border: 1px solid #ffeaa7;
                 }
 
-                &.medium-stock {
+                &.status-normal {
                   background: #d1ecf1;
-                  color: #17a2b8;
+                  color: #0c5460;
+                  border: 1px solid #bee5eb;
                 }
 
-                &.high-stock {
+                &.status-high {
                   background: #d4edda;
-                  color: #28a745;
+                  color: #155724;
+                  border: 1px solid #c3e6cb;
                 }
               }
 
-              .price {
+              @keyframes pulse {
+                0% {
+                  transform: scale(1);
+                  box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+                }
+                70% {
+                  transform: scale(1.05);
+                  box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+                }
+                100% {
+                  transform: scale(1);
+                  box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+                }
+              }
+
+              .productSalePrice {
                 font-weight: 600;
                 color: #667eea;
               }

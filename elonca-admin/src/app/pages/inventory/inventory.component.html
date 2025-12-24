@@ -10,7 +10,7 @@
     <div class="header-actions">
       <button class="btn btn-primary" (click)="openProductSelectModal()">
         <i class="fas fa-plus"></i>
-        Yeni Ürün Ekle
+        Stoğa Ürün Ekle
       </button>
     </div>
   </div>
@@ -93,39 +93,51 @@
               <tr>
                 <th>Ürün Kodu</th>
                 <th>Ürün Adı</th>
-                <th>Stok Miktarı</th>
-                <th>Durum</th>
-                <th>Satış Fiyatı</th>
+                <th>Stok Giriş</th>
+                <th>Stok Çıkış</th> 
+                <th>Toplam Stok</th>
+                <th>Durum</th> 
                 <th>Son Güncelleme</th>
                 <th>İşlemler</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of inventory; track item.id) {
+              @for (item of inventory; track $index) {
                 <tr>
                   <td>
-                    <span class="product-code">{{ item.code }}</span>
+                    <span class="product-code">{{ item.productCode }}</span>
                   </td>
                   <td>
                     <div class="product-info">
                       <div class="product-name">{{ item.name }}</div>
-                      @if (item.description) {
-                        <div class="product-description">{{ item.description }}</div>
+                      @if (item.notes) {
+                        <div class="product-description">{{ item.notes }}</div>
                       }
                     </div>
                   </td>
                   <td>
-                    <span class="stock-quantity">{{ item.stockQuantity }}</span>
+                    <span class="stock-in">{{ item.stockInQuantity }}</span>
                   </td>
                   <td>
-                    @let status = getStockStatus(item.stockQuantity);
+                    <span class="stock-out">{{ item.stockOutQuantity }}</span>
+                  </td>
+                  <!-- <td>
+                    <span class="stock-return">{{ item.return }}</span>
+                  </td>
+                  <td>
+                    <span class="stock-adjustment">{{ item.adjustment }}</span>
+                  </td> -->
+                  <td>
+                    <span class="total-stock" [class.low-stock]="item.totalStock < item.minStockLevel">
+                      {{ item.totalStock }}
+                    </span>
+                  </td>
+                  <td>
+                    @let status = getStockStatus(item.totalStock, item.minStockLevel);
                     <span class="stock-status {{ status.class }}">{{ status.text }}</span>
-                  </td>
+                  </td> 
                   <td>
-                    <span class="price">{{ formatCurrency(item.salePrice) }}</span>
-                  </td>
-                  <td>
-                    <span class="last-updated">{{ formatDate(item.lastUpdated) }}</span>
+                    <span class="last-updated">{{ formatDate(item.movementDate) }}</span>
                   </td>
                   <td>
                     <div class="action-buttons">
