@@ -1,5 +1,4 @@
-﻿using eLonca.Common.Enums;
-using static System.Formats.Asn1.AsnWriter;
+﻿using eLonca.Common.Enums; 
 
 namespace eLonca.Common.DTOs
 {
@@ -18,7 +17,10 @@ namespace eLonca.Common.DTOs
         public decimal MinStockLevel { get; set; }
         public decimal ProductSalePrice { get; set; }
         public decimal ProductPurchasePrice { get; set; }
+        public decimal Quantity { get; set; }
         public DateTime MovementDate { get; set; } = DateTime.UtcNow; 
         public string? Notes { get; set; } 
+        public string? StoreName { get; set; } 
+        public string? StockCreateUserName { get; set; } 
     }
 }

@@ -29,12 +29,8 @@ export class ProductsService extends BaseService {
     );
   }
 
-  create(payload: any): Observable<any> {
-    return this.post<any>('Product/Create', payload);
-  }
-
   getById(id: string | number): Observable<any> {
-    const body = { id } as any;
+    const body = { id };
     return this.post<any>('Product/GetById', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {
@@ -43,6 +39,10 @@ export class ProductsService extends BaseService {
         return res?.data || res;
       })
     );
+  }
+
+  create(payload: any): Observable<any> {
+    return this.post<any>('Product/Create', payload);
   }
 
   update(id: string | number, payload: any): Observable<any> {

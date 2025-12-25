@@ -21,6 +21,7 @@ import { ReceivablesComponent } from './pages/receivables/receivables.component'
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ChangePasswordComponent } from './pages/profile/change-password.component';
 import { InventoryComponent } from './pages/inventory/inventory.component';
+import { StockDetailComponent } from './pages/inventory/stock-detail/stock-detail.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -54,6 +55,7 @@ export const routes: Routes = [
       { path: 'sales/:id/edit', component: SaleEditComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'inventory', component: InventoryComponent },
+      { path: 'inventory/:productId/:storeId/detail', component: StockDetailComponent },
       { path: 'receivables', component: ReceivablesComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'change-password', component: ChangePasswordComponent },
