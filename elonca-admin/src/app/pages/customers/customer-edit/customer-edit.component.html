@@ -137,7 +137,7 @@
       <!-- Sales Section -->
       <div class="data-card">
         <div class="card-header">
-          <h3><i class="fas fa-shopping-cart"></i> Satışlarım</h3>
+          <h3><i class="fas fa-shopping-cart"></i> Aktif Satışlarım</h3>
           <button type="button" class="btn btn-primary btn-sm" (click)="openSalesModal()">
             <i class="fas fa-plus"></i> Satış Ekle
           </button>
@@ -177,7 +177,7 @@
                           </div>
                         </div>
                       </td>
-                      <td class="date-cell">{{ sale.date | date:'dd.MM.yyyy' }}</td>
+                      <td class="date-cell">{{ sale.date  }}</td>
                       <td class="amount-cell">{{ sale.amount | currency:'TRY' }}</td>
                       <td class="status-cell">
                         <span class="status-badge" [ngClass]="{

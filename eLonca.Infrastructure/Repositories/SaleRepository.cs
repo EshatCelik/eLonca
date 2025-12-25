@@ -31,16 +31,18 @@ namespace eLonca.Infrastructure.Repositories
             return Result<List<SaleItem>>.Success(list, "Liste başarılı", 200);
         }
 
-        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid tenantId, CancellationToken cancellationToken)
+        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid storeId,Guid storeCustomerId, CancellationToken cancellationToken)
         {
             var sales = (from s in _dbContext.Sales 
                          join st in _dbContext.Stores on s.StoreId equals st.Id
                          join sc in _dbContext.StoreCustomers on s.StoreCustomerId equals sc.Id into scGroup
                          from sc in scGroup.DefaultIfEmpty()
-                         where s.TenantId == tenantId
+                         where sc.StoreId == storeId && sc.CustomerStoreId==storeCustomerId
+                         orderby(s.SaleDate)
                          select new GetAllSalesDto()
                          {
                              Id = s.Id,
+                             
                              SaleDate = s.SaleDate.ToString("dd/MM/yyyy"), // veya "dd.MM.yyyy"
                              InvoiceNumber = s.InvoiceNumber,
                              TotalAmount = s.TotalAmount,
@@ -50,6 +52,7 @@ namespace eLonca.Infrastructure.Repositories
                              PaymentStatus = s.PaymentStatus,
                              Notes = s.Notes,
                              StoreId = st.Id,
+                             SaleId=s.Id,
                              IsActive = s.IsActive,
                              StoreName = st.StoreName,
                              StoreCutomerId = s.StoreCustomerId,

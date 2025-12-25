@@ -6,6 +6,7 @@ namespace eLonca.Application.Queries.SalesQueries.GetAllSale
 {
     public class GetAllSalesQueryResponse:IRequest<Result<List<GetAllSalesDto>>>
     {
-        public Guid? TenantId { get; set; }
+        public Guid StoreId { get; set; }
+        public Guid StoreCustomerId { get; set; }
     }
 }
