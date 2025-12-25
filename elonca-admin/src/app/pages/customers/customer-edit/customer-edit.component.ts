@@ -67,6 +67,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
 
   // API URL
   private apiUrl = 'https://localhost:7127/api';
+   
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -191,22 +192,36 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
       currency: 'TRY'
     }).format(amount);
   }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '-';
+    
+    // Handle Turkish date format "DD.MM.YYYY"
+    if (dateString.includes('.')) {
+      return dateString;
+    }
+    
+    // Handle ISO format
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      
+      return date.toLocaleDateString('tr-TR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  }
+
   loadCustomerFinancialData(): void {
     if (!this.customer) return;
     
     // Load sales data
     this.isLoadingSales = true;
-    // Mock data for now - replace with actual API call
-    setTimeout(() => {
-      this.sales = [
-        { id: 1, date: '2024-01-15', amount: 1500, description: 'Ürün Satışı', status: 'paid' },
-        { id: 2, date: '2024-01-20', amount: 800, description: 'Hizmet Bedeli', status: 'pending' },
-        { id: 3, date: '2024-02-01', amount: 2200, description: 'Toplu Alım', status: 'paid' }
-      ];
-      this.isLoadingSales = false;
-      this.calculateFinancialSummary();
-      this.cdr.detectChanges();
-    }, 1000);
+    this.loadSales();
 
     // Load debts data
     this.isLoadingDebts = true;
@@ -222,7 +237,76 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     }, 1500);
   }
 
-  
+  loadSales(): void {
+    if (!this.customer) return;
+    
+    const payload = {
+      storeId: this.currentStoreId || this.customer.storeId,
+      storeCustomerId: this.customer.customerId
+    };
+
+    console.log('=== Loading sales from API ===', payload);
+
+    this.salesService.getAll(payload)
+      .pipe(
+        timeout(10000),
+        catchError((err: any) => {
+          console.log('=== Sales load error ===', err);
+          this.swalService.error('Hata', 'Satışlar yüklenirken bir hata oluştu.');
+          this.cdr.detectChanges();
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== Sales API Response ===', response);
+          
+          if (Array.isArray(response)) {
+            this.sales = response.map((sale: any) => ({
+              id: sale.id || sale.saleId || Date.now().toString(),
+              amount: sale.totalAmount || 0,
+              date: sale.saleDate || new Date().toISOString(),
+              description: sale.notes || `${sale.saleItems?.length || 0} ürün satışı`,
+              status: sale.paymentStatus === 1 ? 'paid' : 'pending',
+              invoiceNumber: sale.invoiceNumber || '',
+              customerName: sale.customerCode || this.customer.storeName,
+              items: sale.saleItems || [],
+              paidAmount: sale.paidAmount || 0,
+              remainingAmount: sale.remainingAmount || 0,
+              paymentType: sale.paymentType || 1,
+              storeName: sale.storeName || ''
+            }));
+          } else if (response?.isSuccess && response?.data) {
+            this.sales = response.data.map((sale: any) => ({
+              id: sale.id || sale.saleId || Date.now().toString(),
+              amount: sale.totalAmount || 0,
+              date: sale.saleDate || new Date().toISOString(),
+              description: sale.notes || `${sale.saleItems?.length || 0} ürün satışı`,
+              status: sale.paymentStatus === 1 ? 'paid' : 'pending',
+              invoiceNumber: sale.invoiceNumber || '',
+              customerName: sale.customerCode || this.customer.storeName,
+              items: sale.saleItems || [],
+              paidAmount: sale.paidAmount || 0,
+              remainingAmount: sale.remainingAmount || 0,
+              paymentType: sale.paymentType || 1,
+              storeName: sale.storeName || ''
+            }));
+          }
+          
+          console.log('=== Sales loaded ===', this.sales);
+          this.isLoadingSales = false;
+          this.calculateFinancialSummary();
+          // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+          setTimeout(() => {
+            this.cdr.detectChanges();
+          }, 0);
+        },
+        error: (err: any) => {
+          console.log('=== Sales API error ===', err);
+          this.cdr.detectChanges();
+        }
+      });
+  }
 
   calculateFinancialSummary(): void {
     // Calculate total receivable (alacak)
@@ -500,20 +584,23 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
           description: `${this.saleProducts.length} ürün satışı`,
           status: 'pending'
         };
-        
-        this.sales.unshift(savedSale);
+         
         this.calculateFinancialSummary();
         
         this.isSavingSale = false;
         this.closeSalesModal();
         this.cdr.detectChanges();
-        
-        this.swalService.success(
-          'Başarılı!', 
-          `${this.saleProducts.length} ürün içeren satış başarıyla kaydedildi.`
-        );
-        
-        console.log('=== Sale saved successfully ===', savedSale);
+        if(response.isSuccess){
+
+          this.swalService.success(
+            response.message
+          );
+        }else 
+        {
+          this.swalService.error(response.message)
+        }
+         
+        this.loadCustomer();
       },
       error: (err: any) => {
         console.error('=== Sale API error ===', err);

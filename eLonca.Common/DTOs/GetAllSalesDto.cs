@@ -18,6 +18,7 @@ namespace eLonca.Common.DTOs
         public string StoreName { get; set; }
         public bool IsActive { get; set; }
         public Guid StoreId { get; set; }
+        public Guid SaleId { get; set; }
         public Guid Id { get; set; }
         public Guid? StoreCutomerId { get; set; }
 

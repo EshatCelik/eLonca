@@ -26,7 +26,7 @@ namespace eLonca.Application.Queries.SalesQueries.GetAllSale
                 return Result<List<GetAllSalesDto>>.Failure(null, "Tenant bulunamadı", 400);
             }
 
-            var sales = await _saleRepository.GetAllSales(tenant.Data, cancellationToken);
+            var sales = await _saleRepository.GetAllSales(request.StoreId,request.StoreCustomerId, cancellationToken);
 
             return Result<List<GetAllSalesDto>>.Success(sales.Data, "Satış Listesi", 200);
         }
