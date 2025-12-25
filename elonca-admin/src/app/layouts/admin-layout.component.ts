@@ -20,6 +20,7 @@ import { Subscription } from 'rxjs';
           <a routerLink="categories" routerLinkActive="active">Kategoriler</a>
           <a routerLink="products" routerLinkActive="active">Ürünler</a>
           <a routerLink="customers" routerLinkActive="active">Müşteriler</a>
+          <a routerLink="sales" routerLinkActive="active">Satışlarım</a>
           <a routerLink="inventory" routerLinkActive="active">Stoklarım</a>
           <a routerLink="e-ledger" routerLinkActive="active">e-Defter</a>
           <a routerLink="receivables" routerLinkActive="active">Alacaklar</a>

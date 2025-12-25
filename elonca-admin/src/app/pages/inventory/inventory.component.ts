@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BaseComponent } from '../../core/base.component';
 import { StockMovementService } from './stock-movement.service';
+import { ProductsService } from '../products/products.service';
 import { SwalService } from '../../core/swal.service';
 import { finalize, timeout, catchError } from 'rxjs';
 import { of } from 'rxjs';
@@ -30,6 +31,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
   quantity: number = 0;
   operation: 'add' | 'remove' | 'set' = 'add';
   selectedInventoryItem: any = null;
+  stockNote: string = '';
   
   // Product data
   availableProducts: any[] = [];
@@ -39,6 +41,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     @Inject(PLATFORM_ID) platformId: Object,
     private cdr: ChangeDetectorRef,
     private stockMovementService: StockMovementService,
+    private productsService: ProductsService,
     private swalService: SwalService
   ) {
     super(platformId);
@@ -119,7 +122,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     
     this.isLoadingProducts = true;
     
-    this.stockMovementService.getAvailableProducts()
+    this.productsService.getAll()
       .pipe(
         timeout(10000),
         catchError((err: any) => {
@@ -137,6 +140,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
               name: product.name || product.productName || 'Ürün',
               code: product.code || product.productCode || 'KOD',
               salePrice: product.salePrice || 0,
+              purchasePrice: product.purchasePrice || product.costPrice || 0,
               stockQuantity: product.stockQuantity || 0
             }));
           } else if (Array.isArray(response)) {
@@ -145,6 +149,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
               name: product.name || product.productName || 'Ürün',
               code: product.code || product.productCode || 'KOD',
               salePrice: product.salePrice || 0,
+              purchasePrice: product.purchasePrice || product.costPrice || 0,
               stockQuantity: product.stockQuantity || 0
             }));
           }
@@ -202,6 +207,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     this.quantity = 0;
     this.operation = 'add';
     this.selectedInventoryItem = null;
+    this.stockNote = '';
   }
 
   selectProduct(): void {
@@ -218,8 +224,13 @@ export class InventoryComponent extends BaseComponent implements OnInit {
         return;
       }
       
+      // Set selected inventory item with purchase price
+      this.selectedInventoryItem = {
+        ...product,
+        purchasePrice: product.purchasePrice || product.costPrice || 0
+      };
+      
       this.showProductSelectModal = false;
-      this.selectedInventoryItem = product;
       this.showAddModal = true;
     }
   }
@@ -236,13 +247,16 @@ export class InventoryComponent extends BaseComponent implements OnInit {
 
     const stockData = {
       productId: this.selectedInventoryItem.id,
+      productName:this.selectedInventoryItem.name,
       quantity: this.quantity,
-      operation: 'add'
+      operation: 'add',
+      storeId:this.currentStoreId,
+
     };
 
     console.log('=== Adding new product to inventory ===', stockData);
 
-    this.stockMovementService.updateStock(this.selectedInventoryItem.id, stockData)
+    this.stockMovementService.create( stockData)
       .pipe(
         finalize(() => {
           this.isSaving = false;
@@ -262,11 +276,13 @@ export class InventoryComponent extends BaseComponent implements OnInit {
             description: this.selectedInventoryItem.description,
             lastUpdated: new Date().toISOString()
           };
+           
           
-          this.inventory.push(newItem);
-          
-          this.closeModals();
           this.swalService.success('Başarılı!', `${this.selectedInventoryItem.name} ürünü stoka eklendi.`);
+          setTimeout(() => {
+            this.closeModals();
+            this.loadInventory();
+          }, 100);
         },
         error: (err: any) => {
           console.error('=== Add product error ===', err);
@@ -286,13 +302,14 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     this.isSaving = true;
 
     const stockData = {
-      quantity: this.quantity,
-      operation: 'set'
+      quantity: this.quantity, 
+      id:this.selectedInventoryItem.id,
+      storeId:this.currentStoreId,
+      productName:this.selectedInventoryItem.name
     };
+ 
 
-    console.log('=== Updating stock ===', stockData);
-
-    this.stockMovementService.updateStock(this.selectedInventoryItem.id, stockData)
+    this.stockMovementService.create(stockData)
       .pipe(
         finalize(() => {
           this.isSaving = false;
@@ -311,6 +328,9 @@ export class InventoryComponent extends BaseComponent implements OnInit {
           
           this.closeModals();
           this.swalService.success('Başarılı!', `${this.selectedInventoryItem.name} stok miktarı güncellendi.`);
+          setTimeout(() => {
+            this.loadInventory();
+          }, 100);
         },
         error: (err: any) => {
           console.error('=== Update stock error ===', err);
@@ -335,13 +355,16 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     this.isSaving = true;
 
     const stockData = {
+      productId:this.selectedInventoryItem.id,
+      storeId:this.currentStoreId,
       quantity: this.quantity,
-      operation: operation
+      Note:this.stockNote,
+      productName:this.selectedInventoryItem.name
     };
 
     console.log('=== Adjusting stock ===', stockData);
 
-    this.stockMovementService.updateStock(this.selectedInventoryItem.id, stockData)
+    this.stockMovementService.updateStock(stockData)
       .pipe(
         finalize(() => {
           this.isSaving = false;
@@ -352,19 +375,14 @@ export class InventoryComponent extends BaseComponent implements OnInit {
         next: (response: any) => {
           console.log('=== Adjust stock response ===', response);
           
-          const itemIndex = this.inventory.findIndex(item => item.id === this.selectedInventoryItem.id);
-          if (itemIndex !== -1) {
-            if (operation === 'add') {
-              this.inventory[itemIndex].stockQuantity += this.quantity;
-            } else {
-              this.inventory[itemIndex].stockQuantity -= this.quantity;
-            }
-            this.inventory[itemIndex].lastUpdated = new Date().toISOString();
-          }
+           
           
-          this.closeModals();
-          const action = operation === 'add' ? 'eklendi' : 'çıkarıldı';
-          this.swalService.success('Başarılı!', `${this.quantity} adet ${this.selectedInventoryItem.name} stoktan ${action}.`);
+          this.swalService.success('Başarılı!', `${this.quantity} adet ${this.selectedInventoryItem.name} stoktan çıkarıldı.`).then(() => {
+            this.closeModals();
+            setTimeout(() => {
+              this.loadInventory();
+            }, 100);
+          });
         },
         error: (err: any) => {
           console.error('=== Adjust stock error ===', err);
@@ -380,6 +398,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
           next: () => {
             this.inventory = this.inventory.filter(i => i.id !== item.id);
             this.swalService.success('Başarılı!', `${item.name} ürünü stoktan silindi.`);
+            this.loadInventory();
           },
           error: (err: any) => {
             this.swalService.error('Hata!', 'Ürün silinirken bir hata oluştu.');

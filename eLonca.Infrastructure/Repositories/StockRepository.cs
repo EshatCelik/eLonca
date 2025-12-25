@@ -13,9 +13,9 @@ namespace eLonca.Infrastructure.Repositories
         {
         }
 
-        public async Task<Result<StockMovement>> GetStockByProductId(Guid? stockId, Guid? productId)
+        public async Task<Result<StockMovement>> GetStockByProductId(Guid? storeId, Guid? productId)
         {
-            var stock = _dbSet.Where(x => x.ProductId == productId && x.Id == stockId).FirstOrDefault();
+            var stock = _dbSet.Where(x => x.ProductId == productId && x.StoreId == storeId).FirstOrDefault();
             if (stock == null)
             {
                 return Result<StockMovement>.Failure(null, "Stok bulunamadı", 400);
@@ -49,7 +49,11 @@ namespace eLonca.Infrastructure.Repositories
                             MovementDate = g.Max(x => x.MovementDate),
 
                             // ✅ Tüm In hareketlerini topla
-                            StockInQuantity = g.Where(x => x.MovementType == MovementType.In)
+                            StockInQuantity =( g.Where(x => x.MovementType == MovementType.In)
+                                               .Sum(x => (decimal?)x.Quantity) ?? 0)
+                                               - (g.Where(x => x.MovementType == MovementType.Adjustment)
+                                               .Sum(x => (decimal?)x.Quantity) ?? 0),
+                            StockAdjustmentQuantity = g.Where(x => x.MovementType == MovementType.Adjustment)
                                                .Sum(x => (decimal?)x.Quantity) ?? 0,
 
                             // ✅ Tüm Out hareketlerini topla

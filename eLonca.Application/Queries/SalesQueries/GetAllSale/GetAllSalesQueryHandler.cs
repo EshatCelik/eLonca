@@ -7,7 +7,7 @@ using MediatR;
 
 namespace eLonca.Application.Queries.SalesQueries.GetAllSale
 {
-    public class GetAllSalesQueryHandler : IRequestHandler<GetAllSalesQueryResponse, Result<List<GetAllSalesDto>>>
+    public class GetAllSalesQueryHandler : IRequestHandler<GetAllSalesQueryResponse, Result<List<Sale>>>
     {
         private readonly ITenantService _tenantService;
         private readonly ISaleRepository _saleRepository;
@@ -18,17 +18,17 @@ namespace eLonca.Application.Queries.SalesQueries.GetAllSale
             _saleRepository = saleRepository;
         }
 
-        public async Task<Result<List<GetAllSalesDto>>> Handle(GetAllSalesQueryResponse request, CancellationToken cancellationToken)
+        public async Task<Result<List<Sale>>> Handle(GetAllSalesQueryResponse request, CancellationToken cancellationToken)
         {
             var tenant = _tenantService.GetTenantId();
             if (!tenant.IsSuccess)
             {
-                return Result<List<GetAllSalesDto>>.Failure(null, "Tenant bulunamadı", 400);
+                return Result<List<Sale>>.Failure(null, "Tenant bulunamadı", 400);
             }
 
-            var sales = await _saleRepository.GetAllSales(request.StoreId,request.StoreCustomerId, cancellationToken);
+            var sales = await _saleRepository.GetAllAsync(x=>x.TenantId==tenant.Data, cancellationToken);
 
-            return Result<List<GetAllSalesDto>>.Success(sales.Data, "Satış Listesi", 200);
+            return Result<List<Sale>>.Success(sales.Data, "Satış Listesi", 200);
         }
     }
 }

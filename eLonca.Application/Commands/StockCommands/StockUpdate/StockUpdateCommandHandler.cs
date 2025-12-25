@@ -1,4 +1,5 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.Enums;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
@@ -14,24 +15,26 @@ namespace eLonca.Application.Commands.StockCommands.StockUpdate
             _stockRepository = stockRepository;
         }
 
-        public Task<Result<StockMovement>> Handle(StockUpdateCommand request, CancellationToken cancellationToken)
+        public async Task<Result<StockMovement>> Handle(StockUpdateCommand request, CancellationToken cancellationToken)
         {
-            var findStock = _stockRepository.GetStockByProductId(request.StockId, request.ProductId);
+            var findStock = _stockRepository.GetStockByProductId(request.StoreId, request.ProductId);
             if (!findStock.Result.IsSuccess)
             {
-                return findStock;
+                return findStock.Result;
             }
-            findStock.Result.Data.ProductId = request.ProductId;
-            findStock.Result.Data.MovementDate = DateTime.Now;
-            findStock.Result.Data.MovementType = request.MovementType;
-            findStock.Result.Data.SaleId = request.SaleId ?? null;
-            findStock.Result.Data.ReferenceId = request.ReferenceId;
-            findStock.Result.Data.StoreId = request.StoreId;
-            findStock.Result.Data.Quantity = request.Quantity;
-            findStock.Result.Data.Notes = request.Notes;
 
-            _ = _stockRepository.Update(findStock.Result.Data, cancellationToken);
-            return findStock;
+            var updateStock = new StockMovement()
+            {
+                StoreId = request.StoreId,
+                ProductId = request.ProductId,
+                MovementType = MovementType.Adjustment,
+                Quantity = request.Quantity,
+                Notes = request.Note,
+                MovementDate = DateTime.Now,
+            };
+
+            var repsonse = await _stockRepository.CreateAsync(updateStock, cancellationToken);
+            return repsonse;
         }
     }
 }

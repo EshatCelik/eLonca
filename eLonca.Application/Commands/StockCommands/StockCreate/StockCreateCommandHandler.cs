@@ -23,7 +23,7 @@ namespace eLonca.Application.Commands.StockCommands.StockCreate
                 ProductId = request.ProductId,
                 MovementType = MovementType.In,
                 Quantity = request.Quantity,
-                Notes = request.Notes,
+                Notes = $"{request.ProductName } Eklendi",
                 MovementDate = DateTime.Now
             };
 

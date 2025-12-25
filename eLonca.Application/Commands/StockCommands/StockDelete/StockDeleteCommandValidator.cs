@@ -6,7 +6,7 @@ namespace eLonca.Application.Commands.StockCommands.StockDelete
     {
         public StockDeleteCommandValidator()
         {
-            RuleFor(x => x.StockId).NotEmpty().WithMessage("Stok Id null olamaz");
+            RuleFor(x => x.ProductId).NotEmpty().WithMessage("Ürün Id null olamaz");
         }
     }
 }

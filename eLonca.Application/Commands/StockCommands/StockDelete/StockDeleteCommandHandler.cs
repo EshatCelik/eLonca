@@ -15,7 +15,7 @@ namespace eLonca.Application.Commands.StockCommands.StockDelete
 
         public async Task<Result> Handle(StockDeleteCommand request, CancellationToken cancellationToken)
         {
-            var stock = _stockRepository.GetByIdAsync(request.StockId);
+            var stock = _stockRepository.GetByIdAsync(request.ProductId);
             if (!stock.Result.IsSuccess)
             {
                 return Result.Failure("Stok bulunamadı", null, 400);

@@ -29,6 +29,12 @@ namespace eLonca.Api.Controllers
             return Ok(response);
         }
         [HttpPost]
+        public async Task<IActionResult> GetAllCustomerSale(GetAllSalesQueryResponse getAllSalesQueryResponse)
+        {
+            var response = await _mediator.Send(getAllSalesQueryResponse);
+            return Ok(response);
+        }
+        [HttpPost]
         public async Task<IActionResult> GetById(GetSaleByIdResponse getSaleByIdResponse)
         {
             var response = await _mediator.Send(getSaleByIdResponse);

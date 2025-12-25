@@ -45,7 +45,7 @@ export class StockMovementService extends BaseService {
 
   // Create stock movement
   create(payload: any): Observable<any> {
-    return this.post<any>('StockMovement/Create', payload);
+    return this.post<any>('Stock/Create', payload);
   }
 
   // Update stock movement
@@ -55,9 +55,9 @@ export class StockMovementService extends BaseService {
   }
 
   // Update stock quantity
-  updateStock(id: string | number, stockData: any): Observable<any> {
-    const body = { id, ...stockData } as any;
-    return this.post<any>('StockMovement/UpdateStock', body);
+  updateStock(stockData: any): Observable<any> {
+    const body = { ...stockData } as any;
+    return this.post<any>('Stock/Update', body);
   }
 
   // Delete stock movement
