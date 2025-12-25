@@ -14,6 +14,8 @@ import { ProductsComponent } from './pages/products/products.component';
 import { ProductEditComponent } from './pages/products/product-edit/product-edit.component';
 import { CustomersComponent } from './pages/customers/customers.component';
 import { CustomerEditComponent } from './pages/customers/customer-edit/customer-edit.component';
+import { SalesComponent } from './pages/sales/sales.component';
+import { SaleEditComponent } from './pages/sales/sale-edit/sale-edit.component';
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
 import { ReceivablesComponent } from './pages/receivables/receivables.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -48,6 +50,8 @@ export const routes: Routes = [
       { path: 'customers', component: CustomersComponent },
       { path: 'customers/:id/edit', component: CustomerEditComponent },
       { path: 'customers/:storeId/:customerStoreId/edit', component: CustomerEditComponent },
+      { path: 'sales', component: SalesComponent },
+      { path: 'sales/:id/edit', component: SaleEditComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'inventory', component: InventoryComponent },
       { path: 'receivables', component: ReceivablesComponent },

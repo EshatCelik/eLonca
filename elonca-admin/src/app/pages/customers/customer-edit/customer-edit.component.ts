@@ -247,7 +247,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
 
     console.log('=== Loading sales from API ===', payload);
 
-    this.salesService.getAll(payload)
+    this.salesService.getAllCustomerSale(payload)
       .pipe(
         timeout(10000),
         catchError((err: any) => {

@@ -95,7 +95,7 @@
                 <th>Ürün Adı</th>
                 <th>Stok Giriş</th>
                 <th>Stok Çıkış</th> 
-                <th>Toplam Stok</th>
+                <th>Kalan Stok</th>
                 <th>Durum</th> 
                 <th>Son Güncelleme</th>
                 <th>İşlemler</th>
@@ -141,18 +141,10 @@
                   </td>
                   <td>
                     <div class="action-buttons">
-                      <button class="btn btn-sm btn-primary" (click)="openUpdateModal(item)" title="Stok Güncelle">
+                      <button class="btn btn-sm btn-primary" (click)="openUpdateModal(item)" title="Stok Düzenle">
                         <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="btn btn-sm btn-success" (click)="openAddModal(); selectedInventoryItem = item" title="Stok Ekle">
-                        <i class="fas fa-plus"></i>
-                      </button>
-                      <button class="btn btn-sm btn-warning" (click)="openUpdateModal(item); operation = 'remove'" title="Stok Çıkar">
-                        <i class="fas fa-minus"></i>
-                      </button>
-                      <button class="btn btn-sm btn-danger" (click)="deleteItem(item)" title="Sil">
-                        <i class="fas fa-trash"></i>
-                      </button>
+                        Stok Düzenle
+                      </button> 
                     </div>
                   </td>
                 </tr>
@@ -237,6 +229,10 @@
                 <span class="label">Satış Fiyatı:</span>
                 <span class="value">{{ formatCurrency(selectedInventoryItem.salePrice) }}</span>
               </div>
+              <div class="detail-item">
+                <span class="label">Alış Fiyatı:</span>
+                <span class="value">{{ formatCurrency(selectedInventoryItem.purchasePrice) }}</span>
+              </div>
             </div>
           </div>
         }
@@ -303,14 +299,14 @@
         }
         
         <div class="operation-tabs">
-          <button 
+          <!-- <button 
             class="tab-btn" 
-            [class.active]="operation === 'set'" 
+            [class.active]="operation === 'set'"  bu geliştirme daha sonra yapılacak
             (click)="operation = 'set'"
           >
             <i class="fas fa-edit"></i>
             Stok Belirle
-          </button>
+          </button> -->
           <button 
             class="tab-btn" 
             [class.active]="operation === 'add'" 
@@ -353,6 +349,19 @@
               </div>
             }
           </div>
+          
+          @if (operation === 'remove') {
+            <div class="input-group">
+              <label for="stockNote">Not (Açıklama)</label>
+              <textarea 
+                id="stockNote" 
+                class="form-input" 
+                [(ngModel)]="stockNote" 
+                rows="3"
+                placeholder="Stok çıkış sebebi veya açıklama..."
+              ></textarea>
+            </div>
+          }
         </div>
       </div>
       
@@ -368,7 +377,7 @@
               {{ isSaving ? 'Güncelleniyor...' : 'Güncelle' }}
             </button>
           } @else if (operation === 'add') {
-            <button class="btn btn-success" (click)="adjustStock('add')" [disabled]="isSaving || !quantity || quantity <= 0">
+            <button class="btn btn-success" (click)="addNewProduct()" [disabled]="isSaving || !quantity || quantity <= 0">
               <i class="fas fa-plus"></i>
               {{ isSaving ? 'Ekleniyor...' : 'Ekle' }}
             </button>

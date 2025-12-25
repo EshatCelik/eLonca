@@ -14,6 +14,7 @@ namespace eLonca.Common.DTOs
         public decimal StockInQuantity { get; set; }
         public decimal StockOutQuantity { get; set; }
         public decimal StockRemainingQuantity { get; set; }
+        public decimal StockAdjustmentQuantity { get; set; }
         public decimal MinStockLevel { get; set; }
         public decimal ProductSalePrice { get; set; }
         public decimal ProductPurchasePrice { get; set; }

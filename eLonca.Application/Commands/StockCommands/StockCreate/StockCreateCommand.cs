@@ -8,11 +8,8 @@ namespace eLonca.Application.Commands.StockCommands.StockCreate
     public class StockCreateCommand:IRequest<Result<StockMovement>>
     {
         public Guid? StoreId { get; set; }
-        public Guid? ProductId { get; set; } 
-        public MovementType MovementType { get; set; }
+        public Guid? ProductId { get; set; }  
         public decimal Quantity { get; set; }
-        public DateTime MovementDate { get; set; } = DateTime.UtcNow;
-        public Guid? ReferenceId { get; set; }
-        public string? Notes { get; set; }
+        public string ProductName { get; set; }
     }
 }
