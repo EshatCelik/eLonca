@@ -2,6 +2,7 @@
 using eLonca.Application.Commands.StockCommands.StockDelete;
 using eLonca.Application.Commands.StockCommands.StockUpdate;
 using eLonca.Application.Queries.StockQueries.GetAllStockQuery;
+using eLonca.Application.Queries.StockQueries.GetAllProductStockMovement;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,12 @@ namespace eLonca.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult>GetAll(GetAllStockQuery getAllStockQuery)
+        {
+            var response= await _mediator.Send(getAllStockQuery);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetProductMovements(GetAllProductStockMovementQueryResponse getAllStockQuery)
         {
             var response= await _mediator.Send(getAllStockQuery);
             return Ok(response);

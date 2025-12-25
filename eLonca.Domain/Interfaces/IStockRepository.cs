@@ -8,5 +8,6 @@ namespace eLonca.Domain.Interfaces
     {
         Task<Result<StockMovement>> GetStockByProductId(Guid? storeId, Guid? productId);
         Task<Result<List<StockMovementDto>>> GetAllStock(Guid tenantId);
+        Task<Result<List<StockMovementDto>>> GetAllStockByProductId(Guid? storeId, Guid? productId);
     }
 }

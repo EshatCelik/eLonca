@@ -1,0 +1,130 @@
+<div class="stock-detail-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Geri Dön
+      </button>
+      <div class="header-title">
+        <h1>Stok Detayları</h1>
+        <p class="product-info">
+          <strong>Ürün:</strong> {{ product?.name || 'Yükleniyor...' }}
+          @if (product?.code) {
+            <span class="product-code">{{ product.code }}</span>
+          }
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- Summary -->
+  <div class="summary-section">
+    <div class="summary-card">
+      <h3><i class="fas fa-chart-bar"></i> Özet</h3>
+      <div class="summary-stats">
+        <div class="stat-item">
+          <span class="stat-label">Toplam Hareket:</span>
+          <span class="stat-value">{{ stockMovements.length }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Stok Girişi:</span>
+          <span class="stat-value positive">
+            {{ getTotalStockIn() }}
+          </span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Stok Çıkışı:</span>
+          <span class="stat-value negative">
+            {{ getTotalStockOut() }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    @if (errorMessage) {
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    @if (isLoading) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Stok hareketleri yükleniyor...</p>
+      </div>
+    } @else if (stockMovements.length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>Stok Hareketi Bulunamadı</h3>
+        <p>Bu ürün için stok hareket kaydı bulunmuyor.</p>
+      </div>
+    } @else {
+      <div class="movements-table-container">
+        <table class="movements-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-info-circle"></i> İşlem Türü</th>
+              <th><i class="fas fa-user"></i> İşlem Yapan</th>
+              <th><i class="fas fa-calendar"></i> Tarih</th>
+              <th><i class="fas fa-sort-numeric-up"></i> Miktar</th>
+              <th><i class="fas fa-sticky-note"></i> Not</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (movement of stockMovements; track movement.id) {
+              <tr>
+                <td>
+                  <span class="movement-badge {{ getMovementTypeClass(movement.movementType) }}">
+                    <i class="fas {{ getMovementTypeIcon(movement.movementType) }}"></i>
+                    {{ getMovementTypeText(movement.movementType) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ movement.stockCreateUserName || movement.userName || 'Bilinmeyen' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="date-info">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ formatDate(movement.movementDate || movement.createdDate) }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="quantity-info">
+                    <span class="quantity" [class.positive]="movement.movementType === 1" 
+                                           [class.negative]="movement.movementType === 2">
+                      @if (movement.movementType === 1) {
+                        +{{ movement.quantity }}
+                      } @else if (movement.movementType === 2) {
+                        -{{ movement.quantity }}
+                      } @else {
+                        {{ movement.quantity }}
+                      }
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <div class="note-info">
+                    @if (movement.notes || movement.Note) {
+                      <span class="note-text">{{ movement.notes || movement.Note }}</span>
+                    } @else {
+                      <span class="no-note">-</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      
+    }
+  </div>
+</div>

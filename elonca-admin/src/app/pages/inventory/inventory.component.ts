@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { BaseComponent } from '../../core/base.component';
 import { StockMovementService } from './stock-movement.service';
 import { ProductsService } from '../products/products.service';
@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.scss']
 })
@@ -35,14 +35,15 @@ export class InventoryComponent extends BaseComponent implements OnInit {
   
   // Product data
   availableProducts: any[] = [];
-  isLoadingProducts = false;
+  isLoadingProducts = false; 
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private cdr: ChangeDetectorRef,
     private stockMovementService: StockMovementService,
     private productsService: ProductsService,
-    private swalService: SwalService
+    private swalService: SwalService,
+    private router: Router
   ) {
     super(platformId);
   }
@@ -455,14 +456,23 @@ export class InventoryComponent extends BaseComponent implements OnInit {
 
   // Helper methods for template
   getInStockCount(): number {
-    return this.inventory.filter(item => item.stockQuantity > 0).length;
+    return this.inventory.filter(item => item.stockInQuantity-item.stockOutQuantity > 0).length;
   }
 
   getLowStockCount(): number {
-    return this.inventory.filter(item => item.stockQuantity <= 10 && item.stockQuantity > 0).length;
+    return this.inventory.filter(item => item.stockInQuantity-item.stockOutQuantity <= 10 && item.stockQuantity-item.stockOutQuantity > 0).length;
   }
 
   getOutOfStockCount(): number {
-    return this.inventory.filter(item => item.stockQuantity === 0).length;
+    return this.inventory.filter(item => item.stockInQuantity -item.stockOutQuantity <= 5).length;
+  }
+
+  viewStockDetail(item: any): void {
+    if (!item || !item.id) return;
+    
+    const productId = item.id;
+    const storeId = this.currentStoreId || 'default';
+    
+    this.router.navigate(['/admin/inventory', productId, storeId, 'detail']);
   }
 }

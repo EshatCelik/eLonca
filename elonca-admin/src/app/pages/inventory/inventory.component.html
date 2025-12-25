@@ -103,7 +103,7 @@
             </thead>
             <tbody>
               @for (item of inventory; track $index) {
-                <tr>
+                <tr class="clickable-row" (click)="viewStockDetail(item)">
                   <td>
                     <span class="product-code">{{ item.productCode }}</span>
                   </td>
@@ -141,7 +141,7 @@
                   </td>
                   <td>
                     <div class="action-buttons">
-                      <button class="btn btn-sm btn-primary" (click)="openUpdateModal(item)" title="Stok Düzenle">
+                      <button class="btn btn-sm btn-primary" (click)="openUpdateModal(item); $event.stopPropagation()" title="Stok Düzenle">
                         <i class="fas fa-edit"></i>
                         Stok Düzenle
                       </button> 

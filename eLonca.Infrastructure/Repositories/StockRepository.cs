@@ -22,6 +22,35 @@ namespace eLonca.Infrastructure.Repositories
             }
             return Result<StockMovement>.Success(stock, "Stok listelemesi başarılı", 200);
         }
+        public async Task<Result<List<StockMovementDto>>> GetAllStockByProductId(Guid? storeId, Guid? productId)
+        {
+            var stock = (from st in _dbContext.StockMovements
+                        join p in _dbContext.Products on st.ProductId equals p.Id
+                        join u in _dbContext.Users on st.CreatedBy equals u.Id
+                        join s in _dbContext.Stores on st.StoreId equals s.Id
+                        where st.StoreId==storeId && st.ProductId==productId
+                        select new StockMovementDto()
+                        {
+                            ProductCode=p.ProductCode,
+                            ProductName =p.ProductName,
+                            Notes=st.Notes,
+                            ProductId=p.Id,
+                            MovementDate=st.MovementDate,
+                            StoreId=st.StoreId,
+                            StoreName=s.StoreName,
+                            StockCreateUserName=$"{u.Name} {u.LastName}",
+                            MovementType=st.MovementType,
+                            Quantity=st.Quantity
+
+                        }).OrderByDescending(a=>a.MovementDate).ToList();
+
+
+            if (stock == null)
+            {
+                return Result<List<StockMovementDto>>.Failure(null, "Stok bulunamadı", 400);
+            }
+            return Result<List<StockMovementDto>>.Success(stock, "Stok listelemesi başarılı", 200);
+        }
         public async Task<Result<List<StockMovementDto>>> GetAllStock(Guid tenantId)
         {
             var list = (from st in _dbContext.StockMovements
@@ -49,7 +78,7 @@ namespace eLonca.Infrastructure.Repositories
                             MovementDate = g.Max(x => x.MovementDate),
 
                             // ✅ Tüm In hareketlerini topla
-                            StockInQuantity =( g.Where(x => x.MovementType == MovementType.In)
+                            StockInQuantity = (g.Where(x => x.MovementType == MovementType.In)
                                                .Sum(x => (decimal?)x.Quantity) ?? 0)
                                                - (g.Where(x => x.MovementType == MovementType.Adjustment)
                                                .Sum(x => (decimal?)x.Quantity) ?? 0),

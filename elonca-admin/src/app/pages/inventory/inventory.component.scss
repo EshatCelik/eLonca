@@ -278,6 +278,14 @@
           tr {
             transition: all 0.3s ease;
 
+            &.clickable-row {
+              cursor: pointer;
+              
+              &:hover {
+                background: #e3f2fd !important;
+              }
+            }
+
             &:hover {
               background: #f8f9fa;
             }
