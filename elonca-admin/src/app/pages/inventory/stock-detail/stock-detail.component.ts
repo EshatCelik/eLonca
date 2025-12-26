@@ -148,7 +148,7 @@ export class StockDetailComponent extends BaseComponent implements OnInit, OnDes
 
   getTotalStockOut(): number {
     return this.stockMovements
-      .filter(m => m.movementType === 2 || m.movementType===3 )
+      .filter(m => m.movementType === 2)
       .reduce((acc, m) => acc + (m.quantity || 0), 0);
   }
 
