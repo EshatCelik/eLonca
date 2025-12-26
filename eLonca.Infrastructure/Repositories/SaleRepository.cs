@@ -156,7 +156,8 @@ namespace eLonca.Infrastructure.Repositories
                                               Discount = si.Discount,
                                               CustomerDiscount = si.CustomerDiscount,
                                               TotalPrice = si.TotalPrice,
-                                              CreateDate=si.CreateAt.ToString("dd/MM/yyy")
+                                              CreateDate=si.CreateAt.ToString("dd/MM/yyy"),
+                                              ReturnedQuantity=si.ReturnedQuantity
                                           }).ToList()
                          }).FirstOrDefault();
 

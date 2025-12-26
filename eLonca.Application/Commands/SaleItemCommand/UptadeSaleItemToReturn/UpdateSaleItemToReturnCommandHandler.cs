@@ -27,9 +27,9 @@ namespace eLonca.Application.Commands.SaleItemCommand.UptadeSaleItemToReturn
             var saleItem = _saleRepository.GetAllSaleItemById(request.SaleId, cancellationToken).Result.Data.Where(x => x.ProductId == request.ProductId).FirstOrDefault();
             if (saleItem != null)
             {
-                saleItem.IsReturned = true;
-                saleItem.ReturnNote = true;
-                saleItem.ReturnedDate = DateTime.UtcNow;
+                saleItem.Quantity -= request.returnQuantity;
+                saleItem.ReturnedQuantity += request.returnQuantity;
+                saleItem.TotalPrice = saleItem.Quantity * saleItem.UnitPrice;
                 var response = _saleRepository.Update(sale.Data, cancellationToken);
                 return Result<SaleItem>.Success(saleItem, "Güncelleme başarılı", 200);
             }

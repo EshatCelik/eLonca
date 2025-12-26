@@ -9,5 +9,6 @@ namespace eLonca.Application.Commands.SaleItemCommand.UpdateSaleItemToReturn
         public Guid SaleId { get; set; }
         public Guid ProductId { get; set; }
         public string ReturnNote { get; set; }
+        public int returnQuantity { get; set; }
     }
 }

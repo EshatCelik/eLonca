@@ -51,6 +51,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
   showReturnModal = false;
   selectedReturnItem: any = null;
   returnNote: string = '';
+  returnQuantity: number = 1;
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -107,6 +108,13 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
           if (response?.isSuccess && response?.data) {
             this.sale = response.data;
             console.log('=== SaleEdit - Sale loaded ===', this.sale);
+            
+            // İade miktarlarını varsayılan olarak ayarla
+            if (this.sale?.saleItems) {
+              this.sale.saleItems.forEach((item: any) => {
+                item.returnedQuantity = item.returnedQuantity || 0;
+              });
+            }
           } else {
             this.swalService.error('Hata', response?.message || 'Satış bilgileri alınamadı.');
           }
@@ -514,6 +522,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
 
     this.selectedReturnItem = item;
     this.returnNote = '';
+    this.returnQuantity = 1;
     this.showReturnModal = true;
   }
 
@@ -521,18 +530,20 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     this.showReturnModal = false;
     this.selectedReturnItem = null;
     this.returnNote = '';
+    this.returnQuantity = 1;
   }
 
   confirmReturn(): void {
-    if (!this.selectedReturnItem || !this.returnNote.trim()) return;
+    if (!this.selectedReturnItem || !this.returnNote.trim() || !this.returnQuantity || this.returnQuantity <= 0) return;
 
     this.swalService.confirm(
       'Ürün İade İşlemi',
-      `<strong>${this.selectedReturnItem.productName}</strong> ürününü iade etmek istediğinizden emin misiniz?<br><br>
+      `<strong>${this.selectedReturnItem.productName}</strong> ürününden <strong>${this.returnQuantity}</strong> adet iade etmek istediğinizden emin misiniz?<br><br>
        <strong>İade Notu:</strong> ${this.returnNote}<br><br>
        Bu işlem geri alınamaz!`
     ).then((result) => {
       if (result.isConfirmed) {
+        this.loadSale();
         this.performReturn();
       }
     });
@@ -548,10 +559,11 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       saleId: this.sale.id,
       productId: this.selectedReturnItem.productId,
       itemName: this.selectedReturnItem.productName,
+      returnQuantity: this.returnQuantity,
       returnNote: this.returnNote
     });
 
-    this.salesService.updateSaleItemToReturn(this.sale.id, this.selectedReturnItem.productId, this.returnNote)
+    this.salesService.updateSaleItemToReturn(this.sale.id, this.selectedReturnItem.productId, this.returnNote, this.returnQuantity)
       .pipe(
         finalize(() => {
           this.isReturning = false;
@@ -571,8 +583,19 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
           
           if (response?.isSuccess) {
             this.swalService.success('Başarılı!', 'Ürün başarıyla iade edildi.');
-            // Satışı yeniden yükle
-            this.loadSale();
+            
+            // İade miktarını güncelle
+            if (this.sale?.saleItems && this.selectedReturnItem) {
+              const item = this.sale.saleItems.find((i: any) => i.id === this.selectedReturnItem.id);
+              if (item) {
+                item.returnedQuantity = (item.returnedQuantity || 0) + this.returnQuantity;
+                item.isReturned = (item.quantity - item.returnedQuantity) <= 0;
+                item.returnedNote = this.returnNote;
+                item.returnedDate = new Date();
+              }
+            }
+            
+            this.cdr.detectChanges();
           } else {
             this.swalService.error('Hata!', response?.message || 'Ürün iade edilemedi.');
           }
