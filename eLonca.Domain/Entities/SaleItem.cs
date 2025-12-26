@@ -11,6 +11,9 @@ namespace eLonca.Domain.Entities
         public decimal? Discount { get; set; }
         public Double? CustomerDiscount { get; set; }
         public decimal? TotalPrice { get; set; }
+        public bool IsReturned { get; set; } // iade ürün
+        public bool ReturnNote { get; set; } // iade ürün notu
+        public DateTime? ReturnedDate { get; set; }
 
         // Navigation
         public Tenant? Tenant { get; set; } = null!;

@@ -89,9 +89,10 @@
               <div class="header-cell">Birim Fiyat</div>
               <div class="header-cell">İndirim</div>
               <div class="header-cell">Toplam Fiyat</div>
+              <div class="header-cell">İşlemler</div>
             </div>
             @for (item of sale.saleItems; track item.id) {
-              <div class="table-row" (click)="onItemClick(item)">
+              <div class="table-row {{ item.isReturned ? 'returned-item' : '' }}" (click)="onItemClick(item)">
                 <div class="table-cell">{{ item.productCode || '-' }}</div>
                 <div class="table-cell product-name">{{ item.productName || '-' }}</div>
                 <div class="table-cell quantity">{{ item.quantity || 0 }}</div>
@@ -106,6 +107,19 @@
                   }
                 </div>
                 <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div>
+                <div class="table-cell actions">
+                  @if (item.isReturned) {
+                    <span class="returned-badge">
+                      <i class="fas fa-undo"></i> İade Edildi
+                    </span>
+                  } @else {
+                    <button type="button" class="btn btn-sm btn-warning" (click)="returnItem(item); $event.stopPropagation()" 
+                            [disabled]="isReturning" title="Ürünü İade Et">
+                      <i class="fas fa-undo"></i>
+                      {{ isReturning && returningItemId === item.id ? 'İade Ediliyor...' : 'İade Et' }}
+                    </button>
+                  }
+                </div>
               </div>
             }
             <div class="table-footer">
@@ -115,6 +129,7 @@
               <div class="footer-cell"></div>
               <div class="footer-cell"><strong>Toplam:</strong></div>
               <div class="footer-cell total-amount">{{ formatCurrency(sale.totalAmount) }}</div>
+              <div class="footer-cell"></div>
             </div>
           </div>
         } @else {
@@ -193,12 +208,21 @@
     <div class="modal-overlay" (click)="closeItemDetailModal()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3><i class="fas fa-edit"></i> Ürün Detayı</h3>
+          <h3>
+            <i class="fas {{ selectedItem?.isReturned ? 'fa-undo' : 'fa-edit' }}"></i> 
+            {{ selectedItem?.isReturned ? 'İade Edilmiş Ürün' : 'Ürün Detayı' }}
+          </h3>
           <button type="button" class="modal-close" (click)="closeItemDetailModal()">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="modal-body">
+          @if (selectedItem?.isReturned) {
+            <div class="returned-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Bu ürün iade edilmiştir. Tüm alanlar sadece okunabilir durumdadır.</span>
+            </div>
+          }
           <div class="form-grid">
             <div class="form-item">
               <label>Ürün Kodu</label>
@@ -210,15 +234,18 @@
             </div>
             <div class="form-item">
               <label>Miktar</label>
-              <input type="number" [(ngModel)]="editItem.quantity" class="form-control" min="1" step="1" (input)="calculateEditItemTotal()" />
+              <input type="number" [(ngModel)]="editItem.quantity" class="form-control" min="1" step="1" (input)="calculateEditItemTotal()" 
+                     [disabled]="selectedItem?.isReturned" [attr.readonly]="selectedItem?.isReturned ? '' : null" />
             </div>
             <div class="form-item">
               <label>Birim Fiyat</label>
-              <input type="number" [(ngModel)]="editItem.unitPrice" class="form-control" min="0" step="0.01" (input)="calculateEditItemTotal()" />
+              <input type="number" [(ngModel)]="editItem.unitPrice" class="form-control" min="0" step="0.01" (input)="calculateEditItemTotal()" 
+                     [disabled]="selectedItem?.isReturned" [attr.readonly]="selectedItem?.isReturned ? '' : null" />
             </div>
             <div class="form-item">
               <label>İndirim (%)</label>
-              <input type="number" [(ngModel)]="editItem.discount" class="form-control" min="0" max="100" step="0.01" (input)="calculateEditItemTotal()" />
+              <input type="number" [(ngModel)]="editItem.discount" class="form-control" min="0" max="100" step="0.01" (input)="calculateEditItemTotal()" 
+                     [disabled]="selectedItem?.isReturned" [attr.readonly]="selectedItem?.isReturned ? '' : null" />
             </div>
             <div class="form-item">
               <label>Toplam Fiyat</label>
@@ -227,12 +254,51 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" (click)="deleteSaleItem()" [disabled]="isUpdatingItem">
+          <button type="button" class="btn btn-danger" (click)="deleteSaleItem()" [disabled]="isUpdatingItem || selectedItem?.isReturned">
             <i class="fas fa-trash"></i> Sil
           </button>
           <button type="button" class="btn btn-secondary" (click)="closeItemDetailModal()">İptal</button>
-          <button type="button" class="btn btn-primary" (click)="updateSaleItem()" [disabled]="isUpdatingItem">
+          <button type="button" class="btn btn-primary" (click)="updateSaleItem()" [disabled]="isUpdatingItem || selectedItem?.isReturned">
             <i class="fas fa-save"></i> {{ isUpdatingItem ? 'Güncelleniyor...' : 'Güncelle' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- İade Notu Modal -->
+  @if (showReturnModal) {
+    <div class="modal-overlay return-modal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3><i class="fas fa-undo"></i> Ürün İade Notu</h3>
+          <button type="button" class="close-btn" (click)="closeReturnModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="product-info">
+            <strong>Ürün:</strong> {{ selectedReturnItem?.productName }}
+          </div>
+          <div class="form-group">
+            <label for="returnNote">İade Notu <span class="required">*</span></label>
+            <textarea 
+              id="returnNote" 
+              [(ngModel)]="returnNote" 
+              class="form-control" 
+              rows="4" 
+              placeholder="İade sebebi ve açıklamasını giriniz..."
+              [disabled]="isReturning">
+            </textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeReturnModal()" [disabled]="isReturning">
+            <i class="fas fa-times"></i> İptal
+          </button>
+          <button type="button" class="btn btn-warning" (click)="confirmReturn()" [disabled]="isReturning || !returnNote.trim()">
+            <i class="fas fa-undo"></i> 
+            {{ isReturning ? 'İade Ediliyor...' : 'İade Et' }}
           </button>
         </div>
       </div>
