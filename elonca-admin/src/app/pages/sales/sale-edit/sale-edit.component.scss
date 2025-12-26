@@ -374,7 +374,7 @@ textarea.form-control {
 
 .table-header {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-weight: 600;
@@ -394,7 +394,7 @@ textarea.form-control {
 
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
   background: white;
   border-bottom: 1px solid #e1e8ed;
   transition: all 0.3s ease;
@@ -405,6 +405,30 @@ textarea.form-control {
   background: #f0f8ff;
   transform: scale(1.01);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.returned-item {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  opacity: 0.7;
+  
+  &:hover {
+    background: linear-gradient(135deg, #e9ecef, #dee2e6) !important;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .table-cell {
+    color: #6c757d !important;
+    font-style: italic;
+  }
+  
+  .product-name {
+    color: #6c757d !important;
+  }
+  
+  .quantity, .price, .discount, .total-price {
+    color: #6c757d !important;
+  }
 }
 
 .table-row:last-child {
@@ -454,9 +478,56 @@ textarea.form-control {
   font-size: 15px;
 }
 
+.actions {
+  justify-content: center;
+  gap: 8px;
+  
+  .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    
+    &.btn-warning {
+      background: linear-gradient(135deg, #ffc107, #ff9800);
+      border: none;
+      color: white;
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  .returned-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+    
+    i {
+      font-size: 10px;
+    }
+  }
+}
+
 .table-footer {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   font-weight: 700;
   font-size: 15px;
@@ -551,23 +622,24 @@ textarea.form-control {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
   width: 95%;
   max-width: 800px;
   max-height: 90vh;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @keyframes modalSlideIn {
@@ -670,7 +742,7 @@ textarea.form-control {
 @media (max-width: 768px) {
   .modal-content {
     width: 95%;
-    margin: 20px;
+    margin: 10px;
   }
   
   .form-grid {
@@ -716,4 +788,99 @@ textarea.form-control {
 .summary-card .status {
   font-size: 14px;
   opacity: 0.9;
+}
+
+/* İade Modal Stilleri */
+.product-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #ffc107;
+  font-size: 14px;
+}
+
+.required {
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group textarea.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #ffc107;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+  }
+  
+  &:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+}
+
+.returned-warning {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #fff3cd, #ffeeba);
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #856404;
+  font-size: 14px;
+  font-weight: 500;
+  
+  i {
+    font-size: 18px;
+    color: #ffc107;
+  }
+  
+  span {
+    flex: 1;
+  }
+}
+
+/* İade Modal Özel Stilleri */
+.return-modal {
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+.return-modal .modal-container {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5) !important;
+}
+
+.return-modal .modal-body {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.return-modal .modal-footer {
+  background: rgba(248, 249, 250, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }

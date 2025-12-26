@@ -45,6 +45,13 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
     totalPrice: 0
   };
 
+  // İade işlemleri için
+  isReturning = false;
+  returningItemId: string = '';
+  showReturnModal = false;
+  selectedReturnItem: any = null;
+  returnNote: string = '';
+
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private route: ActivatedRoute,
@@ -500,5 +507,80 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
           });
       }
     });
+  }
+
+  returnItem(item: any): void {
+    if (!item || !this.sale) return;
+
+    this.selectedReturnItem = item;
+    this.returnNote = '';
+    this.showReturnModal = true;
+  }
+
+  closeReturnModal(): void {
+    this.showReturnModal = false;
+    this.selectedReturnItem = null;
+    this.returnNote = '';
+  }
+
+  confirmReturn(): void {
+    if (!this.selectedReturnItem || !this.returnNote.trim()) return;
+
+    this.swalService.confirm(
+      'Ürün İade İşlemi',
+      `<strong>${this.selectedReturnItem.productName}</strong> ürününü iade etmek istediğinizden emin misiniz?<br><br>
+       <strong>İade Notu:</strong> ${this.returnNote}<br><br>
+       Bu işlem geri alınamaz!`
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.performReturn();
+      }
+    });
+  }
+
+  performReturn(): void {
+    if (!this.sale || !this.selectedReturnItem) return;
+
+    this.isReturning = true;
+    this.returningItemId = this.selectedReturnItem.id;
+
+    console.log('=== Returning item ===', {
+      saleId: this.sale.id,
+      productId: this.selectedReturnItem.productId,
+      itemName: this.selectedReturnItem.productName,
+      returnNote: this.returnNote
+    });
+
+    this.salesService.updateSaleItemToReturn(this.sale.id, this.selectedReturnItem.productId, this.returnNote)
+      .pipe(
+        finalize(() => {
+          this.isReturning = false;
+          this.returningItemId = '';
+          this.closeReturnModal();
+          this.cdr.detectChanges();
+        }),
+        catchError((err: any) => {
+          console.error('=== Return item error ===', err);
+          this.swalService.error('Hata!', 'Ürün iade edilirken bir hata oluştu.');
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== Return item response ===', response);
+          
+          if (response?.isSuccess) {
+            this.swalService.success('Başarılı!', 'Ürün başarıyla iade edildi.');
+            // Satışı yeniden yükle
+            this.loadSale();
+          } else {
+            this.swalService.error('Hata!', response?.message || 'Ürün iade edilemedi.');
+          }
+        },
+        error: (err: any) => {
+          console.error('=== Return item API error ===', err);
+          this.swalService.error('Hata!', err?.error?.message || 'Ürün iade edilirken bir hata oluştu.');
+        }
+      });
   }
 }
