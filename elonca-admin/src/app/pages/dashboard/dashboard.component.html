@@ -1,0 +1,164 @@
+<div class="dashboard-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <i class="fas fa-chart-line"></i>
+        Hoş Geldiniz
+      </h1>
+      <p class="hero-subtitle">eLonca Admin Paneli</p>
+    </div>
+  </div>
+
+  <!-- Instagram Stories Section -->
+  <div class="stories-section">
+    <div class="stories-header">
+      <h2 class="stories-title">
+        <i class="fas fa-shopping-bag"></i>
+        Ürün Listeleri
+      </h2>
+      <button class="btn btn-primary btn-sm" (click)="refreshStories()">
+        <i class="fas fa-sync-alt"></i>
+        Yenile
+      </button>
+    </div>
+    
+    <!-- Stories Container -->
+    <div class="stories-container">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="stories-loading">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+        </div>
+        <p>Ürün listeleri yükleniyor...</p>
+      </div>
+
+      <!-- Stories -->
+      <div *ngIf="!isLoading && productLists.length > 0" class="stories-wrapper">
+        <div 
+          *ngFor="let list of productLists; trackBy: trackByListId" 
+          class="story-item"
+          [class.active]="selectedStoryId === list.id"
+          (click)="selectStory(list)">
+          
+          <!-- Story Circle -->
+          <div class="story-circle">
+            <div class="story-avatar">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="story-ring"></div>
+          </div>
+          
+          <!-- Story Info -->
+          <div class="story-info">
+            <div class="story-name">{{ list.name }}</div>
+            <div class="story-count">{{ list.productCount }} ürün</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && productLists.length === 0" class="stories-empty">
+        <i class="fas fa-inbox"></i>
+        <p>Henüz ürün listesi bulunmuyor</p>
+      </div>
+    </div>
+
+    <!-- Story Detail Modal -->
+    <div *ngIf="selectedStory" class="story-detail-modal" (click)="closeStoryDetail($event)">
+      <div class="story-detail-content" (click)="$event.stopPropagation()">
+        <!-- Story Header -->
+        <div class="story-detail-header">
+          <div class="story-detail-info">
+            <div class="story-detail-avatar">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="story-detail-text">
+              <h3>{{ selectedStory.name }}</h3>
+              <p>{{ selectedStory.productCount }} ürün</p>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-secondary" (click)="closeStoryDetail()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Products List -->
+        <div class="story-products">
+          <div *ngIf="selectedStory.isLoading" class="products-loading">
+            <div class="loading-spinner">
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring"></div>
+            </div>
+            <p>Ürünler yükleniyor...</p>
+          </div>
+
+          <div *ngIf="!selectedStory.isLoading && selectedStory.products.length > 0" class="products-grid">
+            <div 
+              *ngFor="let product of selectedStory.products; trackBy: trackByProductId" 
+              class="product-card">
+              
+              <div class="product-image">
+                <img [src]="product.imageUrl || '/assets/placeholder-product.png'" [alt]="product.name">
+                <div class="product-badge" *ngIf="product.discount">
+                  %{{ product.discount }}
+                </div>
+              </div>
+              
+              <div class="product-info">
+                <h4 class="product-name">{{ product.name }}</h4>
+                <p class="product-description">{{ product.description || 'Açıklama bulunmuyor' }}</p>
+                <div class="product-price">
+                  <span class="current-price">{{ formatCurrency(product.price) }}</span>
+                  <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
+                        class="original-price">{{ formatCurrency(product.originalPrice) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!selectedStory.isLoading && selectedStory.products.length === 0" class="products-empty">
+            <i class="fas fa-box-open"></i>
+            <p>Bu listede ürün bulunmuyor</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="quick-stats">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ totalCustomers }}</div>
+        <div class="stat-label">Müşteri</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ totalOrders }}</div>
+        <div class="stat-label">Sipariş</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ formatCurrency(totalRevenue) }}</div>
+        <div class="stat-label">Gelir</div>
+      </div>
+    </div>
+  </div>
+</div>
