@@ -235,7 +235,7 @@ export class CustomersComponent extends BaseComponent implements OnInit {
     
     if (ids != null && ids.storeId && ids.storeCustomerId) { 
       if (this.isBrowser()) {
-        this.router.navigate(['/admin/customers', ids.id,'edit']);
+        this.router.navigate(['/admin/customers/edit', ids.id]);
       }
     } else {
       console.error('=== No valid customer IDs found ===');

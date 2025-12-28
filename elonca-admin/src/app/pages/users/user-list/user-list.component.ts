@@ -138,6 +138,6 @@ export class UserListComponent implements OnInit {
   onUserClick(user: any): void {
     console.log('=== User clicked ===', user);
     // Kullanıcı detay/edit sayfasına yönlendirme
-    this.router.navigate(['/admin/users', user.id, 'edit']);
+    this.router.navigate(['/admin/users/edit', user.id]);
   }
 }

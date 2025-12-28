@@ -165,7 +165,7 @@ export class ProductsComponent implements OnInit {
     console.log('=== Product clicked ===', product);
     const id = this.getId(product);
     if (id != null) {
-      this.router.navigate(['/admin/products', id, 'edit']);
+      this.router.navigate(['/admin/products/edit', id]);
     }
   }
 

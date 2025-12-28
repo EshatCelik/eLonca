@@ -82,6 +82,9 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     
+    console.log('=== SaleEdit - Full Route URL ===', window.location.href);
+    console.log('=== SaleEdit - Route Snapshot ===', this.route.snapshot);
+    console.log('=== SaleEdit - Route Param Map ===', this.route.snapshot.paramMap);
     console.log('=== SaleEdit - Route ID ===', id);
     
     if (!id) {
@@ -91,11 +94,14 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
       return;
     }
     
+    console.log('=== SaleEdit - Making API call with ID ===', id);
+    
     this.salesService
       .getById(id)
       .pipe(
         timeout(10000),
         catchError((err: any) => {
+          console.log('=== SaleEdit - API Error ===', err);
           this.swalService.error('Hata', 'API isteği zaman aşımına uğradı veya hata oluştu.');
           this.cdr.detectChanges();
           return of(null);
@@ -116,6 +122,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
               });
             }
           } else {
+            console.log('=== SaleEdit - API Response Failed ===', response);
             this.swalService.error('Hata', response?.message || 'Satış bilgileri alınamadı.');
           }
           
@@ -123,8 +130,7 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err: any) => {
-          console.log('=== SaleEdit - Load error ===', err);
-          this.swalService.error('Hata', 'Satış bilgileri yüklenemedi.');
+          console.log('=== SaleEdit - API Call Error ===', err);
           this.isLoading = false;
           this.cdr.detectChanges();
         }

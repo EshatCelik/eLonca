@@ -123,7 +123,7 @@ export class StoresComponent implements OnInit {
     console.log('=== Store clicked ===', store);
     const id = this.getId(store);
     if (id != null) {
-      this.router.navigate(['/admin/stores', id, 'edit']);
+      this.router.navigate(['/admin/stores/edit', id]);
     }
   }
 

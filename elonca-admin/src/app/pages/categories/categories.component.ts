@@ -137,7 +137,7 @@ export class CategoriesComponent implements OnInit {
     console.log('=== Category clicked ===', category);
     const id = this.getId(category);
     if (id != null) {
-      this.router.navigate(['/admin/categories', id, 'edit']);
+      this.router.navigate(['/admin/categories/edit', id]);
     }
   }
 
