@@ -167,7 +167,7 @@
                 </thead>
                 <tbody>
                   @for (sale of sales; track sale.id) {
-                    <tr>
+                    <tr (click)="goToSaleDetail(sale)" class="clickable-row">
                       <td class="product-cell">
                         <div class="product-info">
                           <i class="fas fa-cube product-icon"></i>

@@ -1,5 +1,6 @@
 <div class="sale-edit-page">
-  <div class="page-header">
+  <!-- Header -->
+  <header class="page-header">
     <h1>Satış Detayı</h1>
     <div class="header-actions">
       <button type="button" class="btn btn-secondary" (click)="onClose()">
@@ -9,7 +10,10 @@
         <i class="fas fa-save"></i> {{ isSaving ? 'Güncelleniyor...' : 'Güncelle' }}
       </button>
     </div>
-  </div>
+  </header>
+  
+  <!-- Ana İçerik -->
+  <main class="main-content">
 
   @if (isLoading) {
     <div class="loading-container">
@@ -143,15 +147,15 @@
     </div>
   }
 
-  @if (!isLoading && !sale) {
-    <div class="error-container">
-      <h3><i class="fas fa-exclamation-triangle"></i> Satış bulunamadı</h3>
-      <p>İstediğiniz satış bilgileri mevcut değil veya silinmiş olabilir.</p>
-      <button type="button" class="btn btn-primary" (click)="onClose()">
-        <i class="fas fa-arrow-left"></i> Geri Dön
-      </button>
-    </div>
-  }
+    @if (!isLoading && !sale) {
+      <div class="error-container">
+        <h3><i class="fas fa-exclamation-triangle"></i> Satış bulunamadı</h3>
+        <p>Belirtilen satış bulunamadı veya silinmiş olabilir.</p>
+        <button type="button" class="btn btn-secondary" (click)="onClose()">
+          <i class="fas fa-arrow-left"></i> Satış Listesine Dön
+        </button>
+      </div>
+    }
 
   <!-- Ürün Ekleme Modalı -->
   @if (showAddProductModal) {
@@ -316,4 +320,5 @@
       </div>
     </div>
   }
+  </main>
 </div>
