@@ -15,49 +15,63 @@
   <!-- Ana İçerik -->
   <main class="main-content">
 
-  @if (isLoading) {
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Yükleniyor...</p>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
     </div>
-  }
+    <p>Yükleniyor...</p>
+  </div>
 
-  @if (!isLoading && sale) {
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && sale" class="content-wrapper">
     <!-- Özet Kartı -->
     <div class="summary-card">
-      <h4>Özet Bilgiler</h4>
-      <div class="amount">{{ formatCurrency(sale.totalAmount) }}</div>
-      <div class="status">
-        <span class="payment-type-badge" [ngClass]="{
-          'cash': sale.paymentType === 1,
-          'card': sale.paymentType === 2,
-          'bank': sale.paymentType === 3,
-          'credit': sale.paymentType === 4,
-          'debt': sale.paymentType === 5
-        }">
-          {{ paymentTypeLabel(sale.paymentType) }}
-        </span>
-        <span class="payment-status-badge" [ngClass]="{
-          'paid': sale.paymentStatus === 1,
-          'partial': sale.paymentStatus === 2,
-          'pending': sale.paymentStatus === 3,
-          'cancelled': sale.paymentStatus === 4
-        }">
-          {{ paymentStatusLabel(sale.paymentStatus) }}
-        </span>
-        <span class="payment-status-badge" [ngClass]="{
-          'paid': sale.isActive,
-          'cancelled': !sale.isActive
-        }">
-          {{ sale.isActive ? 'Aktif' : 'Pasif' }}
-        </span>
-      </div> 
+      <div class="summary-header">
+        <h4>Özet Bilgiler</h4>
+      </div>
+      <div class="summary-body">
+        <div class="amount-section">
+          <div class="amount">{{ formatCurrency(sale.totalAmount) }}</div>
+          <div class="amount-label">Toplam Tutar</div>
+        </div>
+        <div class="status-section">
+          <span class="payment-type-badge" [ngClass]="{
+            'cash': sale.paymentType === 1,
+            'card': sale.paymentType === 2,
+            'bank': sale.paymentType === 3,
+            'credit': sale.paymentType === 4,
+            'debt': sale.paymentType === 5
+          }">
+            {{ paymentTypeLabel(sale.paymentType) }}
+          </span>
+          <span class="payment-status-badge" [ngClass]="{
+            'paid': sale.paymentStatus === 1,
+            'partial': sale.paymentStatus === 2,
+            'pending': sale.paymentStatus === 3,
+            'cancelled': sale.paymentStatus === 4
+          }">
+            {{ paymentStatusLabel(sale.paymentStatus) }}
+          </span>
+          <span class="payment-status-badge" [ngClass]="{
+            'paid': sale.isActive,
+            'cancelled': !sale.isActive
+          }">
+            {{ sale.isActive ? 'Aktif' : 'Pasif' }}
+          </span>
+        </div>
+      </div>
     </div>
 
+    <!-- Satış Detayları -->
     <div class="sale-details">
       <!-- Genel Bilgiler -->
       <div class="detail-section">
-        <h3><i class="fas fa-info-circle"></i>Genel Bilgiler</h3>
+        <div class="section-header">
+          <h3><i class="fas fa-info-circle"></i>Genel Bilgiler</h3>
+        </div>
         <div class="detail-grid">
           <div class="detail-item">
             <label>Fatura No</label>
@@ -66,15 +80,15 @@
           <div class="detail-item">
             <label>Satış Tarihi</label>
             <div class="form-control readonly">{{ formatDate(sale.saleDate) }}</div>
-          </div>   
+          </div>
         </div>
-        <div class="detail-grid">  
-          
+        <div class="detail-grid">
           <div class="detail-item full-width">
+            <label>Notlar</label>
             <textarea [(ngModel)]="sale.notes" class="form-control" rows="4" placeholder="Satışla ilgili notlar..."></textarea>
           </div>
         </div>
-      </div>  
+      </div>
 
       <!-- Satış Ürünleri -->
       <div class="detail-section">
@@ -84,69 +98,61 @@
             <i class="fas fa-plus"></i> Ürün Ekle
           </button>
         </div>
-        @if (sale.saleItems && sale.saleItems.length > 0) {
-          <div class="items-table">
-            <div class="table-header">
-              <div class="header-cell">Ürün Kodu</div>
-              <div class="header-cell">Ürün Adı</div>
-              <div class="header-cell">Miktar</div>
-              <div class="header-cell">İade</div>
-              <div class="header-cell">Birim Fiyat</div>
-              <div class="header-cell">İndirim</div>
-              <div class="header-cell">Toplam Fiyat</div>
-              <div class="header-cell">İşlemler</div>
+        <div *ngIf="sale.saleItems && sale.saleItems.length > 0" class="items-table">
+          <div class="table-header">
+            <div class="header-cell">Ürün Kodu</div>
+            <div class="header-cell">Ürün Adı</div>
+            <div class="header-cell">Miktar</div>
+            <div class="header-cell">İade</div>
+            <div class="header-cell">Birim Fiyat</div>
+            <div class="header-cell">İndirim</div>
+            <div class="header-cell">Toplam Fiyat</div>
+            <div class="header-cell">İşlemler</div>
+          </div>
+          <div *ngFor="let item of sale.saleItems; trackBy: trackByItemId" 
+               class="table-row" 
+               [class.returned-item]="item.isReturned" 
+               (click)="onItemClick(item)">
+            <div class="table-cell">{{ item.productCode || '-' }}</div>
+            <div class="table-cell product-name">{{ item.productName || '-' }}</div>
+            <div class="table-cell quantity">{{ item.quantity || 0 }}</div>
+            <div class="table-cell returned-quantity">{{ item.returnedQuantity || 0 }}</div>
+            <div class="table-cell price">{{ formatCurrency(item.unitPrice) }}</div>
+            <div class="table-cell discount">
+              <span *ngIf="item.discount">{{ item.discount }}%</span>
+              <span *ngIf="!item.discount && item.customerDiscount && item.customerDiscount > 0">{{ item.customerDiscount }}%</span>
+              <span *ngIf="!item.discount && (!item.customerDiscount || item.customerDiscount === 0)">-</span>
             </div>
-            @for (item of sale.saleItems; track item.id) {
-              <div class="table-row {{ item.isReturned ? 'returned-item' : '' }}" (click)="onItemClick(item)">
-                <div class="table-cell">{{ item.productCode || '-' }}</div>
-                <div class="table-cell product-name">{{ item.productName || '-' }}</div>
-                <div class="table-cell quantity">
-                  {{ item.quantity || 0 }}
-                </div>
-                <div class="table-cell returned-quantity">
-                  {{ item.returnedQuantity || 0 }}
-                </div>
-                <div class="table-cell price">{{ formatCurrency(item.unitPrice) }}</div>
-                <div class="table-cell discount">
-                  @if (item.discount) {
-                    {{ item.discount }}%
-                  } @else if (item.customerDiscount && item.customerDiscount > 0) {
-                    {{ item.customerDiscount }}%
-                  } @else {
-                    -
-                  }
-                </div>
-                <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div>
-                <div class="table-cell actions">
-                  <button type="button" class="btn btn-sm btn-warning" (click)="returnItem(item); $event.stopPropagation()" 
-                          [disabled]="isReturning" title="Ürünü İade Et">
-                    <i class="fas fa-undo"></i>
-                    {{ isReturning && returningItemId === item.id ? 'İade Ediliyor...' : 'İade Gir' }}
-                  </button>
-                </div>
-              </div>
-            }
-            <div class="table-footer">
-              <div class="footer-cell"></div>
-              <div class="footer-cell"></div>
-              <div class="footer-cell"></div>
-              <div class="footer-cell"></div>
-              <div class="footer-cell"></div>
-              <div class="footer-cell"><strong>Toplam:</strong></div>
-              <div class="footer-cell total-amount">{{ formatCurrency(sale.totalAmount) }}</div>
-              <div class="footer-cell"></div>
+            <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div>
+            <div class="table-cell actions">
+              <button type="button" 
+                      class="btn btn-sm btn-warning" 
+                      (click)="returnItem(item); $event.stopPropagation()" 
+                      [disabled]="isReturning" 
+                      title="Ürünü İade Et">
+                <i class="fas fa-undo"></i>
+                {{ isReturning && returningItemId === item.id ? 'İade Ediliyor...' : 'İade Gir' }}
+              </button>
             </div>
           </div>
-        } @else {
-          <div class="no-items">
-            <i class="fas fa-box-open"></i>
-            <p>Bu satışta ürün bulunmamaktadır.</p>
+          <div class="table-footer">
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"><strong>Toplam:</strong></div>
+            <div class="footer-cell total-amount">{{ formatCurrency(sale.totalAmount) }}</div>
+            <div class="footer-cell"></div>
           </div>
-        }
-      </div> 
+        </div>
+        <div *ngIf="!sale.saleItems || sale.saleItems.length === 0" class="no-items">
+          <i class="fas fa-box-open"></i>
+          <p>Bu satışta ürün bulunmamaktadır.</p>
+        </div>
+      </div>
     </div>
-  }
-
+  </div>
     @if (!isLoading && !sale) {
       <div class="error-container">
         <h3><i class="fas fa-exclamation-triangle"></i> Satış bulunamadı</h3>
