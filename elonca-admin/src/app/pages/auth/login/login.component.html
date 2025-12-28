@@ -1,42 +1,137 @@
-<div class="login-wrapper">
-  <form class="login-card" (ngSubmit)="onSubmit()" #loginForm="ngForm">
-    <h1>Admin Giriş</h1>
-    
-    <label>
-      E-posta / Kullanıcı Adı
-      <input
-        type="text"
-        name="email"
-        required
-        [(ngModel)]="email"
-        [disabled]="isLoading"
-      />
-    </label>
-    
-    <label>
-      Şifre
-      <input
-        type="password"
-        name="password"
-        required
-        [(ngModel)]="password"
-        [disabled]="isLoading"
-      />
-    </label>
-    
-    <button 
-      type="submit" 
-      [disabled]="loginForm.invalid || isLoading">
-      {{ isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap' }}
-    </button>
-    
-    <div class="error-message" *ngIf="errorMessage">
-      <p class="error">{{ errorMessage }}</p>
+<div class="login-container">
+  <!-- Sol Panel - Hero Section -->
+  <div class="login-hero">
+    <div class="hero-content">
+      <div class="hero-logo">
+        <div class="logo-circle">
+          <i class="fas fa-cube"></i>
+        </div>
+        <h1 class="hero-title">eLonca Admin</h1>
+        <p class="hero-subtitle">Yönetim Paneli</p>
+      </div>
+      
+      <div class="hero-features">
+        <div class="feature-item">
+          <i class="fas fa-shield-alt"></i>
+          <span>Güvenli Yönetim</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Gerçek Zamanlı Analiz</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-users"></i>
+          <span>Kullanıcı Yönetimi</span>
+        </div>
+      </div>
+      
+      <div class="hero-footer">
+        <p>&copy; 2024 eLonca. Tüm hakları saklıdır.</p>
+      </div>
     </div>
-    
-    <p class="info">
-      Hesabın yok mu?
-      <a routerLink="/register">Kayıt ol</a>
-    </p>
-  </form>
+  </div>
+
+  <!-- Sağ Panel - Login Form -->
+  <div class="login-form-section">
+    <div class="login-form-container">
+      <div class="form-header">
+        <div class="form-logo">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <h2>Hoş Geldiniz</h2>
+        <p>Admin paneline giriş yapın</p>
+      </div>
+
+      <form class="login-form" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <!-- Email/Username Field -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user"></i>
+            <span>E-posta / Kullanıcı Adı</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              name="email"
+              class="form-input"
+              placeholder="ornek@email.com"
+              required
+              [(ngModel)]="email"
+              [disabled]="isLoading"
+            />
+            <div class="input-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-lock"></i>
+            <span>Şifre</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              name="password"
+              class="form-input"
+              placeholder="••••••••"
+              required
+              [(ngModel)]="password"
+              [disabled]="isLoading"
+            />
+            <div class="input-icon">
+              <i class="fas fa-lock"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="form-options">
+          <label class="checkbox-wrapper">
+            <input type="checkbox" class="checkbox" />
+            <span class="checkmark"></span>
+            <span class="checkbox-text">Beni hatırla</span>
+          </label>
+          <a href="#" class="forgot-password">Şifremi unuttum</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="submit-btn"
+          [disabled]="loginForm.invalid || isLoading">
+          <span *ngIf="!isLoading" class="btn-content">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Giriş Yap</span>
+          </span>
+          <span *ngIf="isLoading" class="btn-loading">
+            <div class="loading-spinner">
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring"></div>
+            </div>
+            <span>Giriş yapılıyor...</span>
+          </span>
+        </button>
+
+        <!-- Error Message -->
+        <div class="error-container" *ngIf="errorMessage">
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+
+        <!-- Register Link -->
+        <div class="form-footer">
+          <p>
+            Hesabınız yok mu?
+            <a routerLink="/register" class="register-link">Kayıt ol</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

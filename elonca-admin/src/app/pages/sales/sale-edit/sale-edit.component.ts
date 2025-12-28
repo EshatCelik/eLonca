@@ -14,7 +14,7 @@ import { BaseComponent } from '../../../core/base.component';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './sale-edit.component.html',
-  styleUrls: ['./sale-edit.component.scss']
+  styleUrl: './sale-edit.component.scss'
 })
 export class SaleEditComponent extends BaseComponent implements OnInit {
   sale: any = null;
@@ -212,6 +212,10 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
         });
       }
     });
+  }
+  
+  trackByItemId(index: number, item: any): number {
+    return item.id;
   }
 
   paymentTypeLabel(paymentType: number): string {
