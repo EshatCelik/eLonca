@@ -4,76 +4,80 @@
     <button type="button" class="btn btn-secondary" (click)="goBack()">Geri</button>
   </div>
 
-  @if (isLoading) {
-    <div class="loading">Yükleniyor...</div>
-  }
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p>Yükleniyor...</p>
+  </div>
 
-  @if (errorMessage) {
-    <div class="error">{{ errorMessage }}</div>
-  }
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
 
-  @if (user) {
-    <div class="content">
-      <div class="info-section">
-        <h2>Kullanıcı Bilgileri</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Adı:</label>
-            <input type="text" [(ngModel)]="user.name" class="form-input" />
-          </div>
-          <div class="info-item">
-            <label>Soyadı:</label>
-            <input type="text" [(ngModel)]="user.lastName" class="form-input" />
-          </div>
-           <div class="info-item">
-            <label>Kullanıcı Adı:</label>
-            <input type="text" [(ngModel)]="user.userName" class="form-input" />
-          </div>
-          <div class="info-item">
-            <label>E-posta:</label>
-            <input type="email" [(ngModel)]="user.email" class="form-input" />
-          </div>
-          <div class="info-item">
-            <label>Telefon:</label>
-            <input type="text" [(ngModel)]="user.phoneNumber" class="form-input" />
-          </div>
-          <div class="info-item">
-            <label>Rol:</label>
-            <select [(ngModel)]="user.userRole" class="form-input">
-              <option value="0">Admin</option>
-              <option value="1">User</option>
-              <option value="2">Manager</option>
-            </select>
-          </div>
-          <div class="info-item">
-            <label>Mağaza:</label>
-            <select [(ngModel)]="user.storeId" class="form-input">
-              <option value="">Mağaza seçin</option>
-              @for (store of stores; track store.id) {
-                <option [value]="store.id">{{ store.name || store.storeName }}</option>
-              }
-            </select>
-          </div>
-          <div class="info-item">
-            <label>Durum:</label>
-            <select [(ngModel)]="user.isActive" class="form-input">
-              <option [ngValue]="true">Aktif</option>
-              <option [ngValue]="false">Pasif</option>
-            </select>
-          </div>
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !errorMessage && user" class="content">
+    <div class="info-section">
+      <h2>Kullanıcı Bilgileri</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Adı:</label>
+          <input type="text" [(ngModel)]="user.name" class="form-input" />
+        </div>
+        <div class="info-item">
+          <label>Soyadı:</label>
+          <input type="text" [(ngModel)]="user.lastName" class="form-input" />
+        </div>
+        <div class="info-item">
+          <label>Kullanıcı Adı:</label>
+          <input type="text" [(ngModel)]="user.userName" class="form-input" />
+        </div>
+        <div class="info-item">
+          <label>E-posta:</label>
+          <input type="email" [(ngModel)]="user.email" class="form-input" />
+        </div>
+        <div class="info-item">
+          <label>Telefon:</label>
+          <input type="text" [(ngModel)]="user.phoneNumber" class="form-input" />
+        </div>
+        <div class="info-item">
+          <label>Rol:</label>
+          <select [(ngModel)]="user.userRole" class="form-input">
+            <option value="0">Admin</option>
+            <option value="1">Kullanıcı</option>
+            <option value="2">Yönetici</option>
+          </select>
+        </div>
+        <div class="info-item">
+          <label>Durum:</label>
+          <select [(ngModel)]="user.isActive" class="form-input">
+            <option [ngValue]="true">Aktif</option>
+            <option [ngValue]="false">Pasif</option>
+          </select>
+        </div>
+        <div class="info-item">
+          <label>Mağaza:</label>
+          <select [(ngModel)]="user.storeId" class="form-input">
+            <option value="">Mağaza seçin</option>
+            <option *ngFor="let store of stores; trackBy: trackByStoreId" [value]="store.id">
+              {{ store.name || store.storeName }}
+            </option>
+          </select>
         </div>
       </div>
-
-      <div class="actions">
-        <button type="button" class="btn btn-primary" (click)="onUpdate()" [disabled]="isSaving">
-          {{ isSaving ? 'Güncelleniyor...' : 'Güncelle' }}
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="goBack()" [disabled]="isSaving">
-          İptal
-        </button>
-      </div>
     </div>
-  } @if (!user && !isLoading && !errorMessage) {
-    <div class="error">Kullanıcı verisi yüklenemedi.</div>
-  }
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" (click)="onUpdate()" [disabled]="isSaving">
+        <i *ngIf="isSaving" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!isSaving" class="fas fa-save"></i>
+        <span>{{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}</span>
+      </button>
+    </div>
+  </div>
 </div>

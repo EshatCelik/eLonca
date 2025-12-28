@@ -49,7 +49,24 @@ export class UserEditComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.usersService.getById(id).subscribe({
+      next: (user) => {
+        this.user = user;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Kullanıcı yüklenirken hata oluştu:', err);
+        this.errorMessage = 'Kullanıcı bilgileri yüklenirken bir hata oluştu.';
+        this.isLoading = false;
+        
+        // Eğer yetkilendirme hatası alırsak login sayfasına yönlendir
+        if (err.status === 401) {
+          this.router.navigate(['/auth/login']);
+        }
+      }
+    });
   }
+
   onUpdate(): void {
     if (!this.user) return;
 

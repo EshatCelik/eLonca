@@ -138,6 +138,52 @@ export class UserListComponent implements OnInit {
   onUserClick(user: any): void {
     console.log('=== User clicked ===', user);
     // Kullanıcı detay/edit sayfasına yönlendirme
-    this.router.navigate(['/admin/users/edit', user.id]);
+    this.router.navigate(['/admin/users', user.id]);
+  }
+
+  onEditUser(event: Event, user: any): void {
+    event.stopPropagation();
+    // Düzenleme işlemleri burada yapılacak
+    console.log('Kullanıcı düzenleniyor:', user);
+    // Örnek: this.router.navigate(['/users/edit', user.id]);
+  }
+
+  trackByUserId(index: number, user: any): number {
+    return user.id;
+  }
+
+  trackByStoreId(index: number, store: any): number {
+    return store.id;
+  }
+
+  getActiveUsersCount(): number {
+    return this.users?.filter(u => u.isActive).length || 0;
+  }
+
+  getRoleText(role: number): string {
+    switch (role) {
+      case 0: return 'Admin';
+      case 1: return 'Kullanıcı';
+      case 2: return 'Yönetici';
+      default: return 'Bilinmeyen';
+    }
+  }
+
+  getRoleIcon(role: number): string {
+    switch (role) {
+      case 0: return 'fa-crown';
+      case 1: return 'fa-user';
+      case 2: return 'fa-user-tie';
+      default: return 'fa-question';
+    }
+  }
+
+  getRoleClass(role: number): string {
+    switch (role) {
+      case 0: return 'admin-role';
+      case 1: return 'user-role';
+      case 2: return 'manager-role';
+      default: return 'unknown-role';
+    }
   }
 }

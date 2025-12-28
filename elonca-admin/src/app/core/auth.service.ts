@@ -41,20 +41,16 @@ export class AuthService {
     const token = this.getToken();
     console.log('Initial auth check - Token exists:', !!token);
     
-    // Geliştirme aşamasında geçici olarak her zaman authenticated yap
-    this._isAuthenticated.set(true);
-    console.log('User temporarily authenticated for development');
-    
-    // Eğer token varsa ve geçerliyse authenticated olarak işaretle
-    // if (token) {
-    //   this._isAuthenticated.set(true);
-    //   console.log('User authenticated from stored token');
-    //   console.log('Signal value after set:', this._isAuthenticated());
-    // } else {
-    //   this._isAuthenticated.set(false);
-    //   console.log('No token found - user not authenticated');
-    //   console.log('Signal value after set:', this._isAuthenticated());
-    // }
+    // Token varsa authenticated olarak işaretle, yoksa false yap
+    if (token) {
+      this._isAuthenticated.set(true);
+      console.log('User authenticated from stored token');
+      console.log('Signal value after set:', this._isAuthenticated());
+    } else {
+      this._isAuthenticated.set(false);
+      console.log('No token found - user not authenticated');
+      console.log('Signal value after set:', this._isAuthenticated());
+    }
   }
 
   login(userName: string, password: string) {
@@ -110,8 +106,22 @@ export class AuthService {
     }
     
     try {
-      const token = localStorage.getItem(this.tokenKey);
-      console.log('Browser - Token from localStorage:', !!token);
+      // Farklı token anahtarlarını dene
+      const tokenKeys = ['auth_token', 'token', 'access_token', 'jwt_token'];
+      let token = null;
+      
+      for (const key of tokenKeys) {
+        token = localStorage.getItem(key);
+        if (token) {
+          console.log(`Browser - Token found with key: ${key}`);
+          break;
+        }
+      }
+      
+      if (!token) {
+        console.log('Browser - No token found in localStorage');
+      }
+      
       return token;
     } catch {
       console.log('Browser - localStorage access failed');
