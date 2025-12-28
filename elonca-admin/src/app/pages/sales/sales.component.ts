@@ -170,10 +170,10 @@ export class SalesComponent extends BaseComponent implements OnInit, OnDestroy {
       return;
     }
     
-    console.log('=== Navigating to edit page ===', `/admin/sales/${id}/edit`);
+    console.log('=== Navigating to edit page ===', `/admin/sales/edit/${id}`);
     
     if (this.isBrowser()) {
-      this.router.navigate(['/admin/sales', id, 'edit']);
+      this.router.navigate(['/admin/sales/edit', id]);
     }
   }
 
