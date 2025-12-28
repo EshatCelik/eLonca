@@ -41,6 +41,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'tenants', component: TenantsComponent },
       { path: 'users', component: UserListComponent },
+      { path: 'users/:id', component: UserInfo },
       { path: 'users/edit/:id', component: UserInfo },
       { path: 'stores', component: StoresComponent },
       { path: 'stores/edit/:id', component: StoreEditComponent },

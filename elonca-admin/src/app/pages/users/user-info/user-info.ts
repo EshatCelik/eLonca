@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsersService } from '../users.service';
 import { StoresService } from '../../stores/stores.service';
@@ -8,7 +9,7 @@ import { SwalService } from '../../../core/swal.service';
 @Component({
   selector: 'app-user-info',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './user-info.html',
   styleUrl: './user-info.scss'
 })
@@ -30,6 +31,8 @@ export class UserInfo implements OnInit {
 
   ngOnInit(): void {
     console.log('=== UserInfo OnInit ===');
+    console.log('=== Current URL ===', this.router.url);
+    console.log('=== Route params ===', this.route.snapshot.paramMap);
     this.loadUser();
     this.loadStores();
   }
@@ -115,5 +118,9 @@ export class UserInfo implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin/users']);
+  }
+
+  trackByStoreId(index: number, store: any): number {
+    return store.id;
   }
 }

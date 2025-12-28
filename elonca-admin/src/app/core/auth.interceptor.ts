@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { HttpInterceptorFn, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
@@ -12,6 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (
   }
 
   const authService = inject(AuthService);
+  const router = inject(Router);
   const token = authService.getToken();
 
   let newReq = req;
@@ -35,5 +37,16 @@ export const authInterceptor: HttpInterceptorFn = (
     }
   } catch {}
 
-  return next(newReq);
+  return next(newReq).pipe(
+    catchError((error) => {
+      if (error.status === 401) {
+        // Token expired or invalid, redirect to login
+        authService.logout();
+        router.navigate(['/login']);
+      }
+      return throwError(() => error);
+    })
+  );
 };
+
+import { catchError, throwError } from 'rxjs';

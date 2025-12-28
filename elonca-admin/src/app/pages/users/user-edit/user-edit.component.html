@@ -1,70 +1,124 @@
 <div class="user-edit-page">
+  <!-- Yükleme Durumu -->
   @if (isLoading) {
-    <div class="loading">Yükleniyor...</div>
+    <div class="loading-container">
+      <div class="loading-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loading-text">Kullanıcı bilgileri yükleniyor...</p>
+    </div>
   }
 
+  <!-- Hata Mesajı -->
   @if (errorMessage) {
-    <div class="error-message">{{ errorMessage }}</div>
+    <div class="error-container">
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+    </div>
   }
 
+  <!-- Ana İçerik -->
   @if (!isLoading && !errorMessage && user) {
     <div class="edit-container">
+      <!-- Başlık -->
       <div class="page-header">
-        <h1>Kullanıcı Düzenle</h1>
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="fas fa-user-edit"></i>
+          </div>
+          <div>
+            <h1>Kullanıcı Düzenle</h1>
+            <p>{{ user.name }} {{ user.lastName || '' }} kullanıcısının bilgilerini güncelleyin</p>
+          </div>
+        </div>
         <button class="close-btn" (click)="onClose()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+          <i class="fas fa-times"></i>
         </button>
       </div>
 
+      <!-- Form -->
       <div class="edit-form">
         <div class="form-grid">
+          <!-- Adı -->
           <div class="form-group">
-            <label>Adı</label>
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              <span>Adı</span>
+            </label>
             <input type="text" [(ngModel)]="user.name" class="form-input" placeholder="Adını girin">
           </div>
 
+          <!-- Soyadı -->
           <div class="form-group">
-            <label>Soyadı</label>
+            <label class="form-label">
+              <i class="fas fa-user-tag"></i>
+              <span>Soyadı</span>
+            </label>
             <input type="text" [(ngModel)]="user.lastName" class="form-input" placeholder="Soyadını girin">
           </div>
 
+          <!-- Kullanıcı Adı -->
           <div class="form-group">
-            <label>Kullanıcı Adı</label>
+            <label class="form-label">
+              <i class="fas fa-id-card"></i>
+              <span>Kullanıcı Adı</span>
+            </label>
             <input type="text" [(ngModel)]="user.userName" class="form-input" placeholder="Kullanıcı adını girin">
           </div>
 
+          <!-- E-posta -->
           <div class="form-group">
-            <label>E-posta</label>
+            <label class="form-label">
+              <i class="fas fa-envelope"></i>
+              <span>E-posta</span>
+            </label>
             <input type="email" [(ngModel)]="user.email" class="form-input" placeholder="ornek@email.com">
           </div>
 
+          <!-- Telefon -->
           <div class="form-group">
-            <label>Telefon</label>
+            <label class="form-label">
+              <i class="fas fa-phone"></i>
+              <span>Telefon</span>
+            </label>
             <input type="text" [(ngModel)]="user.phoneNumber" class="form-input" placeholder="0555 123 45 67">
           </div>
 
+          <!-- Rol -->
           <div class="form-group">
-            <label>Rol</label>
+            <label class="form-label">
+              <i class="fas fa-shield-alt"></i>
+              <span>Rol</span>
+            </label>
             <select [(ngModel)]="user.userRole" class="form-input">
               <option value="0">Admin</option>
-              <option value="1">User</option>
-              <option value="2">Manager</option>
+              <option value="1">Kullanıcı</option>
+              <option value="2">Yönetici</option>
             </select>
           </div>
 
+          <!-- Durum -->
           <div class="form-group">
-            <label>Durum</label>
+            <label class="form-label">
+              <i class="fas fa-toggle-on"></i>
+              <span>Durum</span>
+            </label>
             <select [(ngModel)]="user.isActive" class="form-input">
               <option [ngValue]="true">Aktif</option>
               <option [ngValue]="false">Pasif</option>
             </select>
           </div>
 
+          <!-- Mağaza -->
           <div class="form-group">
-            <label>Mağaza</label>
+            <label class="form-label">
+              <i class="fas fa-store"></i>
+              <span>Mağaza</span>
+            </label>
             <select [(ngModel)]="user.storeId" class="form-input">
               <option value="">Mağaza seçin</option>
               @for (store of stores; track store.id) {
@@ -74,16 +128,19 @@
           </div>
         </div>
 
+        <!-- Form İşlemleri -->
         <div class="form-actions">
           <button class="btn btn-secondary" (click)="onClose()" [disabled]="isSaving">
-            İptal
+            <i class="fas fa-times"></i>
+            <span>İptal</span>
           </button>
           <button class="btn btn-primary" (click)="onUpdate()" [disabled]="isSaving">
             @if (isSaving) {
-              <span class="spinner"></span>
-              Kaydediliyor...
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Kaydediliyor...</span>
             } @else {
-              Kaydet
+              <i class="fas fa-save"></i>
+              <span>Kaydet</span>
             }
           </button>
         </div>

@@ -1,126 +1,292 @@
 <div class="users-page">
-  <div class="page-header">
-    <h1>Kullanıcılar</h1>
-    <button class="add-btn" (click)="onAddUser()">
-      <span>+</span> Ekle
-    </button>
-  </div>
-  
-  @if (isLoading) {
-    <div class="loading">Yükleniyor...</div>
-  }
-
-  @if (!isLoading && users.length > 0) {
-    <table class="users-table">
-      <thead>
-        <tr>
-          <th>Adı</th>
-          <th>Soyadı</th>
-          <th>Kullanıcı Adı</th>
-          <th>E-posta</th>
-          <th>Telefon</th>
-          <th>Rol</th>
-          <th>Durum</th>
-          <th>İşlemler</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (user of users; track user.id) {
-          <tr class="user-row">
-            <td (click)="onUserClick(user)">{{ user.name || '-' }}</td>
-            <td (click)="onUserClick(user)">{{ user.lastName || '-' }}</td>
-            <td (click)="onUserClick(user)">{{ user.userName || '-' }}</td>
-            <td (click)="onUserClick(user)">{{ user.email || '-' }}</td>
-            <td (click)="onUserClick(user)">{{ user.phoneNumber || '-' }}</td>
-            <td (click)="onUserClick(user)">{{ user.userRole === 0 ? 'Admin' : user.userRole === 1 ? 'User' : user.userRole === 2 ? 'Manager' : '-' }}</td>
-            <td (click)="onUserClick(user)">{{ user.isActive ? 'Aktif' : 'Pasif' }}</td>
-            <td class="actions">
-              <button class="delete-btn" (click)="onDeleteUser(user, $event)">
-                Sil
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
-
-  @if (!isLoading && users.length === 0) {
-    <div class="no-data">Kullanıcı bulunamadı.</div>
-  }
-
-  @if (showCreateModal) {
-    <div class="modal-overlay" (click)="onCloseModal()">
-      <div class="modal-container panel-style" (click)="$event.stopPropagation()">
-        <div class="panel-header">
-          <h1>Yeni Kullanıcı Ekle</h1>
-          <button type="button" class="btn btn-secondary" (click)="onCloseModal()">İptal</button>
-        </div>
-
-        <div class="panel-content">
-          <div class="info-section">
-            <h2>Kullanıcı Bilgileri</h2>
-            <div class="info-grid">
-              <div class="info-item">
-                <label>Adı:</label>
-                <input type="text" [(ngModel)]="createModel.name" class="form-input" placeholder="Adını girin" />
-              </div>
-              <div class="info-item">
-                <label>Soyadı:</label>
-                <input type="text" [(ngModel)]="createModel.lastName" class="form-input" placeholder="Soyadını girin" />
-              </div>
-              <div class="info-item">
-                <label>Kullanıcı Adı:</label>
-                <input type="text" [(ngModel)]="createModel.userName" class="form-input" placeholder="Kullanıcı adını girin" />
-              </div>
-              <div class="info-item">
-                <label>E-posta:</label>
-                <input type="email" [(ngModel)]="createModel.email" class="form-input" placeholder="ornek@email.com" />
-              </div>
-              <div class="info-item">
-                <label>Şifre:</label>
-                <input type="password" [(ngModel)]="createModel.password" class="form-input" placeholder="••••••••" />
-              </div>
-              <div class="info-item">
-                <label>Telefon:</label>
-                <input type="text" [(ngModel)]="createModel.phoneNumber" class="form-input" placeholder="0555 123 45 67" />
-              </div>
-              <div class="info-item">
-                <label>Rol:</label>
-                <select [(ngModel)]="createModel.userRole" class="form-input">
-                  <option value="">Rol seçin</option>
-                  <option value="0">Admin</option>
-                  <option value="1">User</option>
-                  <option value="2">Manager</option>
-                </select>
-              </div>
-              <div class="info-item">
-                <label>Mağaza:</label>
-                <select [(ngModel)]="createModel.storeId" class="form-input">
-                  <option value="">Mağaza seçin</option>
-                  @for (store of stores; track store.id) {
-                    <option [value]="store.id">{{ store.name || store.storeName }}</option>
-                  }
-                </select>
-              </div>
-            </div>
+  <!-- Hero Bölümü -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          <i class="fas fa-users"></i>
+          Kullanıcı Yönetimi
+        </h1>
+        <p class="hero-subtitle">Sistem kullanıcılarınızı kolayca yönetin ve organize edin</p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
           </div>
-
-          <div class="panel-actions">
-            <button type="button" class="btn btn-secondary" (click)="onCloseModal()" [disabled]="isCreating">
-              İptal
-            </button>
-            <button type="button" class="btn btn-primary" (click)="onCreateUser()" [disabled]="isCreating">
-              @if (isCreating) {
-                <span class="spinner"></span>
-                Kaydediliyor...
-              } @else {
-                Kullanıcı Ekle
-              }
-            </button>
+          <div class="stat-content">
+            <div class="stat-number">{{ users.length }}</div>
+            <div class="stat-label">Toplam Kullanıcı</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ getActiveUsersCount() }}</div>
+            <div class="stat-label">Aktif Kullanıcı</div>
           </div>
         </div>
       </div>
     </div>
-  }
+  </div>
+
+  <!-- İşlem Çubuğu -->
+  <div class="actions-bar">
+    <div class="actions-left">
+      <button class="btn btn-primary" (click)="onAddUser()">
+        <i class="fas fa-plus"></i>
+        <span>Yeni Kullanıcı</span>
+      </button>
+      <button class="btn btn-outline">
+        <i class="fas fa-download"></i>
+        <span>Dışa Aktar</span>
+      </button>
+    </div>
+    <div class="actions-right">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Kullanıcı ara..." class="search-input">
+      </div>
+      <div class="filter-dropdown">
+        <button class="btn btn-outline">
+          <i class="fas fa-filter"></i>
+          <span>Filtrele</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  <ng-container *ngIf="isLoading; else content">
+    <div class="loading-container">
+      <div class="loading-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loading-text">Kullanıcılar yükleniyor...</p>
+    </div>
+  </ng-container>
+
+  <!-- Main Content -->
+  <ng-template #content>
+    <!-- Users Table -->
+    <div *ngIf="users.length > 0; else emptyState" class="users-table-container">
+      <div class="table-header">
+        <h2>
+          <i class="fas fa-list"></i>
+          Kullanıcı Listesi
+        </h2>
+        <div class="table-actions">
+          <button class="btn btn-outline">
+            <i class="fas fa-download"></i>
+            <span>Dışa Aktar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-user"></i> Kullanıcı</th>
+              <th><i class="fas fa-at"></i> Kullanıcı Adı</th>
+              <th><i class="fas fa-envelope"></i> E-posta</th>
+              <th><i class="fas fa-phone"></i> Telefon</th>
+              <th><i class="fas fa-user-tag"></i> Rol</th>
+              <th><i class="fas fa-store"></i> Mağaza</th>
+              <th><i class="fas fa-info-circle"></i> Durum</th>
+              <th><i class="fas fa-cog"></i> İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users; trackBy: trackByUserId"
+                (click)="onUserClick(user)"
+                class="user-row">
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar">
+                    {{ user.name.charAt(0) }}{{ user.lastName?.charAt(0) || '' }}
+                  </div>
+                  <div>
+                    <div class="user-name">{{ user.name }} {{ user.lastName || '' }}</div>
+                    <div class="user-id">ID: {{ user.id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="username-badge">
+                  <i class="fas fa-user"></i>
+                  {{ user.userName }}
+                </span>
+              </td>
+              <td>
+                <div class="email-info">
+                  <i class="fas fa-envelope"></i>
+                  {{ user.email || '-' }}
+                </div>
+              </td>
+              <td>
+                <div class="phone-info">
+                  <i class="fas fa-phone"></i>
+                  {{ user.phoneNumber || '-' }}
+                </div>
+              </td>
+              <td>
+                <span class="role-badge" [ngClass]="getRoleClass(user.role)">
+                  <i [class]="getRoleIcon(user.role)"></i>
+                  {{ getRoleText(user.role) }}
+                </span>
+              </td>
+              <td>{{ user.storeName || '-' }}</td>
+              <td>
+                <span class="status-indicator" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                  <span class="status-dot"></span>
+                  {{ user.isActive ? 'Aktif' : 'Pasif' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <div class="action-buttons">
+                  <button class="btn-icon btn-edit" (click)="onEditUser($event, user)" title="Düzenle">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-icon btn-delete" (click)="onDeleteUser($event, user)" [disabled]="user.isDeleting" title="Sil">
+                    <i *ngIf="user.isDeleting" class="fas fa-spinner fa-spin"></i>
+                    <i *ngIf="!user.isDeleting" class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Boş Durum -->
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-illustration">
+          <div class="empty-icon">
+            <i class="fas fa-users-slash"></i>
+          </div>
+          <div class="empty-decoration">
+            <div class="decoration-circle"></div>
+            <div class="decoration-circle"></div>
+            <div class="decoration-circle"></div>
+          </div>
+        </div>
+        <h3 class="empty-title">Henüz Kullanıcı Yok</h3>
+        <p class="empty-description">Sisteminize ilk kullanıcıyı ekleyerek başlayın</p>
+        <button class="btn btn-primary btn-large" (click)="onAddUser()">
+          <i class="fas fa-plus"></i>
+          <span>İlk Kullanıcıyı Ekle</span>
+        </button>
+      </div>
+    </ng-template>
+  </ng-template>
+
+  <!-- Kullanıcı Oluştur Modal -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="onCloseModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="modal-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div>
+            <h3>Yeni Kullanıcı Ekle</h3>
+            <p>Sisteminize yeni bir kullanıcı ekleyin</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" (click)="onCloseModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              <span>Adı</span>
+            </label>
+            <input type="text" [(ngModel)]="createModel.name" class="form-input" placeholder="Adını girin">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user-tag"></i>
+              <span>Soyadı</span>
+            </label>
+            <input type="text" [(ngModel)]="createModel.lastName" class="form-input" placeholder="Soyadını girin">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-id-card"></i>
+              <span>Kullanıcı Adı</span>
+            </label>
+            <input type="text" [(ngModel)]="createModel.userName" class="form-input" placeholder="Kullanıcı adını girin">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-envelope"></i>
+              <span>E-posta</span>
+            </label>
+            <input type="email" [(ngModel)]="createModel.email" class="form-input" placeholder="ornek@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-lock"></i>
+              <span>Şifre</span>
+            </label>
+            <input type="password" [(ngModel)]="createModel.password" class="form-input" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-phone"></i>
+              <span>Telefon</span>
+            </label>
+            <input type="text" [(ngModel)]="createModel.phoneNumber" class="form-input" placeholder="0555 123 45 67">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-shield-alt"></i>
+              <span>Rol</span>
+            </label>
+            <select [(ngModel)]="createModel.userRole" class="form-input">
+              <option value="">Rol seçin</option>
+              <option value="0">Admin</option>
+              <option value="1">Kullanıcı</option>
+              <option value="2">Yönetici</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-store"></i>
+              <span>Mağaza</span>
+            </label>
+            <select [(ngModel)]="createModel.storeId" class="form-input">
+              <option value="">Mağaza seçin</option>
+              <option *ngFor="let store of stores; trackBy: trackByStoreId" [value]="store.id">
+                {{ store.name || store.storeName }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCloseModal()" [disabled]="isCreating">
+          <i class="fas fa-times"></i>
+          <span>İptal</span>
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onCreateUser()" [disabled]="isCreating">
+          <i *ngIf="isCreating" class="fas fa-spinner fa-spin"></i>
+          <i *ngIf="!isCreating" class="fas fa-save"></i>
+          <span>{{ isCreating ? 'Kaydediliyor...' : 'Kullanıcı Ekle' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
