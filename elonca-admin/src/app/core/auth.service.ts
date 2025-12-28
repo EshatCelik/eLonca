@@ -18,13 +18,10 @@ export class AuthService {
     private readonly http: HttpClient,
     @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {
-    // Geçici olarak her zaman authenticated yap
-    this._isAuthenticated.set(true);
-    console.log('User temporarily authenticated from constructor');
-    
-    // Sadece browser'da token kontrolü yap
+    // Sadece browser'da auth kontrolü yap
     if (isPlatformBrowser(this.platformId)) {
       this.initializeAuth();
+      console.log('Browser - Auth initialized');
     } else {
       console.log('Running on server - skipping auth initialization');
       // Server'da false olarak başla, browser'da güncellenecek
@@ -34,29 +31,30 @@ export class AuthService {
 
   // Browser'da auth kontrolünü tetiklemek için public method
   checkAuthOnBrowser(): void {
-    // Geçici olarak devre dışı bırak
-    console.log('Auth check temporarily disabled');
-    
-    // if (isPlatformBrowser(this.platformId)) {
-    //   console.log('Browser auth check triggered');
-    //   this.initializeAuth();
-    // }
+    if (isPlatformBrowser(this.platformId)) {
+      console.log('Browser auth check triggered');
+      this.initializeAuth();
+    }
   }
 
   private initializeAuth(): void {
     const token = this.getToken();
     console.log('Initial auth check - Token exists:', !!token);
     
+    // Geliştirme aşamasında geçici olarak her zaman authenticated yap
+    this._isAuthenticated.set(true);
+    console.log('User temporarily authenticated for development');
+    
     // Eğer token varsa ve geçerliyse authenticated olarak işaretle
-    if (token) {
-      this._isAuthenticated.set(true);
-      console.log('User authenticated from stored token');
-      console.log('Signal value after set:', this._isAuthenticated());
-    } else {
-      this._isAuthenticated.set(false);
-      console.log('No token found - user not authenticated');
-      console.log('Signal value after set:', this._isAuthenticated());
-    }
+    // if (token) {
+    //   this._isAuthenticated.set(true);
+    //   console.log('User authenticated from stored token');
+    //   console.log('Signal value after set:', this._isAuthenticated());
+    // } else {
+    //   this._isAuthenticated.set(false);
+    //   console.log('No token found - user not authenticated');
+    //   console.log('Signal value after set:', this._isAuthenticated());
+    // }
   }
 
   login(userName: string, password: string) {

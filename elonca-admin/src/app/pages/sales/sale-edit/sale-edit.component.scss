@@ -1,19 +1,32 @@
 .sale-edit-page {
-  padding: 20px;
+  padding: 0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  position: relative;
+}
+
+.main-content {
+  padding: 20px;
+  padding-top: 90px; /* Header yüksekliği kadar boşluk bırakıyoruz */
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .page-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding: 25px;
+  padding: 15px 25px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 0 0 16px 16px;
 }
 
 .page-header h1 {
@@ -117,6 +130,13 @@
 .sale-details {
   display: grid;
   gap: 25px;
+  margin-top: 90px; /* Header yüksekliği kadar boşluk bırakıyoruz */
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .detail-section {

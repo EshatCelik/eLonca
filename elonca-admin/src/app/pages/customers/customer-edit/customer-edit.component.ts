@@ -399,6 +399,12 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     this.router.navigate(['/admin/customers']);
   }
 
+  goToSaleDetail(sale: any): void {
+    if (sale && sale.id) {
+      this.router.navigate(['/admin/sales', sale.id, 'edit']);
+    }
+  }
+
   onDelete(): void {
     if (!this.customer) return;
     
