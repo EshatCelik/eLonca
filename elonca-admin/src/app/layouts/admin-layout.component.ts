@@ -11,26 +11,94 @@ import { Subscription } from 'rxjs';
   template: `
     <div class="layout">
       <aside class="sidebar">
-        <div class="logo">eLonca Admin</div>
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-store"></i>
+          </div>
+          <div class="logo-text">eLonca Admin</div>
+        </div>
         <nav class="menu">
-          <a routerLink="dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-          <a routerLink="tenants" routerLinkActive="active">Tenantlar</a>
-          <a routerLink="users" routerLinkActive="active">Kullanıcılar</a>
-          <a routerLink="stores" routerLinkActive="active">Mağazalar</a>
-          <a routerLink="categories" routerLinkActive="active">Kategoriler</a>
-          <a routerLink="products" routerLinkActive="active">Ürünler</a>
-          <a routerLink="customers" routerLinkActive="active">Müşteriler</a>
-          <a routerLink="sales" routerLinkActive="active">Satışlarım</a>
-          <a routerLink="inventory" routerLinkActive="active">Stoklarım</a>
-          <a routerLink="e-ledger" routerLinkActive="active">e-Defter</a>
-          <a routerLink="receivables" routerLinkActive="active">Alacaklar</a>
+          <a routerLink="dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-home"></i>
+            </div>
+            <span class="menu-text">Dashboard</span>
+          </a>
+          <a routerLink="tenants" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-building"></i>
+            </div>
+            <span class="menu-text">Tenantlar</span>
+          </a>
+          <a routerLink="users" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="menu-text">Kullanıcılar</span>
+          </a>
+          <a routerLink="stores" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-store"></i>
+            </div>
+            <span class="menu-text">Mağazalar</span>
+          </a>
+          <a routerLink="categories" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-tags"></i>
+            </div>
+            <span class="menu-text">Kategoriler</span>
+          </a>
+          <a routerLink="products" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <span class="menu-text">Ürünler</span>
+          </a>
+          <a routerLink="customers" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-user-friends"></i>
+            </div>
+            <span class="menu-text">Müşteriler</span>
+          </a>
+          <a routerLink="sales" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <span class="menu-text">Satışlarım</span>
+          </a>
+          <a routerLink="inventory" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-warehouse"></i>
+            </div>
+            <span class="menu-text">Stoklarım</span>
+          </a>
+          <a routerLink="e-ledger" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <span class="menu-text">e-Defter</span>
+          </a>
+          <a routerLink="receivables" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <span class="menu-text">Alacaklar</span>
+          </a>
         </nav>
       </aside>
       <div class="main">
         <header class="topbar">
-          <div class="alerts">Uyarılar (örnek)</div>
+          <div class="alerts">
+            <div class="alert-item">
+              <i class="fas fa-bell"></i>
+              <span class="alert-count">3</span>
+            </div>
+          </div>
           <div class="user-dropdown">
             <button class="user-button" (click)="toggleUserMenu()">
+              <div class="user-avatar">
+                <i class="fas fa-user"></i>
+              </div>
               <span class="user-name">{{ getCurrentUserDisplayName() }}</span>
               <span class="dropdown-arrow">▼</span>
             </button>
