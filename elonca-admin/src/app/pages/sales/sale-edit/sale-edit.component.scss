@@ -479,6 +479,19 @@
   backdrop-filter: blur(4px);
 }
 
+// SweetAlert2 z-index fix
+:global(.swal2-container) {
+  z-index: 10000 !important;
+}
+
+:global(.swal2-popup) {
+  z-index: 10001 !important;
+}
+
+:global(.swal2-backdrop-show) {
+  z-index: 9999 !important;
+}
+
 .modal-content {
   background: white;
   border-radius: 12px;
@@ -548,6 +561,16 @@
   margin-bottom: 1.5rem;
 }
 
+.form-grid-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .form-item {
   label {
     display: block;
@@ -572,6 +595,29 @@
     }
     
     &:readonly {
+      background: #f9fafb;
+      color: #6b7280;
+    }
+  }
+  
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.2s;
+    
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    &:disabled {
       background: #f9fafb;
       color: #6b7280;
     }
