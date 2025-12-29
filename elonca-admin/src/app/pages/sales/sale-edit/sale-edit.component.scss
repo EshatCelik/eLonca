@@ -613,6 +613,24 @@
   border-radius: 0 0 12px 12px;
 }
 
+// İade Modalı Ekstra Stilleri
+.product-info {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  
+  strong {
+    color: #dc2626;
+  }
+}
+
+.required {
+  color: #dc2626;
+  font-weight: 600;
+}
+
 // Responsive
 @media (max-width: 1200px) {
   .items-table {
