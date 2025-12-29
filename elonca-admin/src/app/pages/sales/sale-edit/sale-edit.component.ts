@@ -264,6 +264,12 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
   }
 
   // Modal method'ları
+  openAddProductModal(): void {
+    console.log('=== Opening add product modal ===');
+    this.showAddProductModal = true;
+    this.loadAvailableProducts();
+  }
+
   loadAvailableProducts(): void {
     if (!this.isBrowser()) return;
     
