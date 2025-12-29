@@ -1,0 +1,212 @@
+<div class="list-edit-container" *ngIf="!hasError; else errorTemplate">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fas fa-list-alt"></i>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">{{ isEditMode ? 'Liste Düzenle' : 'Yeni Liste Oluştur' }}</h1>
+        <p class="page-subtitle">{{ isEditMode ? 'Mevcut listeyi güncelleyin' : 'Yeni bir liste oluşturun' }}</p>
+      </div>
+    </div>
+    <button class="btn-close" (click)="onCancel()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Form Section -->
+  <div class="form-container">
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-header-content">
+          <div class="form-icon">
+            <i class="fas fa-edit"></i>
+          </div>
+          <div>
+            <h2 class="form-title">Bilgiler</h2>
+            <p class="form-subtitle">Liste bilgilerini aşağıdaki formdan doldurun</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-body">
+        <form [formGroup]="listForm" (ngSubmit)="onSubmit()" class="modern-form">
+          <!-- Name Field -->
+          <div class="form-group compact">
+            <label for="listName" class="form-label">
+              <i class="fas fa-tag me-2"></i>
+              Liste Adı <span class="required">*</span>
+            </label>
+            <div class="form-input-group compact">
+              <input
+                type="text"
+                class="form-control compact"
+                id="listName"
+                formControlName="listName"
+                placeholder="Liste adını girin..."
+                [class.is-invalid]="listName?.invalid && (listName?.dirty || listName?.touched)"
+                [class.is-valid]="listName?.valid"
+              >
+              <div class="input-icon">
+                <i class="fas fa-list"></i>
+              </div>
+            </div>
+            <div *ngIf="listName?.invalid && (listName?.dirty || listName?.touched)" class="error-message compact">
+              <div *ngIf="listName?.errors?.['required']" class="error-item">
+                <i class="fas fa-exclamation-circle"></i>
+                Liste adı zorunludur
+              </div>
+              <div *ngIf="listName?.errors?.['maxlength']" class="error-item">
+                <i class="fas fa-exclamation-triangle"></i>
+                Liste adı en fazla 100 karakter olabilir
+              </div>
+            </div>
+          </div>
+
+          <!-- Description Field -->
+          <div class="form-group compact">
+            <label for="description" class="form-label">
+              <i class="fas fa-align-left me-2"></i>
+              Açıklama
+            </label>
+            <div class="form-input-group compact">
+              <textarea
+                class="form-control compact"
+                id="description"
+                formControlName="description"
+                rows="3"
+                placeholder="Liste hakkında kısa bir açıklama yazın..."
+              ></textarea>
+              <div class="input-icon">
+                <i class="fas fa-comment"></i>
+              </div>
+            </div>
+            <div class="form-help compact">
+              <i class="fas fa-info-circle"></i>
+              Liste hakkında kısa bir açıklama (isteğe bağlı)
+            </div>
+          </div>
+
+          <!-- Last Publish Date Field -->
+          <div class="form-group compact">
+            <label for="lastPublishDate" class="form-label">
+              <i class="fas fa-calendar me-2"></i>
+              Son Yayın Tarihi <span class="required">*</span>
+            </label>
+            <div class="form-input-group compact">
+              <input
+                type="date"
+                class="form-control compact"
+                id="lastPublishDate"
+                formControlName="lastPublishDate"
+                [class.is-invalid]="lastPublishDate?.invalid && (lastPublishDate?.dirty || lastPublishDate?.touched)"
+                [class.is-valid]="lastPublishDate?.valid"
+              >
+              <div class="input-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+            </div>
+            <div *ngIf="lastPublishDate?.invalid && (lastPublishDate?.dirty || lastPublishDate?.touched)" class="error-message compact">
+              <div *ngIf="lastPublishDate?.errors?.['required']" class="error-item">
+                <i class="fas fa-exclamation-circle"></i>
+                Son yayın tarihi zorunludur
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Toggle -->
+          <div class="form-group compact">
+            <label class="form-label">
+              <i class="fas fa-toggle-on me-2"></i>
+              Durum
+            </label>
+            <div class="toggle-container compact">
+              <label class="toggle-switch compact">
+                <input
+                  type="checkbox"
+                  class="toggle-input"
+                  id="isActive"
+                  formControlName="isActive"
+                >
+                <span class="toggle-slider compact"></span>
+                <span class="toggle-label">
+                  {{ listForm.get('isActive')?.value ? 'Aktif' : 'Pasif' }}
+                </span>
+              </label>
+              <div class="toggle-description compact">
+                <i class="fas fa-info-circle"></i>
+                Listenin aktif/pasif durumunu değiştirin
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions compact">
+            <button
+              type="button"
+              class="btn btn-secondary compact"
+              [disabled]="isSubmitting"
+              (click)="onCancel()"
+            >
+              <i class="fas fa-times me-2"></i>
+              İptal
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary compact"
+              [disabled]="listForm.invalid || isSubmitting"
+            >
+              <span *ngIf="!isSubmitting" class="btn-content">
+                <i class="fas fa-save me-2"></i>
+                {{ isEditMode ? 'Güncelle' : 'Oluştur' }}
+              </span>
+              <span *ngIf="isSubmitting" class="btn-content">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Kaydediliyor...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Template -->
+<ng-template #errorTemplate>
+  <div class="error-container">
+    <div class="error-card">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div class="error-content">
+        <h3 class="error-title">Hata Oluştu</h3>
+        <p class="error-message">{{ errorMessage }}</p>
+        <div class="error-actions">
+          <button class="btn btn-outline-secondary" (click)="reloadPage()">
+            <i class="fas fa-redo me-2"></i>
+            Sayfayı Yenile
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <div class="loading-card">
+      <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Yükleniyor...</span>
+        </div>
+      </div>
+      <div class="loading-text">
+        <h3>Yükleniyor...</h3>
+        <p>Lütfen bekleyin</p>
+      </div>
+    </div>
+  </div>
+</ng-template>

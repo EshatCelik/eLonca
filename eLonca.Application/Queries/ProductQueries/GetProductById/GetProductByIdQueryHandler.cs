@@ -10,23 +10,24 @@ using System.Threading.Tasks;
 
 namespace eLonca.Application.Queries.ProductQueries.GetProductById
 {
-    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQueryResponse, Result<Product>>
+    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQueryResponse, Result<ProductList>>
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IProductListRepository _productRepository;
 
-        public GetProductByIdQueryHandler(IProductRepository productRepository)
+        public GetProductByIdQueryHandler(IProductListRepository productRepository)
         {
             _productRepository = productRepository;
         }
 
-        public async Task<Result<Product>> Handle(GetProductByIdQueryResponse request, CancellationToken cancellationToken)
+        public async Task<Result<ProductList>> Handle(GetProductByIdQueryResponse request, CancellationToken cancellationToken)
         {
             var product = await _productRepository.GetByIdAsync(request.Id);
             if (!product.IsSuccess)
             {
-                return Result<Product>.Failure(product.Errors, product.Message, product.StatusCode);
+                return Result<ProductList>.Failure(product.Errors, product.Message, product.StatusCode);
             }
-            return product;
+            return Result<ProductList>.Success(product.Data, product.Message, product.StatusCode);
+
         }
     }
 }

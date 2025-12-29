@@ -16,6 +16,9 @@ import { CustomersComponent } from './pages/customers/customers.component';
 import { CustomerEditComponent } from './pages/customers/customer-edit/customer-edit.component';
 import { SalesComponent } from './pages/sales/sales.component';
 import { SaleEditComponent } from './pages/sales/sale-edit/sale-edit.component';
+import { ListsComponent } from './pages/lists/lists.component';
+import { ListEditComponent } from './pages/lists/list-edit/list-edit.component';
+import { ListDetailComponent } from './pages/lists/list-detail/list-detail.component';
 import { ELedgerComponent } from './pages/e-ledger/e-ledger.component';
 import { ReceivablesComponent } from './pages/receivables/receivables.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -54,6 +57,10 @@ export const routes: Routes = [
       { path: 'customers/:storeId/:customerStoreId/edit', component: CustomerEditComponent },
       { path: 'sales', component: SalesComponent },
       { path: 'sales/edit/:id', component: SaleEditComponent },
+      { path: 'lists', component: ListsComponent },
+      { path: 'lists/new', component: ListEditComponent },
+      { path: 'lists/:id', component: ListDetailComponent },
+      { path: 'lists/:id/edit', component: ListEditComponent },
       { path: 'e-ledger', component: ELedgerComponent },
       { path: 'inventory', component: InventoryComponent },
       { path: 'inventory/:productId/:storeId/detail', component: StockDetailComponent },
@@ -63,6 +70,6 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' }
+  { path: '', redirectTo: 'admin/dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: 'admin/dashboard' }
 ];
