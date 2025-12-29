@@ -264,6 +264,12 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
   }
 
   // Modal method'ları
+  openAddProductModal(): void {
+    console.log('=== Opening add product modal ===');
+    this.showAddProductModal = true;
+    this.loadAvailableProducts();
+  }
+
   loadAvailableProducts(): void {
     if (!this.isBrowser()) return;
     
@@ -546,15 +552,35 @@ export class SaleEditComponent extends BaseComponent implements OnInit {
   confirmReturn(): void {
     if (!this.selectedReturnItem || !this.returnNote.trim() || !this.returnQuantity || this.returnQuantity <= 0) return;
 
+    // Verileri sakla
+    const itemToReturn = { ...this.selectedReturnItem };
+    const returnNote = this.returnNote;
+    const returnQuantity = this.returnQuantity;
+
+    // Modal'ı kapat
+    this.closeReturnModal();
+
+    // Confirm popup'ı göster
     this.swalService.confirm(
       'Ürün İade İşlemi',
-      `<strong>${this.selectedReturnItem.productName}</strong> ürününden <strong>${this.returnQuantity}</strong> adet iade etmek istediğinizden emin misiniz?<br><br>
-       <strong>İade Notu:</strong> ${this.returnNote}<br><br>
+      `<strong>${itemToReturn.productName}</strong> ürününden <strong>${returnQuantity}</strong> adet iade etmek istediğinizden emin misiniz?<br><br>
+       <strong>İade Notu:</strong> ${returnNote}<br><br>
        Bu işlem geri alınamaz!`
     ).then((result) => {
       if (result.isConfirmed) {
+        // Verileri geri yükle ve işlemi yap
+        this.selectedReturnItem = itemToReturn;
+        this.returnNote = returnNote;
+        this.returnQuantity = returnQuantity;
+        
         this.loadSale();
         this.performReturn();
+      } else {
+        // İptal edilirse modal'ı tekrar aç
+        this.selectedReturnItem = itemToReturn;
+        this.returnNote = returnNote;
+        this.returnQuantity = returnQuantity;
+        this.showReturnModal = true;
       }
     });
   }
