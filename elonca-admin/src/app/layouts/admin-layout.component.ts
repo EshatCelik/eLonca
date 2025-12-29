@@ -66,6 +66,12 @@ import { Subscription } from 'rxjs';
             </div>
             <span class="menu-text">Satışlarım</span>
           </a>
+          <a routerLink="lists" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-list-alt"></i>
+            </div>
+            <span class="menu-text">Listelerim</span>
+          </a>
           <a routerLink="inventory" routerLinkActive="active" class="menu-item">
             <div class="menu-icon">
               <i class="fas fa-warehouse"></i>

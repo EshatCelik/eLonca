@@ -1,0 +1,182 @@
+<div class="list-detail-container" *ngIf="list; else loadingTemplate">
+  <!-- Modern Header -->
+  <div class="modern-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="back-btn" (click)="onBack()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-info">
+          <h1 class="list-title">{{ list?.name }}</h1>
+          <div class="header-meta">
+            <span class="meta-item">
+              <i class="fas fa-calendar-alt"></i>
+              {{ list?.createdAt | date:'dd.MM.yyyy HH:mm' }}
+            </span>
+            <span class="meta-item">
+              <i class="fas fa-box"></i>
+              {{ list?.items?.length || 0 }} ürün
+            </span>
+            <span class="status-badge" [ngClass]="list?.isActive ? 'status-active' : 'status-inactive'">
+              <i [class]="list?.isActive ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+              {{ list?.isActive ? 'Aktif' : 'Pasif' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn edit-btn" (click)="onEdit()">
+          <i class="fas fa-edit"></i>
+          <span>Düzenle</span>
+        </button>
+        <button class="action-btn delete-btn" (click)="onDelete()" [disabled]="isDeleting">
+          <i *ngIf="!isDeleting" class="fas fa-trash-alt"></i>
+          <span *ngIf="isDeleting" class="spinner-border spinner-border-sm"></span>
+          <span>{{ isDeleting ? 'Siliniyor...' : 'Sil' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- List Info Card -->
+    <div class="info-card">
+      <div class="info-header">
+        <div class="info-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="info-title">Liste Bilgileri</h3>
+      </div>
+      <div class="info-body">
+        <div class="description-section">
+          <h4 class="section-title">Açıklama</h4>
+          <p class="description-text">{{ list?.description || 'Bu liste için açıklama eklenmemiş.' }}</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ list?.items?.length || 0 }}</div>
+              <div class="stat-label">Ürün</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-calculator"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ getTotalPrice() | currency:'TRY':'symbol':'1.2-2' }}</div>
+              <div class="stat-label">Toplam Tutar</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ list?.createdAt | date:'dd.MM.yyyy' }}</div>
+              <div class="stat-label">Oluşturulma</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Card -->
+    <div class="items-card">
+      <div class="items-header">
+        <div class="items-title">
+          <div class="items-icon">
+            <i class="fas fa-list"></i>
+          </div>
+          <h3>Listedeki Ürünler</h3>
+        </div>
+        <button class="add-item-btn">
+          <i class="fas fa-plus"></i>
+          <span>Ürün Ekle</span>
+        </button>
+      </div>
+      <div class="items-body">
+        <div *ngIf="list?.items?.length > 0; else emptyItems" class="items-table">
+          <div class="table-header">
+            <div class="header-cell">Ürün</div>
+            <div class="header-cell">Açıklama</div>
+            <div class="header-cell text-center">Miktar</div>
+            <div class="header-cell text-end">Birim Fiyat</div>
+            <div class="header-cell text-end">Toplam</div>
+            <div class="header-cell text-end">İşlemler</div>
+          </div>
+          <div class="table-body">
+            <div *ngFor="let item of list.items; trackBy: trackByItemId" class="table-row">
+              <div class="table-cell">
+                <div class="product-info">
+                  <div class="product-avatar">
+                    <i class="fas fa-box"></i>
+                  </div>
+                  <div class="product-details">
+                    <div class="product-name">{{ item.name }}</div>
+                    <div class="product-id">ID: {{ item.id | slice:0:8 }}...</div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-cell">
+                <div class="product-description">{{ item.description || '-' }}</div>
+              </div>
+              <div class="table-cell text-center">
+                <div class="quantity-badge">
+                  {{ item.quantity }} {{ item.unit || 'adet' }}
+                </div>
+              </div>
+              <div class="table-cell text-end">
+                <div class="price">{{ item.price | currency:'TRY':'symbol':'1.2-2' }}</div>
+              </div>
+              <div class="table-cell text-end">
+                <div class="total-price">{{ (item.price * item.quantity) | currency:'TRY':'symbol':'1.2-2' }}</div>
+              </div>
+              <div class="table-cell text-end">
+                <div class="item-actions">
+                  <button class="item-action-btn edit" title="Düzenle">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="item-action-btn delete" title="Sil">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <div class="loading-content">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+      <p class="loading-text">Yükleniyor...</p>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Empty Items Template -->
+<ng-template #emptyItems>
+  <div class="empty-state">
+    <div class="empty-icon">
+      <i class="fas fa-box-open"></i>
+    </div>
+    <h3 class="empty-title">Henüz Ürün Yok</h3>
+    <p class="empty-description">Bu listede henüz ürün bulunmuyor</p>
+    <button class="add-first-item-btn">
+      <i class="fas fa-plus"></i>
+      <span>İlk Ürünü Ekle</span>
+    </button>
+  </div>
+</ng-template>

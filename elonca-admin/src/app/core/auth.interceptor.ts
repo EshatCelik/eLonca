@@ -39,11 +39,15 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(newReq).pipe(
     catchError((error) => {
-      if (error.status === 401) {
-        // Token expired or invalid, redirect to login
-        authService.logout();
-        router.navigate(['/login']);
-      }
+      // Geçici olarak auth kontrolünü devre dışı bırak
+      console.log('Auth interceptor - Error caught:', error.status);
+      console.log('Auth interceptor - Error temporarily disabled for development');
+      
+      // if (error.status === 401) {
+      //   // Token expired or invalid, redirect to login
+      //   authService.logout();
+      //   router.navigate(['/login']);
+      // }
       return throwError(() => error);
     })
   );
