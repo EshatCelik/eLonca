@@ -476,19 +476,26 @@
       }
     }
     
-    &.published-btn {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    &.unpublish-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
       color: white;
-      cursor: default;
-      
-      &:hover {
-        transform: none;
-        box-shadow: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
       }
-      
-      &::before {
-        background: rgba(255, 255, 255, 0.2);
-        opacity: 0.3;
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.125em;
       }
     }
     

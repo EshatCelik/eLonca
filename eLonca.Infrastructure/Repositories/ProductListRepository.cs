@@ -21,6 +21,12 @@ namespace eLonca.Infrastructure.Repositories
             return Result<ProductList>.Success(check, "", 200);
         }
 
+        public async Task<Result<List<ProductList>>> GetAllPublishProductListForDashboard()
+        {
+            var list = _dbContext.ProductLists.Where(x => x.IsPublish && x.IsActive).ToList();
+            return Result<List<ProductList>>.Success(list, "Liste başarılı", 200);
+        }
+
         public async Task<Result<List<ProductListItem>>> GetProductListItem(Guid listId)
         {
             var list = _dbContext.ProductListItems.Where(x => x.ProductListId == listId).ToList();

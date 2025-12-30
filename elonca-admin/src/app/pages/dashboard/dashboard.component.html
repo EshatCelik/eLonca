@@ -54,7 +54,7 @@
           <!-- Story Info -->
           <div class="story-info">
             <div class="story-name">{{ list.name }}</div>
-            <div class="story-count">{{ list.productCount }} ürün</div>
+            <div class="story-count">{{ list.listItems?.length || 0 }} ürün</div>
           </div>
         </div>
       </div>
@@ -77,7 +77,7 @@
             </div>
             <div class="story-detail-text">
               <h3>{{ selectedStory.name }}</h3>
-              <p>{{ selectedStory.productCount }} ürün</p>
+              <p>{{ selectedStory.listItems?.length || 0 }} ürün</p>
             </div>
           </div>
           <button class="btn btn-sm btn-secondary" (click)="closeStoryDetail()">
@@ -96,31 +96,47 @@
             <p>Ürünler yükleniyor...</p>
           </div>
 
-          <div *ngIf="!selectedStory.isLoading && selectedStory.products.length > 0" class="products-grid">
-            <div 
-              *ngFor="let product of selectedStory.products; trackBy: trackByProductId" 
-              class="product-card">
-              
-              <div class="product-image">
-                <img [src]="product.imageUrl || '/assets/placeholder-product.png'" [alt]="product.name">
-                <div class="product-badge" *ngIf="product.discount">
-                  %{{ product.discount }}
-                </div>
-              </div>
-              
-              <div class="product-info">
-                <h4 class="product-name">{{ product.name }}</h4>
-                <p class="product-description">{{ product.description || 'Açıklama bulunmuyor' }}</p>
-                <div class="product-price">
-                  <span class="current-price">{{ formatCurrency(product.price) }}</span>
-                  <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
-                        class="original-price">{{ formatCurrency(product.originalPrice) }}</span>
-                </div>
-              </div>
-            </div>
+          <div *ngIf="!selectedStory.isLoading && selectedStory.products && selectedStory.products.length > 0" class="products-table-container">
+            <table class="products-table">
+              <thead>
+                <tr>
+                  <th>Ürün Adı</th>
+                  <th class="text-end">Birim Fiyat</th>
+                  <th class="text-end">İndirim</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let product of selectedStory.products; trackBy: trackByProductId" 
+                  class="product-row">
+                  
+                  <td class="product-name-cell">
+                    <div class="product-name">
+                      <i class="fas fa-box product-icon"></i>
+                      {{ product.productName || product.name }}
+                    </div>
+                  </td>
+                  
+                  <td class="text-end price-cell">
+                    <div class="price-container">
+                      <span *ngIf="product.discount && product.discount > 0" 
+                            class="original-price">{{ formatCurrency(product.price) }}</span>
+                      <span class="current-price">{{ formatCurrency(getDiscountedPrice(product)) }}</span>
+                    </div>
+                  </td>
+                  
+                  <td class="text-end discount-cell">
+                    <span *ngIf="product.discount && product.discount > 0" 
+                          class="discount-badge">%{{ product.discount }}</span>
+                    <span *ngIf="!product.discount || product.discount === 0" 
+                          class="no-discount">-</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          <div *ngIf="!selectedStory.isLoading && selectedStory.products.length === 0" class="products-empty">
+          <div *ngIf="!selectedStory.isLoading && (!selectedStory.products || selectedStory.products.length === 0)" class="products-empty">
             <i class="fas fa-box-open"></i>
             <p>Bu listede ürün bulunmuyor</p>
           </div>

@@ -294,7 +294,7 @@
                 <button 
                   *ngIf="!isListPublished(list)"
                   class="action-btn publish-btn" 
-                  (click)="onPublishList(list)"
+                  (click)="onPublishList(list); $event.stopPropagation()"
                   [disabled]="publishingId === list.id"
                   title="Yayınla"
                 >
@@ -309,16 +309,25 @@
                 </button>
                 <button 
                   *ngIf="isListPublished(list)"
-                  class="action-btn published-btn" 
-                  title="Yayında"
-                  disabled
+                  class="action-btn unpublish-btn" 
+                  (click)="onPublishList(list); $event.stopPropagation()"
+                  [disabled]="publishingId === list.id"
+                  title="Yayından Kaldır"
                 >
-                  <i class="fas fa-check-circle"></i>
+                  <i 
+                    *ngIf="publishingId !== list.id" 
+                    class="fas fa-share-alt-slash"
+                  ></i>
+                  <span 
+                    *ngIf="publishingId === list.id" 
+                    class="spinner-border spinner-border-sm"
+                  ></span>
                 </button>
                 <button 
                   class="action-btn edit-btn" 
                   [routerLink]="['/lists', list.id!]"
                   [queryParams]="{ edit: 'true' }"
+                  (click)="$event.stopPropagation()"
                   title="Düzenle"
                 >
                   <i class="fas fa-edit"></i>
@@ -326,6 +335,7 @@
                 <button 
                   class="action-btn view-btn" 
                   [routerLink]="['/lists', list.id!]"
+                  (click)="$event.stopPropagation()"
                   title="Detay"
                 >
                   <i class="fas fa-eye"></i>

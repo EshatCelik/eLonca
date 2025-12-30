@@ -305,26 +305,42 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
   }
 
   onPublishList(list: ProductList): void {
-    this.swalService.confirm(
-      `"${list.name}" listesini yayınlamak istiyor musunuz?`,
-      'Liste yayınlandığında tüm kullanıcılar tarafından görülebilir hale gelecektir.'
-    ).then((result) => {
+    const isCurrentlyPublished = this.isListPublished(list);
+    const action = isCurrentlyPublished ? 'yayından kaldırmak' : 'yayınlamak';
+    const confirmMessage = isCurrentlyPublished 
+      ? `"${list.name}" listesini yayından kaldırmak istiyor musunuz?`
+      : `"${list.name}" listesini yayınlamak istiyor musunuz?`;
+    const descriptionMessage = isCurrentlyPublished
+      ? 'Liste yayından kaldırıldığında kullanıcılar tarafından görülemez hale gelecektir.'
+      : 'Liste yayınlandığında tüm kullanıcılar tarafından görülebilir hale gelecektir.';
+    
+    this.swalService.confirm(confirmMessage, descriptionMessage).then((result) => {
       if (result.isConfirmed) {
         this.publishingId = list.id;
         
-        this.listsService.publishList(list.id, true, this.storeId, this.tenantId)
+        // Ters değeri gönder (yayındaysa false, değilse true)
+        this.listsService.publishList(list.id, !isCurrentlyPublished, this.storeId, this.tenantId)
           .subscribe({
             next: (response) => {
               if (response && response.isSuccess) {
-                this.swalService.success('Liste başarıyla yayınlandı.');
-                this.loadLists();
+                const successMessage = isCurrentlyPublished 
+                  ? 'Liste başarıyla yayından kaldırıldı.'
+                  : 'Liste başarıyla yayınlandı.';
+                this.swalService.success(successMessage);
+                this.loadLists(); // Tüm listeleri yeniden yükle
               } else {
-                this.swalService.error(response?.message || 'Liste yayınlanırken bir hata oluştu.');
+                const errorMessage = isCurrentlyPublished
+                  ? 'Liste yayından kaldırılırken bir hata oluştu.'
+                  : 'Liste yayınlanırken bir hata oluştu.';
+                this.swalService.error(response?.message || errorMessage);
               }
             },
             error: (error) => {
-              console.error('Liste yayınlanırken hata:', error);
-              this.swalService.error('Liste yayınlanırken bir hata oluştu.');
+              console.error('Liste işlemi sırasında hata:', error);
+              const errorMessage = isCurrentlyPublished
+                ? 'Liste yayından kaldırılırken hata oluştu.'
+                : 'Liste yayınlanırken hata oluştu.';
+              this.swalService.error(errorMessage);
             },
             complete: () => {
               this.publishingId = null;

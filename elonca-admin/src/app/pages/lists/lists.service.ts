@@ -96,4 +96,10 @@ export class ListsService extends BaseService {
       tenantId 
     });
   }
+
+  // Get all published lists for dashboard
+  getAllPublishLists(storeId?: string, tenantId?: string): Observable<any> {
+    const payload = storeId && tenantId ? { storeId, tenantId } : {};
+    return this.post<any>(`Dashboard/GetAllPublishList`, payload);
+  }
 }
