@@ -40,50 +40,6 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <!-- List Info Card -->
-    <div class="info-card">
-      <div class="info-header">
-        <div class="info-icon">
-          <i class="fas fa-info-circle"></i>
-        </div>
-        <h3 class="info-title">Liste Bilgileri</h3>
-      </div>
-      <div class="info-body">
-        <div class="description-section">
-          <h4 class="section-title">Açıklama</h4>
-          <p class="description-text">{{ list?.description || 'Bu liste için açıklama eklenmemiş.' }}</p>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-box"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{{ list?.items?.length || 0 }}</div>
-              <div class="stat-label">Ürün</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-calculator"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{{ getTotalPrice() | currency:'TRY':'symbol':'1.2-2' }}</div>
-              <div class="stat-label">Toplam Tutar</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{{ list?.createdAt | date:'dd.MM.yyyy' }}</div>
-              <div class="stat-label">Oluşturulma</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Items Card -->
     <div class="items-card">
@@ -94,7 +50,7 @@
           </div>
           <h3>Listedeki Ürünler</h3>
         </div>
-        <button class="add-item-btn">
+        <button class="add-item-btn" (click)="showAddItemDialog()">
           <i class="fas fa-plus"></i>
           <span>Ürün Ekle</span>
         </button>
@@ -102,12 +58,9 @@
       <div class="items-body">
         <div *ngIf="list?.items?.length > 0; else emptyItems" class="items-table">
           <div class="table-header">
-            <div class="header-cell">Ürün</div>
-            <div class="header-cell">Açıklama</div>
-            <div class="header-cell text-center">Miktar</div>
-            <div class="header-cell text-end">Birim Fiyat</div>
-            <div class="header-cell text-end">Toplam</div>
-            <div class="header-cell text-end">İşlemler</div>
+            <div class="header-cell">Ürün</div>  
+            <div class="header-cell ">Birim Fiyat</div> 
+            <div class="header-cell  ">İşlemler</div>
           </div>
           <div class="table-body">
             <div *ngFor="let item of list.items; trackBy: trackByItemId" class="table-row">
@@ -117,26 +70,17 @@
                     <i class="fas fa-box"></i>
                   </div>
                   <div class="product-details">
-                    <div class="product-name">{{ item.name }}</div>
-                    <div class="product-id">ID: {{ item.id | slice:0:8 }}...</div>
+                    <div class="product-name">{{ item.productName }}</div>
                   </div>
                 </div>
-              </div>
-              <div class="table-cell">
-                <div class="product-description">{{ item.description || '-' }}</div>
-              </div>
-              <div class="table-cell text-center">
-                <div class="quantity-badge">
-                  {{ item.quantity }} {{ item.unit || 'adet' }}
-                </div>
-              </div>
-              <div class="table-cell text-end">
+              </div>  
+              <div class="table-cell  ">
                 <div class="price">{{ item.price | currency:'TRY':'symbol':'1.2-2' }}</div>
               </div>
-              <div class="table-cell text-end">
+              <div class="table-cell ">
                 <div class="total-price">{{ (item.price * item.quantity) | currency:'TRY':'symbol':'1.2-2' }}</div>
               </div>
-              <div class="table-cell text-end">
+              <div class="table-cell ">
                 <div class="item-actions">
                   <button class="item-action-btn edit" title="Düzenle">
                     <i class="fas fa-edit"></i>
@@ -174,9 +118,75 @@
     </div>
     <h3 class="empty-title">Henüz Ürün Yok</h3>
     <p class="empty-description">Bu listede henüz ürün bulunmuyor</p>
-    <button class="add-first-item-btn">
+    <button class="add-first-item-btn" (click)="showAddItemDialog()">
       <i class="fas fa-plus"></i>
       <span>İlk Ürünü Ekle</span>
     </button>
   </div>
 </ng-template>
+
+<!-- Add Item Modal -->
+<div class="modal-overlay" *ngIf="showAddItemModal" (click)="hideAddItemDialog()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Yeni Ürün Ekle</h3>
+      <button class="modal-close" (click)="hideAddItemDialog()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form class="add-item-form">
+        <div class="form-group">
+          <label for="productName">Ürün Adı *</label>
+          <input 
+            type="text" 
+            id="productName" 
+            class="form-control" 
+            [(ngModel)]="newItem.ProductName" 
+            name="productName"
+            placeholder="Ürün adını giriniz"
+            required>
+        </div>
+        <div class="form-group">
+          <label for="price">Birim Fiyat *</label>
+          <input 
+            type="number" 
+            id="price" 
+            class="form-control" 
+            [(ngModel)]="newItem.Price" 
+            name="price"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+            required>
+        </div>
+        <div class="form-group">
+          <label for="discount">İndirim (%)</label>
+          <input 
+            type="number" 
+            id="discount" 
+            class="form-control" 
+            [(ngModel)]="newItem.Discount" 
+            name="discount"
+            placeholder="0"
+            step="0.01"
+            min="0">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="hideAddItemDialog()">
+        <i class="fas fa-times me-2"></i>İptal
+      </button>
+      <button class="btn btn-primary" (click)="createListItem()" [disabled]="isCreatingItem">
+        <span *ngIf="!isCreatingItem">
+          <i class="fas fa-plus me-2"></i>Ürün Ekle
+        </span>
+        <span *ngIf="isCreatingItem">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Ekleniyor...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

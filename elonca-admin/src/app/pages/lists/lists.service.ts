@@ -15,6 +15,19 @@ export interface ListItem {
   price: number;
   quantity: number;
   unit?: string;
+  discount?: number;
+}
+
+export interface CreateListItemRequest {
+  ListId: string;
+  ProductName: string;
+  Price: number;
+  Discount: number;
+}
+
+export interface PublishListItemRequest {
+  ListId: string;
+  IsPublish: boolean;
 }
 
 export interface ProductList {
@@ -22,6 +35,7 @@ export interface ProductList {
   name: string;
   description: string;
   lastPublishDate: string;
+  isPublish: boolean;
   storeId: string;
   store?: any;
   listItems?: any[];
@@ -60,6 +74,26 @@ export class ListsService extends BaseService {
   deleteList(id: string, storeId: string, tenantId: string): Observable<any> {
     return this.post  <any>(`ProductList/delete`, { 
       body: { id, storeId, tenantId } 
+    });
+  }
+
+  // Get all list items
+  getAllListItems(listId: string, storeId: string, tenantId: string): Observable<any> {
+    return this.post<any>(`ProductList/GetAllListItems`, { listId, storeId, tenantId });
+  }
+
+  // Create new list item
+  createListItem(listItem: CreateListItemRequest, storeId: string, tenantId: string): Observable<any> {
+    return this.post<any>(`ProductList/CreateListItem`, { ...listItem, storeId, tenantId });
+  }
+
+  // Publish list
+  publishList(listId: string, isPublish: boolean, storeId: string, tenantId: string): Observable<any> {
+    return this.post<any>(`ProductList/PublisListItem`, { 
+      ListId: listId, 
+      IsPublish: isPublish, 
+      storeId, 
+      tenantId 
     });
   }
 }

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { BaseComponent } from '../../../core/base.component';
 import { SwalService } from '../../../core/swal.service';
-import { ListsService } from '../lists.service';
+import { ListsService, CreateListItemRequest } from '../lists.service';
 
 @Component({
   selector: 'app-list-detail',
@@ -18,6 +18,14 @@ export class ListDetailComponent extends BaseComponent implements OnInit {
   list: any = null;
   isLoading = false;
   isDeleting = false;
+  showAddItemModal = false;
+  newItem: CreateListItemRequest = {
+    ListId: '',
+    ProductName: '',
+    Price: 0,
+    Discount: 0
+  };
+  isCreatingItem = false;
 
   // Add getters for storeId and tenantId
   get storeId(): string {
@@ -67,6 +75,9 @@ export class ListDetailComponent extends BaseComponent implements OnInit {
             items: response.data.listItems || []
           };
           console.log('List loaded from API:', this.list);
+          
+          // Load list items separately
+          this.loadListItems();
         } else {
           // If API fails, use mock data
           console.log('API failed, using mock data');
@@ -185,5 +196,74 @@ export class ListDetailComponent extends BaseComponent implements OnInit {
     return this.list.items.reduce((total: number, item: any) => {
       return total + (item.price * item.quantity);
     }, 0);
+  }
+
+  // Load list items from API
+  loadListItems(): void {
+    if (!this.list?.id) return;
+    
+    this.listsService.getAllListItems(this.list.id, this.storeId, this.tenantId).subscribe({
+      next: (response) => {
+        if (response?.isSuccess && response.data) {
+          this.list.items = response.data;
+          console.log('List items loaded:', this.list.items);
+        }
+      },
+      error: (error) => {
+        console.error('List items yüklenirken hata:', error);
+      }
+    });
+  }
+
+  // Show add item modal
+  showAddItemDialog(): void {
+    this.newItem = {
+      ListId: this.list.id,
+      ProductName: '',
+      Price: 0,
+      Discount: 0
+    };
+    this.showAddItemModal = true;
+  }
+
+  // Hide add item modal
+  hideAddItemDialog(): void {
+    this.showAddItemModal = false;
+    this.newItem = {
+      ListId: '',
+      ProductName: '',
+      Price: 0,
+      Discount: 0
+    };
+  }
+
+  // Create new list item
+  createListItem(): void {
+    if (!this.newItem.ProductName || this.newItem.Price <= 0) {
+      this.swalService.error('Lütfen ürün adı ve fiyatı giriniz');
+      return;
+    }
+
+    this.isCreatingItem = true;
+    this.listsService.createListItem(this.newItem, this.storeId, this.tenantId).pipe(
+      finalize(() => {
+        this.isCreatingItem = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        if (response?.isSuccess) {
+          this.swalService.success('Ürün başarıyla eklendi').then(() => {
+            this.hideAddItemDialog();
+            this.loadListItems(); // Reload items
+          });
+        } else {
+          this.swalService.error(response?.message || 'Ürün eklenirken hata oluştu');
+        }
+      },
+      error: (error) => {
+        console.error('Ürün eklenirken hata:', error);
+        this.swalService.error('Ürün eklenirken hata oluştu');
+      }
+    });
   }
 }
