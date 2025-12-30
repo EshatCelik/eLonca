@@ -197,6 +197,10 @@
               <i class="fas fa-toggle-on me-1"></i>
               Durum
             </th>
+            <th style="width: 90px;" class="text-center">
+              <i class="fas fa-share-alt me-1"></i>
+              Yayın Durumu
+            </th>
             <th style="width: 100px;" class="text-center">
               <i class="fas fa-calendar-check me-1"></i>
               Son Yayın
@@ -257,6 +261,19 @@
               </div>
             </td>
             
+            <!-- Yayın Durumu -->
+            <td class="text-center">
+              <div class="publish-status-toggle">
+                <span 
+                  class="publish-status-badge" 
+                  [ngClass]="isListPublished(list) ? 'publish-status-published' : 'publish-status-not-published'"
+                >
+                  <i [class]="isListPublished(list) ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                  {{ isListPublished(list) ? 'Yayında' : 'Yayında Değil' }}
+                </span>
+              </div>
+            </td>
+            
             <!-- Son Yayın Tarihi -->
             <td class="text-center">
               <div class="date-card">
@@ -274,6 +291,30 @@
             <!-- İşlemler -->
             <td class="text-end">
               <div class="action-buttons">
+                <button 
+                  *ngIf="!isListPublished(list)"
+                  class="action-btn publish-btn" 
+                  (click)="onPublishList(list)"
+                  [disabled]="publishingId === list.id"
+                  title="Yayınla"
+                >
+                  <i 
+                    *ngIf="publishingId !== list.id" 
+                    class="fas fa-share-alt"
+                  ></i>
+                  <span 
+                    *ngIf="publishingId === list.id" 
+                    class="spinner-border spinner-border-sm"
+                  ></span>
+                </button>
+                <button 
+                  *ngIf="isListPublished(list)"
+                  class="action-btn published-btn" 
+                  title="Yayında"
+                  disabled
+                >
+                  <i class="fas fa-check-circle"></i>
+                </button>
                 <button 
                   class="action-btn edit-btn" 
                   [routerLink]="['/lists', list.id!]"

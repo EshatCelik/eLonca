@@ -8,6 +8,6 @@ namespace eLonca.Domain.Entities
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
         public Guid ProductListId { get; set; }
-        public ProductList ProductList { get; set; }
+        public virtual ProductList ProductList { get; set; }
     }
 }

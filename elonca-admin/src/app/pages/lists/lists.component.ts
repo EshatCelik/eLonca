@@ -20,11 +20,15 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
   lists: ProductList[] = [];
   filteredLists: ProductList[] = [];
   isLoading = false;
-  errorMessage = '';
-  deletingId: string | null = null;
-  
-  // Filter variables
   searchTerm = '';
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+  isCreating = false;
+  deletingId: string | null = null;
+  publishingId: string | null = null;
+  private subscriptions: Subscription[] = [];
+  errorMessage = '';
   dateFilter = '';
   statusFilter = 'all';
 
@@ -94,6 +98,7 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
         name: 'Alışveriş Listesi',
         description: 'Haftalık alışveriş listesi',
         lastPublishDate: new Date().toISOString(),
+        isPublish: false,
         storeId: this.storeId,
         store: null,
         listItems: [
@@ -116,6 +121,7 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
         name: 'Doğum Günü Partisi',
         description: 'Parti malzemeleri listesi',
         lastPublishDate: new Date().toISOString(),
+        isPublish: true,
         storeId: this.storeId,
         store: null,
         listItems: [
@@ -138,6 +144,7 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
         name: 'Ofis Malzemeleri',
         description: 'Ofis için gerekli temel malzemeler',
         lastPublishDate: new Date().toISOString(),
+        isPublish: false,
         storeId: this.storeId,
         store: null,
         listItems: [
@@ -160,6 +167,7 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
         name: 'Bahçe Malzemeleri',
         description: 'Bahçe bakım ürünleri',
         lastPublishDate: new Date().toISOString(),
+        isPublish: true,
         storeId: this.storeId,
         store: null,
         listItems: [
@@ -182,6 +190,7 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
         name: 'Kamp Malzemeleri',
         description: 'Kamping ekipmanları',
         lastPublishDate: new Date().toISOString(),
+        isPublish: false,
         storeId: this.storeId,
         store: null,
         listItems: [
@@ -293,6 +302,41 @@ export class ListsComponent extends BaseComponent implements OnInit, OnDestroy {
             });
         }
       });
+  }
+
+  onPublishList(list: ProductList): void {
+    this.swalService.confirm(
+      `"${list.name}" listesini yayınlamak istiyor musunuz?`,
+      'Liste yayınlandığında tüm kullanıcılar tarafından görülebilir hale gelecektir.'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.publishingId = list.id;
+        
+        this.listsService.publishList(list.id, true, this.storeId, this.tenantId)
+          .subscribe({
+            next: (response) => {
+              if (response && response.isSuccess) {
+                this.swalService.success('Liste başarıyla yayınlandı.');
+                this.loadLists();
+              } else {
+                this.swalService.error(response?.message || 'Liste yayınlanırken bir hata oluştu.');
+              }
+            },
+            error: (error) => {
+              console.error('Liste yayınlanırken hata:', error);
+              this.swalService.error('Liste yayınlanırken bir hata oluştu.');
+            },
+            complete: () => {
+              this.publishingId = null;
+            }
+          });
+      }
+    });
+  }
+
+  isListPublished(list: ProductList): boolean {
+    // Backend'den gelen isPublish alanını kullan
+    return list.isPublish === true;
   }
 
   get filteredListsResult(): ProductList[] {
