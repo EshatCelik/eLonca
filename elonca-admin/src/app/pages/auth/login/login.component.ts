@@ -82,4 +82,16 @@ export class LoginComponent extends BaseComponent {
         }
       });
   }
+
+  onForgotPassword(): void {
+    // Şifremi unuttum işlemleri
+    console.log('Şifremi unuttum tıklandı');
+    
+    // Geçici olarak sadece alert göster
+    // İleride buraya şifre sıfırlama sayfası veya modal eklenebilir
+    this.swalService.info(
+      'Şifremi Unuttum',
+      'Şifre sıfırlama linki e-posta adresinize gönderilecek.\n\nBu özellik yakında aktif olacak.'
+    );
+  }
 }

@@ -95,6 +95,8 @@ export class AuthService {
   logout(): void {
     this.clearToken();
     this.clearTenantId();
+    // BaseComponent'in authData'sını da temizle
+    this.clearAuthData();
     this._isAuthenticated.set(false);
     this.router.navigate(['/login']);
   }
@@ -159,6 +161,19 @@ export class AuthService {
     try {
       localStorage.removeItem(this.tenantIdKey);
     } catch {}
+  }
+
+  private clearAuthData(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
+    try {
+      localStorage.removeItem('authData');
+      console.log('AuthData cleared from localStorage');
+    } catch (error) {
+      console.log('Failed to clear authData:', error);
+    }
   }
 
   registerTenant(payload: any) {
