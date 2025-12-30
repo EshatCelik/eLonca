@@ -596,11 +596,198 @@
         }
         
         .story-products {
-          padding: 1rem;
+          padding: 2rem;
           
-          .products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 0.75rem;
+          .products-table-container {
+            max-height: 550px;
+            overflow-y: auto;
+            border-radius: 16px;
+            background: #0f172a;
+            border: 3px solid #3b82f6;
+            box-shadow: 
+              0 0 40px rgba(59, 130, 246, 0.5),
+              0 0 80px rgba(59, 130, 246, 0.3),
+              inset 0 0 20px rgba(59, 130, 246, 0.1);
+            position: relative;
+            
+            .products-table {
+              width: 100%;
+              border-collapse: separate;
+              border-spacing: 0;
+              font-size: 1.1rem;
+              
+              thead {
+                background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+                color: white;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                
+                th {
+                  padding: 2rem;
+                  font-weight: 800;
+                  text-align: left;
+                  font-size: 1rem;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  color: #ffffff;
+                  border-bottom: 3px solid #3b82f6;
+                  text-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+                  
+                  &.text-end {
+                    text-align: right;
+                  }
+                }
+              }
+              
+              tbody {
+                tr {
+                  border-bottom: 2px solid #1e293b;
+                  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                  
+                  &:hover {
+                    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+                    transform: translateX(8px) scale(1.02);
+                    box-shadow: 
+                      0 0 30px rgba(59, 130, 246, 0.4),
+                      0 0 60px rgba(59, 130, 246, 0.2);
+                    
+                    .product-icon {
+                      background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+                      transform: scale(1.2) rotate(10deg);
+                      box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+                    }
+                    
+                    .current-price {
+                      color: #10b981;
+                      font-weight: 800;
+                      font-size: 1.3rem;
+                      text-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+                    }
+                    
+                    .discount-badge {
+                      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                      transform: scale(1.2);
+                      box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+                    }
+                  }
+                  
+                  &:last-child {
+                    border-bottom: none;
+                  }
+                  
+                  td {
+                    padding: 2rem;
+                    vertical-align: middle;
+                    color: #f1f5f9;
+                    font-weight: 500;
+                    
+                    &.product-name-cell {
+                      .product-name {
+                        display: flex;
+                        align-items: center;
+                        gap: 1.5rem;
+                        font-weight: 700;
+                        color: #ffffff;
+                        font-size: 1.2rem;
+                        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+                        
+                        .product-icon {
+                          width: 48px;
+                          height: 48px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+                          color: white;
+                          border-radius: 12px;
+                          font-size: 1.2rem;
+                          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+                          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                        }
+                      }
+                    }
+                    
+                    &.price-cell {
+                      .price-container {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+                        gap: 0.75rem;
+                        
+                        .original-price {
+                          font-size: 1rem;
+                          color: #9ca3af;
+                          text-decoration: line-through;
+                          font-weight: 600;
+                        }
+                        
+                        .current-price {
+                          font-weight: 800;
+                          color: #10b981;
+                          font-size: 1.3rem;
+                          
+                          &::before {
+                            content: '₺';
+                            font-size: 0.9rem;
+                            margin-right: 0.2rem;
+                          }
+                        }
+                      }
+                    }
+                    
+                    &.discount-cell {
+                      .discount-badge {
+                        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                        color: white;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 12px;
+                        font-size: 1rem;
+                        font-weight: 800;
+                        display: inline-block;
+                        min-width: 60px;
+                        text-align: center;
+                        box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+                      }
+                      
+                      .no-discount {
+                        color: #6b7280;
+                        font-weight: 600;
+                        font-size: 1rem;
+                        padding: 0.75rem 1.5rem;
+                        background: rgba(107, 114, 128, 0.3);
+                        border-radius: 12px;
+                        display: inline-block;
+                        min-width: 60px;
+                        text-align: center;
+                        border: 2px solid #374151;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            
+            // Large scrollbar
+            &::-webkit-scrollbar {
+              width: 12px;
+            }
+            
+            &::-webkit-scrollbar-track {
+              background: #1e293b;
+              border-radius: 6px;
+              border: 2px solid #3b82f6;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+              background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+              border-radius: 6px;
+              border: 2px solid #1e293b;
+              
+              &:hover {
+                background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
+              }
+            }
           }
         }
       }

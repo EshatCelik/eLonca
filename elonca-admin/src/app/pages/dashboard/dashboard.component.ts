@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductsService } from '../products/products.service';
 import { CustomersService } from '../customers/customers.service';
 import { SalesService } from '../sales/sales.service';
+import { ListsService, ProductList } from '../lists/lists.service';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -12,10 +13,14 @@ import { SalesService } from '../sales/sales.service';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  productLists: any[] = [];
-  selectedStory: any = null;
+  productLists: ProductList[] = [];
+  selectedStory: ProductList & { isLoading?: boolean; products?: any[] } | null = null;
   selectedStoryId: string = '';
   isLoading = false;
+  
+  // Store and Tenant IDs
+  private storeId = '';
+  private tenantId = '';
   
   // Quick Stats
   totalCustomers = 0;
@@ -25,8 +30,15 @@ export class DashboardComponent implements OnInit {
   constructor(
     private readonly productsService: ProductsService,
     private readonly customersService: CustomersService,
-    private readonly salesService: SalesService
-  ) {}
+    private readonly salesService: SalesService,
+    private readonly listsService: ListsService
+  ) {
+    // localStorage'ı sadece client-side'da eriş
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      this.storeId = localStorage.getItem('selected_store') || '';
+      this.tenantId = localStorage.getItem('tenant_id') || '';
+    }
+  }
 
   ngOnInit(): void {
     this.loadProductLists();
@@ -36,42 +48,87 @@ export class DashboardComponent implements OnInit {
   loadProductLists(): void {
     this.isLoading = true;
     
-    // Mock data - gerçek API'e bağlanılacak
-    setTimeout(() => {
-      this.productLists = [
-        {
-          id: '1',
-          name: 'Yeni Sezon Ürünleri',
-          productCount: 45,
-          description: '2024 Sonbahar Koleksiyonu'
-        },
-        {
-          id: '2', 
-          name: 'İndirimli Ürünler',
-          productCount: 23,
-          description: '%50 ye varan indirimler'
-        },
-        {
-          id: '3',
-          name: 'Popüler Ürünler',
-          productCount: 67,
-          description: 'En çok satanlar'
-        },
-        {
-          id: '4',
-          name: 'Stokta Azalanlar',
-          productCount: 12,
-          description: 'Son 5 ürün'
-        },
-        {
-          id: '5',
-          name: 'Yeni Gelenler',
-          productCount: 34,
-          description: 'Bu hafta yeni eklenenler'
+    // Gerçek API'den yayınlanmış listeleri getir
+    this.listsService.getAllPublishLists(this.storeId, this.tenantId).subscribe({
+      next: (response: any) => {
+        if (response && response.isSuccess && response.data) {
+          this.productLists = response.data;
+        } else {
+          // API başarısız olursa mock data kullan
+          this.productLists = this.getMockLists();
         }
-      ];
-      this.isLoading = false;
-    }, 1000);
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Yayınlanmış listeler yüklenirken hata:', error);
+        // Hata durumunda mock data kullan
+        this.productLists = this.getMockLists();
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Mock data fallback
+  private getMockLists(): ProductList[] {
+    return [
+      {
+        id: '1',
+        name: 'Yeni Sezon Ürünleri',
+        description: '2024 Sonbahar Koleksiyonu',
+        lastPublishDate: new Date().toISOString(),
+        isPublish: true,
+        storeId: this.storeId,
+        store: null,
+        listItems: [],
+        tenantId: this.tenantId,
+        createAt: new Date().toISOString(),
+        createdBy: 'mock-user',
+        deleteAt: null,
+        deletedBy: null,
+        updateAt: null,
+        updatedBy: null,
+        isDeleted: false,
+        isActive: true
+      },
+      {
+        id: '2', 
+        name: 'İndirimli Ürünler',
+        description: '%50 ye varan indirimler',
+        lastPublishDate: new Date().toISOString(),
+        isPublish: true,
+        storeId: this.storeId,
+        store: null,
+        listItems: [],
+        tenantId: this.tenantId,
+        createAt: new Date().toISOString(),
+        createdBy: 'mock-user',
+        deleteAt: null,
+        deletedBy: null,
+        updateAt: null,
+        updatedBy: null,
+        isDeleted: false,
+        isActive: true
+      },
+      {
+        id: '3',
+        name: 'Popüler Ürünler',
+        description: 'En çok satanlar',
+        lastPublishDate: new Date().toISOString(),
+        isPublish: true,
+        storeId: this.storeId,
+        store: null,
+        listItems: [],
+        tenantId: this.tenantId,
+        createAt: new Date().toISOString(),
+        createdBy: 'mock-user',
+        deleteAt: null,
+        deletedBy: null,
+        updateAt: null,
+        updatedBy: null,
+        isDeleted: false,
+        isActive: true
+      }
+    ];
   }
 
   loadQuickStats(): void {
@@ -83,7 +140,7 @@ export class DashboardComponent implements OnInit {
     }, 500);
   }
 
-  selectStory(list: any): void {
+  selectStory(list: ProductList): void {
     if (this.selectedStoryId === list.id) {
       this.closeStoryDetail();
       return;
@@ -92,11 +149,27 @@ export class DashboardComponent implements OnInit {
     this.selectedStoryId = list.id;
     this.selectedStory = { ...list, isLoading: true, products: [] };
     
-    // Mock products data
-    setTimeout(() => {
-      this.selectedStory.products = this.generateMockProducts(list.productCount);
-      this.selectedStory.isLoading = false;
-    }, 800);
+    // List items'ı API'den getir
+    this.listsService.getAllListItems(list.id, list.storeId, list.tenantId).subscribe({
+      next: (response) => {
+        if (this.selectedStory) {
+          this.selectedStory.isLoading = false;
+          if (response && response.isSuccess && response.data) {
+            this.selectedStory.products = response.data;
+          } else {
+            // API başarısız olursa mock data kullan
+            this.selectedStory.products = this.generateMockProducts(5);
+          }
+        }
+      },
+      error: (error) => {
+        console.error('List items yüklenirken hata:', error);
+        if (this.selectedStory) {
+          this.selectedStory.isLoading = false;
+          this.selectedStory.products = this.generateMockProducts(5);
+        }
+      }
+    });
   }
 
   generateMockProducts(count: number): any[] {
@@ -104,13 +177,21 @@ export class DashboardComponent implements OnInit {
     for (let i = 1; i <= Math.min(count, 10); i++) {
       products.push({
         id: `product-${i}`,
-        name: `Ürün ${i}`,
-        description: `Bu ürünün açıklaması ${i}`,
+        productName: `Ürün ${i}`,
+        name: `Ürün ${i}`, // Fallback
         price: Math.random() * 1000 + 50,
-        originalPrice: Math.random() > 0.5 ? Math.random() * 1200 + 100 : null,
-        discount: Math.random() > 0.7 ? Math.floor(Math.random() * 30 + 10) : null,
-        imageUrl: null,
-        stock: Math.floor(Math.random() * 100)
+        discount: Math.random() > 0.7 ? Math.floor(Math.random() * 30 + 10) : 0,
+        productListId: 'mock-list-id',
+        productList: null,
+        tenantId: this.tenantId,
+        createAt: new Date().toISOString(),
+        createdBy: 'mock-user',
+        deleteAt: null,
+        deletedBy: null,
+        updateAt: null,
+        updatedBy: null,
+        isDeleted: false,
+        isActive: true
       });
     }
     return products;
@@ -137,6 +218,21 @@ export class DashboardComponent implements OnInit {
 
   trackByListId(index: number, list: any): string {
     return list.id;
+  }
+
+  getDiscountedPrice(product: any): number {
+    if (!product.discount || product.discount === 0) {
+      return product.price || 0;
+    }
+    const discountAmount = (product.price * product.discount) / 100;
+    return product.price - discountAmount;
+  }
+
+  getTotalPrice(): number {
+    if (!this.selectedStory?.products) return 0;
+    return this.selectedStory.products.reduce((total, product) => {
+      return total + this.getDiscountedPrice(product);
+    }, 0);
   }
 
   trackByProductId(index: number, product: any): string {

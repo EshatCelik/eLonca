@@ -8,5 +8,6 @@ namespace eLonca.Domain.Interfaces
         Task<Result<ProductList>> CheckName(string name, Guid storeId);
         Task<Result<List<ProductListItem>>> GetProductListItem(Guid listId);
         Task<Result<ProductList>> PublistProductList(Guid listId);
+        Task<Result<List<ProductList>>> GetAllPublishProductListForDashboard();
     }
 }
