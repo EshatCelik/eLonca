@@ -281,6 +281,9 @@ export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
   onLogout(): void {
     this.removeDropdown();
     this.showUserMenu = false;
+    // BaseComponent'in clearUserData metodunu çağır
+    this.clearUserData();
+    // AuthService logout metodunu çağır
     this.authService.logout();
   }
 
