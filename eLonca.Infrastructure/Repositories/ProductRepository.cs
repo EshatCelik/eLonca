@@ -30,7 +30,7 @@ namespace eLonca.Infrastructure.Repositories
             return Result.Success("Ürün Stokta bulunuyor", 200);
         }
 
-        public async Task<Result> UpdateProductStock(List<SaleItem> items, Sale sale)
+        public async Task<Result> UpdateProductStock(List<SaleItem> items, Sale sale,Guid? storeId)
         {
             foreach (var item in items)
             {
@@ -40,6 +40,7 @@ namespace eLonca.Infrastructure.Repositories
                     ProductId = item.Product.Id,
                     Quantity = item.Quantity ?? 0,
                     MovementDate = DateTime.Now,
+                    StoreId=storeId,
                     MovementType = MovementType.Out,
                     Notes = $"{item.Product.ProductName}=>{item.Quantity} kadar satıldı, stoktan çıkarıldı",
 
