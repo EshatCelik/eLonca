@@ -18,9 +18,9 @@ export class DashboardComponent implements OnInit {
   selectedStoryId: string = '';
   isLoading = false;
   
-  // Store and Tenant IDs
-  private storeId = '';
-  private tenantId = '';
+  // Store and Tenant IDs - public for template access
+  storeId = '';
+  tenantId = '';
   
   // Quick Stats
   totalCustomers = 0;
@@ -37,6 +37,11 @@ export class DashboardComponent implements OnInit {
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       this.storeId = localStorage.getItem('selected_store') || '';
       this.tenantId = localStorage.getItem('tenant_id') || '';
+      
+      // Eğer store ID boşsa, tenant ID'den al
+      if (!this.storeId && this.tenantId) {
+        this.storeId = this.tenantId;
+      }
     }
   }
 

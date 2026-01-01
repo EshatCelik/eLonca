@@ -7,6 +7,7 @@ using eLonca.Application.Commands.ProductListCommand.ProductListItemCreateComman
 using eLonca.Application.Commands.ProductListCommand.PublishProductList;
 using eLonca.Application.Queries.ProductListQueries.GetAllProductList;
 using eLonca.Application.Queries.ProductListQueries.GetAllProductListItem;
+using eLonca.Application.Queries.ProductListQueries.GetProductListById;
 using eLonca.Application.Queries.ProductQueries.GetProductById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace eLonca.Api.Controllers
             return Ok(response);
         }
         [HttpPost]
-        public async Task<IActionResult> GetById(GetProductByIdQueryResponse getAllProductCommand)
+        public async Task<IActionResult> GetById(GetProductListByIdQueryResponse getAllProductCommand)
         {
             var response = await _mediator.Send(getAllProductCommand);
             return Ok(response);
