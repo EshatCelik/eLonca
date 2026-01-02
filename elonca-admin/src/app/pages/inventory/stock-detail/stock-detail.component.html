@@ -69,6 +69,7 @@
             <tr>
               <th><i class="fas fa-info-circle"></i> İşlem Türü</th>
               <th><i class="fas fa-user"></i> İşlem Yapan</th>
+              <th><i class="fas fa-user"></i> Ürün Firması</th>
               <th><i class="fas fa-calendar"></i> Tarih</th>
               <th><i class="fas fa-sort-numeric-up"></i> Miktar</th>
               <th><i class="fas fa-sticky-note"></i> Not</th>
@@ -87,6 +88,12 @@
                   <div class="user-info">
                     <i class="fas fa-user-circle"></i>
                     <span>{{ movement.stockCreateUserName || movement.userName || 'Bilinmeyen' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ movement.companyName  || 'Bilinmeyen' }}</span>
                   </div>
                 </td>
                 <td>

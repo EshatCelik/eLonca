@@ -24,8 +24,7 @@ namespace eLonca.Application.Commands.ProductCommands.ProductUpdate
             var product = await _productRepository.GetByIdAsync(request.Id);
             if (product == null) { return product; }
 
-            product.Data.Barcode = request.Barcode;
-            product.Data.CurrentStock = request.CurrentStock;
+            product.Data.Barcode = request.Barcode; 
             product.Data.MinStockLevel = request.MinStockLevel;
             product.Data.CategoryId = request.CategoryId ?? Guid.Empty;
             product.Data.Description = request.Description;
@@ -33,6 +32,8 @@ namespace eLonca.Application.Commands.ProductCommands.ProductUpdate
             product.Data.ProductCode = request.ProductCode;
             product.Data.SalePrice = request.SalePrice;
             product.Data.PurchasePrice = request.PurchasePrice;
+            product.Data.WholesalePrice = request.WholesalePrice;
+            product.Data.RetailPrice = request.RetailPrice;
             product.Data.Unit = request.Unit;
 
             var result = await _productRepository.Update(product.Data, cancellationToken);

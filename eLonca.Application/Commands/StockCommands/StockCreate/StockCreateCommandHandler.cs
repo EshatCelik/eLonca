@@ -24,7 +24,8 @@ namespace eLonca.Application.Commands.StockCommands.StockCreate
                 MovementType = MovementType.In,
                 Quantity = request.Quantity,
                 Notes = $"{request.ProductName } Eklendi",
-                MovementDate = DateTime.Now
+                MovementDate = DateTime.Now,
+                CompanyId=request.CompanyId
             };
 
             var repsonse = await _stockRepository.CreateAsync(updateStock, cancellationToken);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eLonca.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    partial class LoncaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260102202410_mg22")]
+    partial class mg22
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -218,6 +221,9 @@ namespace eLonca.Infrastructure.Migrations
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("CurrentStock")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime2");

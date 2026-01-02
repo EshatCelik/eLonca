@@ -25,6 +25,8 @@ export class ProductsComponent implements OnInit {
     name: '',
     description: '',
     price: 0,
+    retailPrice:0,
+    wholesalePrice:0,
     stock: 0,
     barcode: '',
     sku: '',

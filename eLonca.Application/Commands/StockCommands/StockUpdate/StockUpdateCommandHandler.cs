@@ -31,6 +31,7 @@ namespace eLonca.Application.Commands.StockCommands.StockUpdate
                 Quantity = request.Quantity,
                 Notes = request.Note,
                 MovementDate = DateTime.Now,
+                CompanyId=request.CompanyId
             };
 
             var repsonse = await _stockRepository.CreateAsync(updateStock, cancellationToken);

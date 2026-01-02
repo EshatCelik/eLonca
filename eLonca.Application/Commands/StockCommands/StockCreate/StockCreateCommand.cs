@@ -9,6 +9,7 @@ namespace eLonca.Application.Commands.StockCommands.StockCreate
     {
         public Guid? StoreId { get; set; }
         public Guid? ProductId { get; set; }  
+        public Guid? CompanyId { get; set; }  
         public decimal Quantity { get; set; }
         public string ProductName { get; set; }
     }

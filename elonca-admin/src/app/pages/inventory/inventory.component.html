@@ -249,6 +249,31 @@
               placeholder="Miktar girin"
             >
           </div>
+          
+          <div class="input-group">
+            <label for="company">Firma Seçimi</label>
+            @if (isLoadingCompanies) {
+              <div class="loading-small">
+                <div class="spinner-small"></div>
+                <span>Firmalar yükleniyor...</span>
+              </div>
+            } @else if (availableCompanies.length === 0) {
+              <select class="form-input" disabled>
+                <option value="">Firma bulunmuyor</option>
+              </select>
+            } @else {
+              <select 
+                id="company" 
+                class="form-input" 
+                [(ngModel)]="selectedCompany"
+              >
+                <option value="">Firma seçin...</option>
+                @for (company of availableCompanies; track company.id) {
+                  <option [value]="company.id">{{ company.name }}</option>
+                }
+              </select>
+            }
+          </div>
         </div>
       </div>
       
@@ -258,7 +283,7 @@
             <i class="fas fa-times"></i>
             İptal
           </button>
-          <button class="btn btn-primary" (click)="addNewProduct()" [disabled]="isSaving || !quantity || quantity <= 0">
+          <button class="btn btn-primary" (click)="addNewProduct()" [disabled]="isSaving || !quantity || quantity <= 0 || !selectedCompany">
             <i class="fas fa-save"></i>
             {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
           </button>
@@ -350,6 +375,31 @@
             }
           </div>
           
+          <div class="input-group">
+            <label for="updateCompany">Firma Seçimi</label>
+            @if (isLoadingCompanies) {
+              <div class="loading-small">
+                <div class="spinner-small"></div>
+                <span>Firmalar yükleniyor...</span>
+              </div>
+            } @else if (availableCompanies.length === 0) {
+              <select class="form-input" disabled>
+                <option value="">Firma bulunmuyor</option>
+              </select>
+            } @else {
+              <select 
+                id="updateCompany" 
+                class="form-input" 
+                [(ngModel)]="selectedCompany"
+              >
+                <option value="">Firma seçin...</option>
+                @for (company of availableCompanies; track company.id) {
+                  <option [value]="company.id">{{ company.name }}</option>
+                }
+              </select>
+            }
+          </div>
+          
           @if (operation === 'remove') {
             <div class="input-group">
               <label for="stockNote">Not (Açıklama)</label>
@@ -372,17 +422,17 @@
             İptal
           </button>
           @if (operation === 'set') {
-            <button class="btn btn-primary" (click)="updateStock()" [disabled]="isSaving || !quantity || quantity < 0">
+            <button class="btn btn-primary" (click)="updateStock()" [disabled]="isSaving || !quantity || quantity < 0 || !selectedCompany">
               <i class="fas fa-save"></i>
               {{ isSaving ? 'Güncelleniyor...' : 'Güncelle' }}
             </button>
           } @else if (operation === 'add') {
-            <button class="btn btn-success" (click)="addNewProduct()" [disabled]="isSaving || !quantity || quantity <= 0">
+            <button class="btn btn-success" (click)="addNewProduct()" [disabled]="isSaving || !quantity || quantity <= 0 || !selectedCompany">
               <i class="fas fa-plus"></i>
               {{ isSaving ? 'Ekleniyor...' : 'Ekle' }}
             </button>
           } @else {
-            <button class="btn btn-warning" (click)="adjustStock('remove')" [disabled]="isSaving || !quantity || quantity <= 0 || (selectedInventoryItem && quantity > selectedInventoryItem.stockQuantity)">
+            <button class="btn btn-warning" (click)="adjustStock('remove')" [disabled]="isSaving || !quantity || quantity <= 0 || !selectedCompany || (selectedInventoryItem && quantity > selectedInventoryItem.stockQuantity)">
               <i class="fas fa-minus"></i>
               {{ isSaving ? 'Çıkarılıyor...' : 'Çıkar' }}
             </button>

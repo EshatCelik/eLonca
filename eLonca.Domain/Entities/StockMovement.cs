@@ -7,6 +7,7 @@ namespace eLonca.Domain.Entities
     {
         public Guid? StoreId { get; set; }
         public Guid? ProductId { get; set; }
+        public Guid? CompanyId { get; set; }
         public Guid? SaleId { get; set; }
         public MovementType MovementType { get; set; }
         public decimal Quantity { get; set; }
@@ -15,6 +16,7 @@ namespace eLonca.Domain.Entities
         public string? Notes { get; set; }
 
         // Navigation
+        public ProductCompany? Company { get; set; } = null!;
         public Tenant Tenant { get; set; } = null!;
         public Sale? Sale { get; set; } = null!;
         public Store? Store { get; set; } = null!;

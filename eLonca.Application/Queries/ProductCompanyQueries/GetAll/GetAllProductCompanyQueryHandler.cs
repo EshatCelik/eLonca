@@ -17,7 +17,7 @@ namespace eLonca.Application.Queries.ProductCompanyQueries.GetAll
 
         public async Task<Result<List<ProductCompany>>> Handle(GetAllProductCompanyQueryResponse request, CancellationToken cancellationToken)
         {
-            var list= await _productCompanyRepository.GetAllAsync(x=>x.StoreId == request.StoreId);
+            var list = await _productCompanyRepository.GetAllAsync(x => x.StoreId == request.StoreId && x.IsDeleted == false && x.IsActive);
             return list;
         }
     }

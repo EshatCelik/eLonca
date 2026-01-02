@@ -11,7 +11,8 @@ namespace eLonca.Application.Commands.ProductCommands.ProductUpdate
         public string ProductName { get; set; } = string.Empty;
         public decimal PurchasePrice { get; set; } // Satın alma fiyatı
         public decimal SalePrice { get; set; } //Satış fiyatı
-        public decimal CurrentStock { get; set; }
+        public decimal RetailPrice { get; set; } //Perakende satış
+        public decimal WholesalePrice { get; set; } //Toptan Fiyat satış
         public decimal MinStockLevel { get; set; }
         public string Unit { get; set; } = "Adet";
         public string? Description { get; set; }

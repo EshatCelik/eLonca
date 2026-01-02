@@ -108,6 +108,8 @@ export class ProductEditComponent implements OnInit {
       purchasePrice: this.product.purchasePrice,
       description: this.product.description,
       salePrice: this.product.salePrice,
+      wholesalePrice:this.product.wholesalePrice,
+      retailPrice:this.product.retailPrice,
       minStockLevel: this.product.minStockLevel, 
       storeId: this.product.storeId,
       categoryId: this.product.categoryId,

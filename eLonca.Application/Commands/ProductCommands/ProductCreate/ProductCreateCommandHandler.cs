@@ -25,6 +25,8 @@ namespace eLonca.Application.Commands.ProductCommands.ProductCreate
                 PurchasePrice = request.PurchasePrice,
                 Unit = request.Unit,
                 MinStockLevel = request.MinStockLevel,
+                WholesalePrice = request.WholesalePrice,
+                RetailPrice = request.RetailPrice,
 
             };
 
