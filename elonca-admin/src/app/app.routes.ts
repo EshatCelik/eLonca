@@ -25,6 +25,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { ChangePasswordComponent } from './pages/profile/change-password.component';
 import { InventoryComponent } from './pages/inventory/inventory.component';
 import { StockDetailComponent } from './pages/inventory/stock-detail/stock-detail.component';
+import { ProductCompaniesComponent } from './pages/product-companies/product-companies.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -48,6 +49,7 @@ export const routes: Routes = [
       { path: 'users/edit/:id', component: UserInfo },
       { path: 'stores', component: StoresComponent },
       { path: 'stores/edit/:id', component: StoreEditComponent },
+      { path: 'product-companies', component: ProductCompaniesComponent },
       { path: 'categories', component: CategoriesComponent },
       { path: 'categories/edit/:id', component: CategoryEditComponent },
       { path: 'products', component: ProductsComponent },

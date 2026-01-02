@@ -42,6 +42,12 @@ import { Subscription } from 'rxjs';
             </div>
             <span class="menu-text">Mağazalar</span>
           </a>
+          <a routerLink="product-companies" routerLinkActive="active" class="menu-item">
+            <div class="menu-icon">
+              <i class="fas fa-building"></i>
+            </div>
+            <span class="menu-text">Ürün Firmaları</span>
+          </a>
           <a routerLink="categories" routerLinkActive="active" class="menu-item">
             <div class="menu-icon">
               <i class="fas fa-tags"></i>

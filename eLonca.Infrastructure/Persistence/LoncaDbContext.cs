@@ -31,6 +31,7 @@ namespace eLonca.Infrastructure.Persistence
         public DbSet<Store> Stores { get; set; }
         public DbSet<ProductList> ProductLists { get; set; }
         public DbSet<ProductListItem> ProductListItems { get; set; }
+        public DbSet<ProductCompany> ProductCompanies { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

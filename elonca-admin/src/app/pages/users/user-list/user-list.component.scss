@@ -501,7 +501,7 @@
               color: #1976d2;
               
               &:hover {
-                background-color: darken(#e3f2fd, 5%);
+                background-color: scale-color(#e3f2fd, $lightness: -10.7594936709%);
               }
             }
             
@@ -510,7 +510,7 @@
               color: #d32f2f;
               
               &:hover {
-                background-color: darken(#ffebee, 5%);
+                background-color: scale-color(#ffebee, $lightness: -10.7594936709%);
               }
               
               &[disabled] {
@@ -557,7 +557,7 @@
       box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
       
       &:hover {
-        background: linear-gradient(135deg, darken(#667eea, 5%), darken(#764ba2, 5%));
+        background: linear-gradient(135deg, scale-color(#667eea, $lightness: -10.7594936709%), scale-color(#764ba2, $lightness: -10.7594936709%));
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
       }
     }
