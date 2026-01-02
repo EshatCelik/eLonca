@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eLonca.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    partial class LoncaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260101231519_mg20")]
+    partial class mg20
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -298,6 +301,10 @@ namespace eLonca.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
@@ -315,10 +322,6 @@ namespace eLonca.Infrastructure.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()

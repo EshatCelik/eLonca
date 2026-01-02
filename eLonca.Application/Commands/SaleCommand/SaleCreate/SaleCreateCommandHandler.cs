@@ -54,7 +54,7 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
                 };
 
                 var response = _saleRepository.CreateAsync(sale, cancellationToken);
-                var stockMovementResponse = _productRepository.UpdateProductStock(request.SaleItems, sale);
+                var stockMovementResponse = _productRepository.UpdateProductStock(request.SaleItems, sale,request.StoreId);
 
                 return response.Result;
             }

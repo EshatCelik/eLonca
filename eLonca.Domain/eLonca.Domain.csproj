@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Interfaces\IProductCompanyRepository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\eLonca.Common\eLonca.Common.csproj" />
   </ItemGroup>
 

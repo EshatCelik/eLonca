@@ -40,6 +40,7 @@ builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<IProductListRepository, ProductListRepository>();
 builder.Services.AddScoped<IProductListItemRepository, ProductListItemRepository>();
+builder.Services.AddScoped<IProductCompanyRepository, ProductCompanyRepository>();
 
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

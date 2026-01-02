@@ -1,0 +1,160 @@
+<div class="product-companies-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="fas fa-building"></i>
+        Ürün Firmaları
+      </h1>
+      <button class="btn btn-primary" (click)="onCreateCompany()">
+        <i class="fas fa-plus"></i>
+        Yeni Firma Ekle
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p>Ürün firmaları yükleniyor...</p>
+  </div>
+
+  <!-- Form (Create/Edit) -->
+  <div *ngIf="!isLoading && (isCreating || isEditing)" class="form-container">
+    <div class="form-card">
+      <div class="form-header">
+        <h2>{{ isCreating ? 'Yeni Firma Ekle' : 'Firma Düzenle' }}</h2>
+        <button class="btn btn-secondary btn-sm" (click)="cancelForm()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="onSaveCompany()" class="company-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Firma Adı *</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              [(ngModel)]="formData.name" 
+              required 
+              class="form-control"
+              placeholder="Firma adını girin">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="description">Address</label>
+            <textarea 
+              id="description" 
+              name="description" 
+              [(ngModel)]="formData.address" 
+              class="form-control"
+              rows="3"
+              placeholder="Firma adresi"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Telefon</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              [(ngModel)]="formData.phone" 
+              class="form-control"
+              placeholder="Telefon numarası">
+          </div> 
+        </div> 
+
+        
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            {{ isCreating ? 'Oluştur' : 'Güncelle' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+            <i class="fas fa-times"></i>
+            İptal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Companies List -->
+  <div *ngIf="!isLoading && !isCreating && !isEditing" class="companies-list">
+    <div class="list-header">
+      <h3>Firma Listesi</h3>
+      <div class="list-info">
+        Toplam {{ productCompanies.length }} firma
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="productCompanies.length === 0" class="empty-state">
+      <i class="fas fa-building"></i>
+      <p>Henüz ürün firması bulunmuyor</p>
+      <button class="btn btn-primary" (click)="onCreateCompany()">
+        <i class="fas fa-plus"></i>
+        İlk Firmayı Ekle
+      </button>
+    </div>
+
+    <!-- Companies Table -->
+    <div *ngIf="productCompanies.length > 0" class="table-container">
+      <table class="companies-table">
+        <thead>
+          <tr>
+            <th>Firma Adı</th>
+            <th>Telefon</th>
+            <th>Adres</th> 
+            <th>Durum</th>
+            <th class="text-center">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let company of productCompanies" [class.inactive]="!company.isActive">
+            <td>
+              <div class="company-name">
+                <strong>{{ company.name }}</strong> 
+              </div>
+            </td>
+            <td>{{ company.phone || '-' }}</td>
+            <td>{{ company.address || '-' }}</td> 
+            <td>
+              <span class="status-badge" [class.active]="company.isActive" [class.inactive]="!company.isActive">
+                {{ company.isActive ? 'Aktif' : 'Pasif' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-info" (click)="onEditCompany(company)" title="Düzenle">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm" 
+                        [class.btn-warning]="company.isActive" 
+                        [class.btn-success]="!company.isActive"
+                        (click)="toggleCompanyStatus(company)" 
+                        title="Durum Değiştir">
+                  <i class="fas" [class.fa-pause]="company.isActive" [class.fa-play]="!company.isActive"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="onDeleteCompany(company)" title="Sil">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
