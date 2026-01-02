@@ -8,7 +8,7 @@
 
 .main-content {
   padding: 20px;
-  padding-top: 90px;
+  padding-top: 20px; // Sticky header için azaltıldı
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -16,11 +16,11 @@
 }
 
 .page-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1; // Sticky için minimum z-index
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -691,10 +691,11 @@
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
-    padding-top: 80px;
+    padding-top: 1rem; // Sticky header için azaltıldı
   }
   
   .page-header {
+    z-index: 1; // Sticky için minimum z-index
     padding: 1rem;
     flex-direction: column;
     gap: 1rem;
