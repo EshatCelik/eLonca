@@ -9,7 +9,8 @@ namespace eLonca.Domain.Entities
         public string ProductName { get; set; } = string.Empty;
         public decimal PurchasePrice { get; set; }
         public decimal SalePrice { get; set; }
-        public decimal CurrentStock { get; set; }
+        public decimal RetailPrice { get; set; } //Perakende satış
+        public decimal WholesalePrice { get; set; } //Toptan Fiyat satış 
         public decimal MinStockLevel { get; set; }
         public string Unit { get; set; } = "Adet";
         public string? Description { get; set; }

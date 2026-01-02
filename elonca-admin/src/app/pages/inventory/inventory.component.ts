@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { BaseComponent } from '../../core/base.component';
 import { StockMovementService } from './stock-movement.service';
 import { ProductsService } from '../products/products.service';
+import { ProductCompaniesService } from '../product-companies/product-companies.service';
 import { SwalService } from '../../core/swal.service';
 import { finalize, timeout, catchError } from 'rxjs';
 import { of } from 'rxjs';
@@ -32,16 +33,20 @@ export class InventoryComponent extends BaseComponent implements OnInit {
   operation: 'add' | 'remove' | 'set' = 'add';
   selectedInventoryItem: any = null;
   stockNote: string = '';
+  selectedCompany: string = ''; // Firma seçimi için
   
   // Product data
   availableProducts: any[] = [];
+  availableCompanies: any[] = []; // Firma listesi
   isLoadingProducts = false; 
+  isLoadingCompanies = false; // Firma loading state 
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private cdr: ChangeDetectorRef,
     private stockMovementService: StockMovementService,
     private productsService: ProductsService,
+    private productCompaniesService: ProductCompaniesService,
     private swalService: SwalService,
     private router: Router
   ) {
@@ -51,6 +56,7 @@ export class InventoryComponent extends BaseComponent implements OnInit {
   ngOnInit(): void {
     this.loadInventory();
     this.loadAvailableProducts();
+    this.loadAvailableCompanies();
   }
 
   loadInventory(): void {
@@ -118,7 +124,45 @@ export class InventoryComponent extends BaseComponent implements OnInit {
       });
   }
 
-  loadAvailableProducts(): void {
+  loadAvailableCompanies(): void {
+    if (!this.isBrowser()) return;
+    
+    this.isLoadingCompanies = true;
+    
+    this.productCompaniesService.getAllProductCompanies({
+      tenantId: this.currentTenantId || (this.isBrowser() ? localStorage.getItem('tenant_id') : '') || '',
+      storeId: this.currentStoreId || (this.isBrowser() ? localStorage.getItem('selected_store') : '') || ''
+    })
+      .pipe(
+        timeout(10000),
+        catchError((err: any) => {
+          console.log('=== Companies load error ===', err);
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('=== Available Companies API Response ===', response);
+          
+          if (response?.isSuccess && response?.data) {
+            this.availableCompanies = response.data;
+          } else if (Array.isArray(response)) {
+            this.availableCompanies = response;
+          }
+          
+          console.log('=== Available companies loaded ===', this.availableCompanies);
+          this.isLoadingCompanies = false;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.log('=== Companies API error ===', err);
+          this.isLoadingCompanies = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+    
+    loadAvailableProducts(): void {
     if (!this.isBrowser()) return;
     
     this.isLoadingProducts = true;
@@ -244,20 +288,26 @@ export class InventoryComponent extends BaseComponent implements OnInit {
       return;
     }
 
+    if (!this.selectedCompany) {
+      this.swalService.error('Hata', 'Lütfen bir firma seçin.');
+      return;
+    }
+
     this.isSaving = true;
 
     const stockData = {
       productId: this.selectedInventoryItem.id,
-      productName:this.selectedInventoryItem.name,
+      productName: this.selectedInventoryItem.name,
       quantity: this.quantity,
       operation: 'add',
-      storeId:this.currentStoreId,
-
+      storeId: this.currentStoreId,
+      companyId: this.selectedCompany,
+      companyName: this.getCompanyName(this.selectedCompany)
     };
 
     console.log('=== Adding new product to inventory ===', stockData);
 
-    this.stockMovementService.create( stockData)
+    this.stockMovementService.create(stockData)
       .pipe(
         finalize(() => {
           this.isSaving = false;
@@ -275,7 +325,9 @@ export class InventoryComponent extends BaseComponent implements OnInit {
             stockQuantity: this.quantity,
             salePrice: this.selectedInventoryItem.salePrice,
             description: this.selectedInventoryItem.description,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: new Date().toISOString(),
+            companyId: this.selectedCompany,
+            companyName: this.getCompanyName(this.selectedCompany)
           };
            
           
@@ -300,15 +352,24 @@ export class InventoryComponent extends BaseComponent implements OnInit {
       return;
     }
 
+    if (!this.selectedCompany) {
+      this.swalService.error('Hata', 'Lütfen bir firma seçin.');
+      return;
+    }
+
     this.isSaving = true;
 
     const stockData = {
+      productId: this.selectedInventoryItem.id,
       quantity: this.quantity, 
-      id:this.selectedInventoryItem.id,
-      storeId:this.currentStoreId,
-      productName:this.selectedInventoryItem.name
+      id: this.selectedInventoryItem.id,
+      storeId: this.currentStoreId,
+      productName: this.selectedInventoryItem.name,
+      companyId: this.selectedCompany,
+      companyName: this.getCompanyName(this.selectedCompany)
     };
- 
+
+    console.log('=== Updating stock ===', stockData);
 
     this.stockMovementService.create(stockData)
       .pipe(
@@ -325,6 +386,8 @@ export class InventoryComponent extends BaseComponent implements OnInit {
           if (itemIndex !== -1) {
             this.inventory[itemIndex].stockQuantity = this.quantity;
             this.inventory[itemIndex].lastUpdated = new Date().toISOString();
+            this.inventory[itemIndex].companyId = this.selectedCompany;
+            this.inventory[itemIndex].companyName = this.getCompanyName(this.selectedCompany);
           }
           
           this.closeModals();
@@ -348,6 +411,11 @@ export class InventoryComponent extends BaseComponent implements OnInit {
       return;
     }
 
+    if (!this.selectedCompany) {
+      this.swalService.error('Hata', 'Lütfen bir firma seçin.');
+      return;
+    }
+
     if (operation === 'remove' && this.selectedInventoryItem.stockQuantity < this.quantity) {
       this.swalService.error('Hata', 'Stokta yeterli ürün yok.');
       return;
@@ -356,11 +424,13 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     this.isSaving = true;
 
     const stockData = {
-      productId:this.selectedInventoryItem.id,
-      storeId:this.currentStoreId,
+      productId: this.selectedInventoryItem.id,
+      storeId: this.currentStoreId,
       quantity: this.quantity,
-      Note:this.stockNote,
-      productName:this.selectedInventoryItem.name
+      Note: this.stockNote,
+      productName: this.selectedInventoryItem.name,
+      companyId: this.selectedCompany,
+      companyName: this.getCompanyName(this.selectedCompany)
     };
 
     console.log('=== Adjusting stock ===', stockData);
@@ -375,8 +445,6 @@ export class InventoryComponent extends BaseComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           console.log('=== Adjust stock response ===', response);
-          
-           
           
           this.swalService.success('Başarılı!', `${this.quantity} adet ${this.selectedInventoryItem.name} stoktan çıkarıldı.`).then(() => {
             this.closeModals();
@@ -456,15 +524,15 @@ export class InventoryComponent extends BaseComponent implements OnInit {
 
   // Helper methods for template
   getInStockCount(): number {
-    return this.inventory.filter(item => item.stockInQuantity-item.stockOutQuantity > 0).length;
+    return this.inventory.filter(item => item.stockInQuantity - item.stockOutQuantity > 0).length;
   }
 
   getLowStockCount(): number {
-    return this.inventory.filter(item => item.stockInQuantity-item.stockOutQuantity <= 10 && item.stockQuantity-item.stockOutQuantity > 0).length;
+    return this.inventory.filter(item => item.stockInQuantity - item.stockOutQuantity <= 10 && item.stockQuantity - item.stockOutQuantity > 0).length;
   }
 
   getOutOfStockCount(): number {
-    return this.inventory.filter(item => item.stockInQuantity -item.stockOutQuantity <= 5).length;
+    return this.inventory.filter(item => item.stockInQuantity - item.stockOutQuantity <= 5).length;
   }
 
   viewStockDetail(item: any): void {
@@ -474,5 +542,11 @@ export class InventoryComponent extends BaseComponent implements OnInit {
     const storeId = this.currentStoreId || 'default';
     
     this.router.navigate(['/admin/inventory', productId, storeId, 'detail']);
+  }
+
+  // Firma adını getiren yardımcı metod
+  getCompanyName(companyId: string): string {
+    const company = this.availableCompanies.find(c => c.id === companyId);
+    return company ? company.name : 'Bilinmeyen Firma';
   }
 }

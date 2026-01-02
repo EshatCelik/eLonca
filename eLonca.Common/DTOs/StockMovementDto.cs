@@ -21,6 +21,7 @@ namespace eLonca.Common.DTOs
         public DateTime MovementDate { get; set; } = DateTime.UtcNow; 
         public string? Notes { get; set; } 
         public string? StoreName { get; set; } 
+        public string? CompanyName { get; set; } 
         public string? StockCreateUserName { get; set; } 
     }
 }

@@ -18,6 +18,8 @@
           <th>Ürün Kodu</th>
           <th>Alış Fiyatı</th>
           <th>Satış Fiyatı</th>
+          <th>ToptanSatış Fiyatı</th>
+          <th>Perakende Satış Fiyatı</th>
           <th>Stok</th>
           <th>Min Stok Adedi</th>
           <th>Mağaza</th>
@@ -34,8 +36,10 @@
             <td (click)="onProductClick(product)">{{ product.productCode || '-' }}</td>
             <td (click)="onProductClick(product)">{{ product.purchasePrice || '-' }}</td>
             <td (click)="onProductClick(product)">{{ product.salePrice || '-' }}</td>
-            <td (click)="onProductClick(product)">{{ product.currentStock || 0 }} TL</td>
-            <td (click)="onProductClick(product)">{{ product.minStockLevel || 0 }} TL</td> 
+            <td (click)="onProductClick(product)">{{ product.wholesalePrice || '-' }}</td>
+            <td (click)="onProductClick(product)">{{ product.retailPrice || '-' }}</td>
+            <td (click)="onProductClick(product)">{{ product.currentStock || 0 }}</td>
+            <td (click)="onProductClick(product)">{{ product.minStockLevel || 0 }}</td> 
             <td (click)="onProductClick(product)">{{ getStoreName(product.storeId) }}</td>
             <td (click)="onProductClick(product)">{{ getCategoryName(product.categoryId) }}</td>
             <td (click)="onProductClick(product)">{{ product.barcode }}</td>
@@ -86,6 +90,14 @@
               <div class="info-item">
                 <label>Satış Fiyat:</label>
                 <input type="number" [(ngModel)]="createModel.salePrice" class="form-input" placeholder="Fiyat girin" />
+              </div>
+              <div class="info-item">
+                <label>Toptan Satış Fiyat:</label>
+                <input type="number" [(ngModel)]="createModel.wholesalePrice" class="form-input" placeholder="Toptan Fiyat girin" />
+              </div>
+              <div class="info-item">
+                <label>Perakende Satış Fiyat:</label>
+                <input type="number" [(ngModel)]="createModel.retailPrice" class="form-input" placeholder="Toptan Fiyat girin" />
               </div>
               <div class="info-item">
                 <label>Min Stok Adedi:</label>

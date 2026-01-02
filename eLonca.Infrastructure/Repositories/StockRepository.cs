@@ -25,24 +25,26 @@ namespace eLonca.Infrastructure.Repositories
         public async Task<Result<List<StockMovementDto>>> GetAllStockByProductId(Guid? storeId, Guid? productId)
         {
             var stock = (from st in _dbContext.StockMovements
-                        join p in _dbContext.Products on st.ProductId equals p.Id
-                        join u in _dbContext.Users on st.CreatedBy equals u.Id
-                        join s in _dbContext.Stores on st.StoreId equals s.Id
-                        where st.StoreId==storeId && st.ProductId==productId
-                        select new StockMovementDto()
-                        {
-                            ProductCode=p.ProductCode,
-                            ProductName =p.ProductName,
-                            Notes=st.Notes,
-                            ProductId=p.Id,
-                            MovementDate=st.MovementDate,
-                            StoreId=st.StoreId,
-                            StoreName=s.StoreName,
-                            StockCreateUserName=$"{u.Name} {u.LastName}",
-                            MovementType=st.MovementType,
-                            Quantity=st.Quantity
-
-                        }).OrderByDescending(a=>a.MovementDate).ToList();
+                         join p in _dbContext.Products on st.ProductId equals p.Id
+                         join u in _dbContext.Users on st.CreatedBy equals u.Id
+                         join s in _dbContext.Stores on st.StoreId equals s.Id
+                         join pc in _dbContext.ProductCompanies on st.CompanyId equals pc.Id into pcGroup
+                         from pc in pcGroup.DefaultIfEmpty()
+                         where st.StoreId == storeId && st.ProductId == productId
+                         select new StockMovementDto()
+                         {
+                             ProductCode = p.ProductCode,
+                             ProductName = p.ProductName,
+                             Notes = st.Notes,
+                             ProductId = p.Id,
+                             MovementDate = st.MovementDate,
+                             StoreId = st.StoreId,
+                             StoreName = s.StoreName,
+                             StockCreateUserName = $"{u.Name} {u.LastName}",
+                             MovementType = st.MovementType,
+                             Quantity = st.Quantity,
+                             CompanyName = pc.Name,
+                         }).OrderByDescending(a => a.MovementDate).ToList();
 
 
             if (stock == null)
@@ -63,8 +65,7 @@ namespace eLonca.Infrastructure.Repositories
                             p.ProductCode,
                             p.SalePrice,
                             p.MinStockLevel,
-                            p.PurchasePrice
-                            // ❌ st.MovementType  --> BUNU KALDIR!
+                            p.PurchasePrice 
                         } into g
                         select new StockMovementDto()
                         {
