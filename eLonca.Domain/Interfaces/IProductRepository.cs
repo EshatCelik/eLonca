@@ -7,5 +7,6 @@ namespace eLonca.Domain.Interfaces
     {
         Task<Result> UpdateProductStock(List<SaleItem> items, Sale sale, Guid? storeId);
         Task<Result> CheckProductStock(List<SaleItem> saleItems);
+        Task<Result<string>> GetAllProductItemsName(List<SaleItem> items);
     }
 }

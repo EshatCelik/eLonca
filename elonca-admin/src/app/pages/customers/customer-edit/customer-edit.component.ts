@@ -51,6 +51,14 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
   productQuantity = 1;
   productDiscount = 0;
   
+  // Return modal properties
+  showReturnModal = false;
+  showReturnProductModal = false;
+  isSavingReturn = false;
+  returnProducts: any[] = [];
+  selectedReturnProduct: string = '';
+  returnProductQuantity = 1;
+  
   availableProducts: any[] = [];
   isLoadingProducts = false;
   newSale: any = {
@@ -87,6 +95,10 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
   ngOnInit(): void {
     this.loadCustomer();
     this.loadAvailableProducts();
+    // Change detection için
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 100);
   }
 
   ngAfterViewInit(): void {
@@ -265,23 +277,31 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
             this.sales = response.map((sale: any) => ({
               id: sale.id || sale.saleId || Date.now().toString(),
               amount: sale.totalAmount || 0,
-              date: sale.saleDate || new Date().toISOString(),
-              description: sale.notes || `${sale.saleItems?.length || 0} ürün satışı`,
+              date: sale.createdAt || new Date().toISOString(),
+              products: sale.notes || `${sale.saleItems?.length || 0} ürün satışı`,
               status: sale.paymentStatus === 1 ? 'paid' : 'pending',
               invoiceNumber: sale.invoiceNumber || '',
               customerName: sale.customerCode || this.customer.storeName,
               items: sale.saleItems || [],
               paidAmount: sale.paidAmount || 0,
               remainingAmount: sale.remainingAmount || 0,
+              saleUser:sale.saleUser || '',
               paymentType: sale.paymentType || 1,
-              storeName: sale.storeName || ''
+              storeName: sale.storeName || '',
+              isSale: sale.isSale,
+              transactionType: sale.transactionType,
+              sellerStoreId: sale.sellerStoreId,
+              sellerStoreName: sale.sellerStoreName,
+              buyerStoreId: sale.buyerStoreId,
+              buyerStoreName: sale.buyerStoreName,
+              partnerStoreName: sale.partnerStoreName
             }));
           } else if (response?.isSuccess && response?.data) {
             this.sales = response.data.map((sale: any) => ({
               id: sale.id || sale.saleId || Date.now().toString(),
               amount: sale.totalAmount || 0,
               date: sale.saleDate || new Date().toISOString(),
-              description: sale.notes || `${sale.saleItems?.length || 0} ürün satışı`,
+              products: sale.notes || `${sale.saleItems?.length || 0} ürün satışı`,
               status: sale.paymentStatus === 1 ? 'paid' : 'pending',
               invoiceNumber: sale.invoiceNumber || '',
               customerName: sale.customerCode || this.customer.storeName,
@@ -289,14 +309,19 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
               paidAmount: sale.paidAmount || 0,
               remainingAmount: sale.remainingAmount || 0,
               paymentType: sale.paymentType || 1,
-              storeName: sale.storeName || ''
+              storeName: sale.storeName || '',
+              isSale: sale.isSale,
+              transactionType: sale.transactionType,
+              sellerStoreId: sale.sellerStoreId,
+              sellerStoreName: sale.sellerStoreName,
+              buyerStoreId: sale.buyerStoreId,
+              buyerStoreName: sale.buyerStoreName,
+              partnerStoreName: sale.partnerStoreName
             }));
           }
           
-          console.log('=== Sales loaded ===', this.sales);
           this.isLoadingSales = false;
           this.calculateFinancialSummary();
-          // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
           setTimeout(() => {
             this.cdr.detectChanges();
           }, 0);
@@ -750,5 +775,167 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
         );
       }
     });
+  }
+
+  // Return Modal Methods
+  openReturnModal(): void {
+    this.showReturnModal = true;
+    this.returnProducts = [];
+    this.resetReturnData();
+  }
+
+  closeReturnModal(): void {
+    this.showReturnModal = false;
+    this.resetReturnData();
+  }
+
+  openReturnProductModal(): void {
+    this.showReturnProductModal = true;
+    this.resetReturnProductSelection();
+  }
+
+  closeReturnProductModal(): void {
+    this.showReturnProductModal = false;
+    this.resetReturnProductSelection();
+  }
+
+  resetReturnData(): void {
+    this.returnProducts = [];
+  }
+
+  resetReturnProductSelection(): void {
+    this.selectedReturnProduct = '';
+    this.returnProductQuantity = 1;
+  }
+
+  onReturnProductSelect(): void {
+    // Ürün seçildiğinde quantity'yi 1'e resetle
+    this.returnProductQuantity = 1;
+  }
+
+  getSelectedReturnProductCode(): string {
+    const product = this.availableProducts.find(p => p.id === this.selectedReturnProduct);
+    return product ? product.code : '';
+  }
+
+  getSelectedReturnProductPrice(): number {
+    const product = this.availableProducts.find(p => p.id === this.selectedReturnProduct);
+    return product ? product.price : 0;
+  }
+
+  addProductToReturn(): void {
+    if (!this.selectedReturnProduct) {
+      this.swalService.error('Hata', 'Lütfen bir ürün seçin.');
+      return;
+    }
+
+    if (this.returnProductQuantity <= 0) {
+      this.swalService.error('Hata', 'Lütfen geçerli bir miktar girin.');
+      return;
+    }
+
+    const product = this.availableProducts.find(p => p.id === this.selectedReturnProduct);
+    const unitPrice = product.price;
+    const subtotal = unitPrice * this.returnProductQuantity;
+    
+    const returnProduct = {
+      id: Date.now().toString(),
+      productId: product.id,
+      productCode: product.code,
+      productName: product.name,
+      quantity: this.returnProductQuantity,
+      unitPrice: unitPrice,
+      subtotal: subtotal,
+      totalPrice: subtotal // İade için indirim yok
+    };
+
+    this.returnProducts.push(returnProduct);
+    
+    this.closeReturnProductModal();
+    this.swalService.success('Başarılı', `${product.name} ürünü iadeye eklendi.`);
+  }
+
+  removeProductFromReturn(productId: string): void {
+    this.returnProducts = this.returnProducts.filter(p => p.id !== productId);
+  }
+
+  calculateReturnTotal(): number {
+    return this.returnProducts.reduce((total, product) => total + product.totalPrice, 0);
+  }
+
+  saveReturn(): void {
+    if (this.isSavingReturn) return;
+    
+    if (this.returnProducts.length === 0) {
+      this.swalService.error('Hata', 'Lütfen en az bir ürün ekleyin.');
+      return;
+    }
+
+    this.isSavingReturn = true;
+
+    const returnData = {
+      id: Date.now().toString(),
+      customerId: this.customer.id,
+      customerName: this.customer.name || this.customer.storeName,
+      returnItems: this.returnProducts,
+      totalAmount: this.calculateReturnTotal(),
+      status: 'pending',
+      date: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString(),
+      description: `${this.returnProducts.length} ürün iadesi`
+    };
+
+    console.log('=== Saving return ===', returnData);
+
+    // Mock API call - replace with actual return API
+    setTimeout(() => {
+      // İade satışlar listesine ekle (negatif olarak)
+      const returnSale = {
+        id: returnData.id,
+        amount: -returnData.totalAmount, // Negatif tutar
+        date: returnData.date,
+        description: returnData.description,
+        status: 'pending',
+        invoiceNumber: 'IADE-' + Date.now(),
+        customerName: returnData.customerName,
+        items: returnData.returnItems,
+        paidAmount: 0,
+        remainingAmount: -returnData.totalAmount,
+        paymentType: 5, // İade tipi
+        storeName: this.customer.storeName || '',
+        isReturn: true // İade olduğunu belirtmek için
+      };
+      
+      this.sales.unshift(returnSale);
+      this.calculateFinancialSummary();
+      
+      this.isSavingReturn = false;
+      this.closeReturnModal();
+      this.cdr.detectChanges();
+      
+      this.swalService.success(
+        'Başarılı!', 
+        `Toplam ${this.formatCurrency(returnData.totalAmount)} tutarında iade başarıyla kaydedildi.`
+      );
+      
+      console.log('=== Return saved successfully ===', returnSale);
+    }, 1000);
+  }
+
+  // Satış/Alış kontrol metodları
+  isSellerStore(sale: any): boolean {  
+    const result = sale.isSale === true;  
+    return result;
+  }
+
+  getPartnerStoreName(sale: any): string {
+    if (this.isSellerStore(sale)) { 
+      return sale.buyerStoreName || sale.customerCode || 'Bilinmeyen Mağaza';
+    } else { 
+      return sale.sellerStoreName || sale.partnerStoreName || 'Bilinmeyen Mağaza';
+    }
+  }
+  getSellerStoreName(sale: any): string {
+    return sale.sellerStoreName 
   }
 }
