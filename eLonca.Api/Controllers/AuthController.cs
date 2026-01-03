@@ -7,10 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eLonca.Api.Controllers
-{
-    [Route("api/[controller]/[action]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+{ 
+    public class AuthController : BaseController
     {
         private readonly IMediator _mediator;
 
@@ -21,6 +19,12 @@ namespace eLonca.Api.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginCommand loginCommand)
+        {
+            var response = await _mediator.Send(loginCommand);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> LogOut(LoginCommand loginCommand)
         {
             var response = await _mediator.Send(loginCommand);
             return Ok(response);

@@ -54,6 +54,22 @@ namespace eLonca.Infrastructure.Repositories
 
         public async Task<Result<StoreCustomerDto>> GetByIdStoreCustomer(Guid storeCustomerId, CancellationToken cancellationToken)
         {
+            var currentStoreCustomer = _dbContext.StoreCustomers.Where(x => x.Id == storeCustomerId).FirstOrDefault();
+
+            var currentStoreId = currentStoreCustomer.StoreId;
+            var partnerStoreId = currentStoreCustomer.CustomerStoreId;
+
+            var partnerStoreCustomer=_dbContext.StoreCustomers.Where(x=>x.StoreId== partnerStoreId && x.CustomerStoreId==currentStoreId).FirstOrDefault();
+
+            var partnerStoreCustomerId = partnerStoreCustomer.Id;
+
+            var totalDept = _dbContext.Sales.Where(x => x.StoreCustomerId == partnerStoreCustomerId).ToList().Sum(x => x.TotalAmount).Value;//toplam Borç
+            var totalReceivable = _dbContext.Sales.Where(x => x.StoreCustomerId == storeCustomerId).ToList().Sum(x => x.TotalAmount).Value;
+
+         
+
+            var totalDeptDept = _dbContext.Sales.Where(x => x.StoreCustomerId == storeCustomerId);
+
             var customer = (from c in _dbContext.StoreCustomers
                            join s in _dbContext.Stores on c.CustomerStoreId equals s.Id
                            where  c.Id == storeCustomerId
@@ -71,7 +87,10 @@ namespace eLonca.Infrastructure.Repositories
                                TaxNumber = s.TaxNumber,
                                DiscountRate = c.DiscountRate,
                                CustomerType = c.CustomerType,
-                               CustomerCode = c.CustomerCode
+                               CustomerCode = c.CustomerCode,
+                               TotalDept =totalDept,                                             //toplam borç
+                               TotalReceivable     = totalReceivable                             //toplam alacağım
+
                            }).FirstOrDefault();
             if (customer == null)
             {

@@ -3,7 +3,7 @@ using eLonca.Common.DTOs;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
-using eLonca.Infrastructure.Persistence; 
+using eLonca.Infrastructure.Persistence;
 
 namespace eLonca.Infrastructure.Repositories
 {
@@ -31,47 +31,61 @@ namespace eLonca.Infrastructure.Repositories
             return Result<List<SaleItem>>.Success(list, "Liste başarılı", 200);
         }
 
-        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid storeId, Guid storeCustomerId, CancellationToken cancellationToken)
+        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid currentStoreId, Guid partnerStoreId, CancellationToken cancellationToken)
         {
-            var sales = (
-                        from sale in _dbContext.Sales
-                        join storeCustomer in _dbContext.StoreCustomers on sale.StoreCustomerId equals storeCustomer.Id
-                        join sellerStore in _dbContext.Stores on sale.StoreId equals sellerStore.Id
-                        join buyerStore in _dbContext.Stores on storeCustomer.CustomerStoreId equals buyerStore.Id
-                        join u in _dbContext.Users on sale.CreatedBy equals u.Id
-                        where sale.StoreId == storeId || storeCustomer.CustomerStoreId == storeId
-                        orderby sale.CreateAt descending
-                        select new GetAllSalesDto
-                        {
-                            Id = sale.Id,
-                            SaleDate = sale.SaleDate.ToString("ddd/MM/yy"),
-                            SaleUser=u.FullName,
-                            InvoiceNumber = sale.InvoiceNumber,
-                            TotalAmount = sale.TotalAmount,
-                            PaidAmount = sale.PaidAmount,
-                            RemainingAmount = sale.RemainingAmount,
-                            PaymentStatus = sale.PaymentStatus,
-                            Notes = sale.Notes,
+            var storeCustomerIds =   _dbContext.StoreCustomers
+                                        .Where(sc =>
+                                            (sc.StoreId == currentStoreId && sc.CustomerStoreId == partnerStoreId) ||
+                                            (sc.StoreId == partnerStoreId && sc.CustomerStoreId == currentStoreId))
+                                        .Select(sc => sc.Id)
+                                        .ToList();
 
-                            // Satış mı alış mı?
-                            IsSale = sale.StoreId == storeId,  // true = satış, false = alış (gri)
+            if (!storeCustomerIds.Any())
+            {
+                return Result<List<GetAllSalesDto>>.Failure(null, "Satış listesi bulunamadı", 400);
 
-                            // Satıcı bilgileri
-                            SellerStoreId = sellerStore.Id,
-                            SellerStoreName = sellerStore.StoreName,
+            }
 
-                            // Alıcı bilgileri
-                            BuyerStoreId = buyerStore.Id,
-                            BuyerStoreName = buyerStore.StoreName,
+            // 2. Bu StoreCustomer'lara ait tüm satışları getir
+            var sales =   (
+                from sale in _dbContext.Sales
+                join storeCustomer in _dbContext.StoreCustomers on sale.StoreCustomerId equals storeCustomer.Id
+                join sellerStore in _dbContext.Stores on sale.StoreId equals sellerStore.Id
+                join buyerStore in _dbContext.Stores on storeCustomer.CustomerStoreId equals buyerStore.Id
+                join u in _dbContext.Users on sale.CreatedBy equals u.Id
+                where storeCustomerIds.Contains(sale.StoreCustomerId.Value)
+                orderby sale.CreateAt descending
+                select new GetAllSalesDto
+                {
+                    Id = sale.Id,
+                    SaleDate = sale.SaleDate.ToString("yyyy-MM-dd HH:mm"),
+                    SaleUser = u.FullName,
+                    InvoiceNumber = sale.InvoiceNumber,
+                    TotalAmount = sale.TotalAmount,
+                    PaidAmount = sale.PaidAmount,
+                    RemainingAmount = sale.RemainingAmount,
+                    PaymentStatus = sale.PaymentStatus,
+                    Notes = sale.Notes,
 
-                            // Müşteri bilgileri
-                            CustomerCode = storeCustomer.CustomerCode,
-                            CustomerType = storeCustomer.CustomerType,
-                            DiscountRate = storeCustomer.DiscountRate,
+                    // Satış mı Alış mı? (benim store'dan çıkıyorsa Satış, giriyorsa Alış)
+                    IsSale = sale.StoreId == currentStoreId,
 
-                            CreatedAt = sale.CreateAt
-                        }
-                    ).ToList();
+                    // Satıcı bilgileri
+                    SellerStoreId = sellerStore.Id,
+                    SellerStoreName = sellerStore.StoreName,
+
+                    // Alıcı bilgileri
+                    BuyerStoreId = buyerStore.Id,
+                    BuyerStoreName = buyerStore.StoreName,
+
+                    // Müşteri bilgileri
+                    CustomerCode = storeCustomer.CustomerCode,
+                    CustomerType = storeCustomer.CustomerType,
+                    DiscountRate = storeCustomer.DiscountRate,
+
+                    CreatedAt = sale.CreateAt
+                }
+            ).ToList();
 
             //foreach (var sale in sales)
             //{
@@ -163,5 +177,5 @@ namespace eLonca.Infrastructure.Repositories
             sales.TotalAmount = sales.SaleItems.Sum(x => x.TotalPrice);
             return Result<GetAllSalesDto>.Success(sales, "Satış listesi", 200);
         }
-    } 
+    }
 }

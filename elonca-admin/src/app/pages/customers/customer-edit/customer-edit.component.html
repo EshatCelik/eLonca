@@ -10,7 +10,7 @@
           </div>
           <div class="financial-content">
             <span class="financial-label">Alacağım</span>
-            <span class="financial-amount">{{ totalReceivable | currency:'TRY' }}</span>
+            <span class="financial-amount">{{ customer.totalReceivable | currency:'$' }}</span>
           </div>
         </div>
         
@@ -20,7 +20,7 @@
           </div>
           <div class="financial-content">
             <span class="financial-label">Borcum</span>
-            <span class="financial-amount">{{ totalPayable | currency:'TRY' }}</span>
+            <span class="financial-amount">{{ customer.totalDept | currency:'$' }}</span>
           </div>
         </div>
       </div>
