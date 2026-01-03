@@ -1,9 +1,9 @@
-﻿using eLonca.Common.DTOs;
+﻿using eLonca.Common;
+using eLonca.Common.DTOs;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
-using eLonca.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using eLonca.Infrastructure.Persistence; 
 
 namespace eLonca.Infrastructure.Repositories
 {
@@ -26,58 +26,57 @@ namespace eLonca.Infrastructure.Repositories
         }
 
         public async Task<Result<List<SaleItem>>> GetAllSaleItemById(Guid saleId, CancellationToken cancellationToken)
-        { 
-            var list=  _dbContext.SaleItems.Where(x=>x.SaleId == saleId).ToList();
+        {
+            var list = _dbContext.SaleItems.Where(x => x.SaleId == saleId).ToList();
             return Result<List<SaleItem>>.Success(list, "Liste başarılı", 200);
         }
 
-        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid storeId,Guid storeCustomerId, CancellationToken cancellationToken)
+        public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid storeId, Guid storeCustomerId, CancellationToken cancellationToken)
         {
-            var sales = (from s in _dbContext.Sales 
-                         join st in _dbContext.Stores on s.StoreId equals st.Id
-                         join sc in _dbContext.StoreCustomers on s.StoreCustomerId equals sc.Id into scGroup
-                         from sc in scGroup.DefaultIfEmpty()
-                         where sc.StoreId == storeId && sc.CustomerStoreId==storeCustomerId
-                         orderby(s.SaleDate)
-                         select new GetAllSalesDto()
-                         {
-                             Id = s.Id,
-                             
-                             SaleDate = s.SaleDate.ToString("dd/MM/yyyy"), // veya "dd.MM.yyyy"
-                             InvoiceNumber = s.InvoiceNumber,
-                             TotalAmount = s.TotalAmount,
-                             PaidAmount = s.PaidAmount,
-                             RemainingAmount = s.RemainingAmount,
-                             PaymentType = s.PaymentType,
-                             PaymentStatus = s.PaymentStatus,
-                             Notes = s.Notes,
-                             StoreId = st.Id,
-                             SaleId=s.Id,
-                             IsActive = s.IsActive,
-                             StoreName = st.StoreName,
-                             StoreCutomerId = s.StoreCustomerId,
-                             CustomerCode = sc != null ? sc.CustomerCode : null,
-                             SaleItems = (from si in _dbContext.SaleItems
-                                          join p in _dbContext.Products on si.ProductId equals p.Id
-                                          where si.SaleId == s.Id
-                                          select new SaleItemDto()
-                                          {
-                                              Id = si.Id,
-                                              ProductId = si.ProductId,
-                                              ProductName = p.ProductName,
-                                              ProductCode = p.ProductCode,
-                                              Quantity = si.Quantity,
-                                              UnitPrice = si.UnitPrice,
-                                              Discount = si.Discount,
-                                              CustomerDiscount = si.CustomerDiscount,
-                                              TotalPrice = si.TotalPrice
-                                          }).ToList()
-                         }).ToList();
+            var sales = (
+                        from sale in _dbContext.Sales
+                        join storeCustomer in _dbContext.StoreCustomers on sale.StoreCustomerId equals storeCustomer.Id
+                        join sellerStore in _dbContext.Stores on sale.StoreId equals sellerStore.Id
+                        join buyerStore in _dbContext.Stores on storeCustomer.CustomerStoreId equals buyerStore.Id
+                        join u in _dbContext.Users on sale.CreatedBy equals u.Id
+                        where sale.StoreId == storeId || storeCustomer.CustomerStoreId == storeId
+                        orderby sale.CreateAt descending
+                        select new GetAllSalesDto
+                        {
+                            Id = sale.Id,
+                            SaleDate = sale.SaleDate.ToString("ddd/MM/yy"),
+                            SaleUser=u.FullName,
+                            InvoiceNumber = sale.InvoiceNumber,
+                            TotalAmount = sale.TotalAmount,
+                            PaidAmount = sale.PaidAmount,
+                            RemainingAmount = sale.RemainingAmount,
+                            PaymentStatus = sale.PaymentStatus,
+                            Notes = sale.Notes,
 
-            foreach (var sale in sales)
-            {
-                sale.TotalAmount = sale.SaleItems.Sum(x => x.TotalPrice);
-            }
+                            // Satış mı alış mı?
+                            IsSale = sale.StoreId == storeId,  // true = satış, false = alış (gri)
+
+                            // Satıcı bilgileri
+                            SellerStoreId = sellerStore.Id,
+                            SellerStoreName = sellerStore.StoreName,
+
+                            // Alıcı bilgileri
+                            BuyerStoreId = buyerStore.Id,
+                            BuyerStoreName = buyerStore.StoreName,
+
+                            // Müşteri bilgileri
+                            CustomerCode = storeCustomer.CustomerCode,
+                            CustomerType = storeCustomer.CustomerType,
+                            DiscountRate = storeCustomer.DiscountRate,
+
+                            CreatedAt = sale.CreateAt
+                        }
+                    ).ToList();
+
+            //foreach (var sale in sales)
+            //{
+            //    sale.TotalAmount = sale..Sum(x => x.TotalPrice);
+            //}
             return Result<List<GetAllSalesDto>>.Success(sales, "Satış listesi", 200);
         }
 
@@ -138,7 +137,7 @@ namespace eLonca.Infrastructure.Repositories
                              PaymentStatus = s.PaymentStatus,
                              Notes = s.Notes,
                              StoreId = st.Id,
-                             IsActive=s.IsActive,
+                             IsActive = s.IsActive,
                              StoreName = st.StoreName,
                              StoreCutomerId = s.StoreCustomerId,
                              CustomerCode = sc != null ? sc.CustomerCode : null,
@@ -156,13 +155,13 @@ namespace eLonca.Infrastructure.Repositories
                                               Discount = si.Discount,
                                               CustomerDiscount = si.CustomerDiscount,
                                               TotalPrice = si.TotalPrice,
-                                              CreateDate=si.CreateAt.ToString("dd/MM/yyy"),
-                                              ReturnedQuantity=si.ReturnedQuantity
+                                              CreateDate = si.CreateAt.ToString("dd/MM/yyy"),
+                                              ReturnedQuantity = si.ReturnedQuantity
                                           }).ToList()
                          }).FirstOrDefault();
 
             sales.TotalAmount = sales.SaleItems.Sum(x => x.TotalPrice);
             return Result<GetAllSalesDto>.Success(sales, "Satış listesi", 200);
         }
-    }
+    } 
 }

@@ -37,26 +37,27 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
                     return Result<Sale>.Failure(new List<string>() { itemResponse.Result.Message }, "Fiyatları hesaplarken hata alındı", 400);
 
                 var totalAmount = itemResponse.Result.Data.ToList().Sum(x => x.TotalPrice);
+                var discountRate = checkStoreCustomer.Result.Data.DiscountRate;
+                var itemName= _productRepository.GetAllProductItemsName(request.SaleItems).Result.Data;
 
                 var sale = new Sale()
-                {
-                    Id = Guid.NewGuid(),
+                { 
                     SaleDate = DateTime.Now,
                     StoreId = request.StoreId,
                     StoreCustomerId = checkStoreCustomer.Result.Data.Id,
                     InvoiceNumber = request.InvoiceNumber,
-                    Notes = request.Notes,
-                    TotalAmount = totalAmount,
+                    Notes = itemName,
+                    TotalAmount = totalAmount, 
                     SaleItems = request.SaleItems,
                     PaidAmount = request.SaleItems.Sum(x => x.UnitPrice * x.Quantity),
                     PaymentType = request.PaymentType,
                     PaymentStatus = request.PaymentStatus
                 };
 
-                var response = _saleRepository.CreateAsync(sale, cancellationToken);
-                var stockMovementResponse = _productRepository.UpdateProductStock(request.SaleItems, sale,request.StoreId);
+                var response =await  _saleRepository.CreateAsync(sale, cancellationToken);
+                var stockMovementResponse =await _productRepository.UpdateProductStock(request.SaleItems, sale,request.StoreId);
 
-                return response.Result;
+                return response;
             }
             catch (Exception ex)
             {

@@ -3,6 +3,8 @@ using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using eLonca.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using static Azure.Core.HttpHeader;
 
 namespace eLonca.Infrastructure.Repositories
 {
@@ -28,6 +30,42 @@ namespace eLonca.Infrastructure.Repositories
 
             }
             return Result.Success("Ürün Stokta bulunuyor", 200);
+        }
+
+        public async Task<Result<string>> GetAllProductItemsName(List<SaleItem> items)
+        {
+            try
+            {
+                // 1. Önce ProductId'leri bellekten al
+                var productIds = items
+                    .Where(x => x.ProductId.HasValue)
+                    .Select(x => x.ProductId.Value)
+                    .Distinct()
+                    .ToList();
+
+                // 2. Eğer ProductId yoksa boş döndür
+                if (!productIds.Any())
+                {
+                    return Result<string>.Success(string.Empty, "Ürün bulunamadı", 200);
+                }
+
+                // 3. Veritabanından ürün isimlerini çek
+                var products =  _dbContext.Products
+                    .Where(p => productIds.Contains(p.Id))
+                    //.Select(p => p.ProductName)
+                    .ToDictionary(p=>p.Id,p=>p.ProductName);
+
+                var result = items
+                    .Where(x => x.ProductId.HasValue && products.ContainsKey(x.ProductId.Value))
+                    .Select(x => $"({x.Quantity}x {products[x.ProductId.Value]})");
+
+                // 4. Virgülle birleştir
+                return Result<string>.Success(string.Join(", ", result), "Liste başarılı", 200);
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failure(null, "Liste hatalı", 400);
+            }
         }
 
         public async Task<Result> UpdateProductStock(List<SaleItem> items, Sale sale,Guid? storeId)

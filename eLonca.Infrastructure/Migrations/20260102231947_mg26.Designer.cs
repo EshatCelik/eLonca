@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eLonca.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using eLonca.Infrastructure.Persistence;
 namespace eLonca.Infrastructure.Migrations
 {
     [DbContext(typeof(LoncaDbContext))]
-    partial class LoncaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260102231947_mg26")]
+    partial class mg26
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -754,7 +757,7 @@ namespace eLonca.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CustomerStoreId")
+                    b.Property<Guid?>("CustomerStoreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CustomerType")
@@ -775,7 +778,10 @@ namespace eLonca.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("StoreId")
+                    b.Property<Guid?>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StoreId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TenantId")
@@ -789,7 +795,11 @@ namespace eLonca.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerStoreId");
+
                     b.HasIndex("StoreId");
+
+                    b.HasIndex("StoreId1");
 
                     b.HasIndex("TenantId");
 
@@ -1073,7 +1083,7 @@ namespace eLonca.Infrastructure.Migrations
 
             modelBuilder.Entity("eLonca.Domain.Entities.Sale", b =>
                 {
-                    b.HasOne("eLonca.Domain.Entities.StoreCustomer", null)
+                    b.HasOne("eLonca.Domain.Entities.StoreCustomer", "StoreCustomer")
                         .WithMany("Sales")
                         .HasForeignKey("StoreCustomerId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1090,6 +1100,8 @@ namespace eLonca.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Store");
+
+                    b.Navigation("StoreCustomer");
 
                     b.Navigation("Tenant");
                 });
@@ -1171,17 +1183,29 @@ namespace eLonca.Infrastructure.Migrations
 
             modelBuilder.Entity("eLonca.Domain.Entities.StoreCustomer", b =>
                 {
+                    b.HasOne("eLonca.Domain.Entities.Store", "CustomerStore")
+                        .WithMany()
+                        .HasForeignKey("CustomerStoreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("eLonca.Domain.Entities.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("eLonca.Domain.Entities.Store", null)
                         .WithMany("StoreCustomers")
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("StoreId1");
 
                     b.HasOne("eLonca.Domain.Entities.Tenant", null)
                         .WithMany("Customers")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CustomerStore");
+
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("eLonca.Domain.Entities.User", b =>

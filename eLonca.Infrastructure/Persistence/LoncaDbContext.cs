@@ -48,7 +48,7 @@ namespace eLonca.Infrastructure.Persistence
             if (tenantId != Guid.Empty)
             {
 
-                modelBuilder.Entity<StoreCustomer>().HasQueryFilter(c => c.TenantId == tenantId);
+                //modelBuilder.Entity<StoreCustomer>().HasQueryFilter(c => c.TenantId == tenantId);
                 modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == tenantId);
                 modelBuilder.Entity<Category>().HasQueryFilter(c => c.TenantId == tenantId);
                 modelBuilder.Entity<CustomerAccount>().HasQueryFilter(ca => ca.TenantId == tenantId);
