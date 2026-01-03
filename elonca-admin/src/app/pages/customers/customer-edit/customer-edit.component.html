@@ -216,7 +216,8 @@
                       </td>
                       <td class="amount-cell">
                         <div class="amount-info">
-                          <span class="total-amount">{{ sale.amount | currency:'$' }}</span>
+                          <span class="total-amount" *ngIf="sale.isSale">{{ sale.amount | currency:'$' }}</span>
+                          <span class="total-amount" *ngIf="!sale.isSale">-{{ sale.amount | currency:'$' }}</span>
                         </div>
                       </td>
                       <td class="status-cell">
