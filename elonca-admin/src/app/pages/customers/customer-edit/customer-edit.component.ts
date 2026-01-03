@@ -127,7 +127,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     }
     
     this.customersService
-      .getById(id)
+      .getById(id,this.currentStoreId)
       .pipe(
         timeout(10000),
         catchError((err: any) => {

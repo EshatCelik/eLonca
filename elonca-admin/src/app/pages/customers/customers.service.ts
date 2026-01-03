@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable,OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { BaseService } from '../../core/base.service';
-
+import { BaseService } from '../../core/base.service'; 
+ 
 @Injectable({ providedIn: 'root' })
-export class CustomersService extends BaseService {
+export class CustomersService extends BaseService   {
   constructor(http: HttpClient) {
     super(http);
   }
@@ -35,8 +35,12 @@ export class CustomersService extends BaseService {
     return this.post<any>('Customer/Create', payload);
   }
 
-  getById(id: string | number): Observable<any> {
-    const body = { id } as any;
+  getById(id: string | number,storeId:string|number): Observable<any> {
+    const body = { 
+      id:id,
+     storeId: storeId
+
+     } as any;
     return this.post<any>('Customer/GetById', body).pipe(
       map((res: any) => {
         if (res && typeof res === 'object' && 'isSuccess' in res && res.isSuccess === false) {

@@ -19,6 +19,8 @@ namespace eLonca.Common.DTOs
 
         public CustomerType CustomerType { get; set; }
         public double DiscountRate { get; set; }
+        public decimal TotalDept { get; set; }
+        public decimal TotalReceivable { get; set; }
 
     }
 }
