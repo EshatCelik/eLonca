@@ -251,6 +251,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
   }
 
   loadSales(): void {
+    console.log('=== loadSales method called ===');
     if (!this.customer) return;
     
     const payload = {
@@ -998,6 +999,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     // API isteği gönder
     this.customersService.addReturnItemToSale(returnData).subscribe({
       next: (response: any) => { 
+        console.log('=== Return API response ===', response);
         
         if (response && response.success) {
           // Başarılı ise satışlar listesini güncelle
@@ -1028,7 +1030,8 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
             'Başarılı!', 
             `Toplam ${this.formatCurrency(this.calculateReturnTotal())} tutarında iade başarıyla kaydedildi.`
           );
-           this.loadSales();
+          console.log('=== About to load sales after return ===');
+          this.loadSales();
         } else {
           this.isSavingReturn = false;
           this.swalService.error('Hata', response?.message || 'İade kaydedilirken bir hata oluştu.');

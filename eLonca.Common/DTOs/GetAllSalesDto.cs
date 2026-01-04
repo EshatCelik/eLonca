@@ -22,7 +22,8 @@ namespace eLonca.Common.DTOs
         public Guid StoreId { get; set; }
         public Guid SaleId { get; set; }
         public Guid Id { get; set; }
-        public Guid? StoreCutomerId { get; set; }
+        public Guid? StoreCutomerId { get; set; } 
+
 
         // Satış mı Alış mı?
         public bool IsSale { get; set; }  // true = Satış (normal), false = Alış (gri)
@@ -42,7 +43,7 @@ namespace eLonca.Common.DTOs
         public DateTime CreatedAt { get; set; }
 
         // Frontend için yardımcı property
-        public string TransactionType => IsSale ? "Satış" : "Alış";
+        public string TransactionType { get; set; }
         public string PartnerStoreName => IsSale ? BuyerStoreName : SellerStoreName;
 
     }

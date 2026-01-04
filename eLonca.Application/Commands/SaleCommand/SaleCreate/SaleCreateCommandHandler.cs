@@ -1,7 +1,8 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.Enums;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
-using MediatR; 
+using MediatR;
 
 namespace eLonca.Application.Commands.SaleCommand.SaleCreate
 {
@@ -38,24 +39,24 @@ namespace eLonca.Application.Commands.SaleCommand.SaleCreate
 
                 var totalAmount = itemResponse.Result.Data.ToList().Sum(x => x.TotalPrice);
                 var discountRate = checkStoreCustomer.Result.Data.DiscountRate;
-                var itemName= _productRepository.GetAllProductItemsName(request.SaleItems).Result.Data;
-
+                var itemName = _productRepository.GetAllProductItemsName(request.SaleItems).Result.Data;
+                request.SaleItems.ForEach(x => x.SaleType = SaleItemType.Sale);
                 var sale = new Sale()
-                { 
+                {
                     SaleDate = DateTime.Now,
                     StoreId = request.StoreId,
                     StoreCustomerId = checkStoreCustomer.Result.Data.Id,
                     InvoiceNumber = request.InvoiceNumber,
                     Notes = itemName,
-                    TotalAmount = totalAmount, 
+                    TotalAmount = totalAmount,
                     SaleItems = request.SaleItems,
                     PaidAmount = request.SaleItems.Sum(x => x.UnitPrice * x.Quantity),
                     PaymentType = request.PaymentType,
                     PaymentStatus = request.PaymentStatus
                 };
 
-                var response =await  _saleRepository.CreateAsync(sale, cancellationToken);
-                var stockMovementResponse =await _productRepository.UpdateProductStock(request.SaleItems, sale,request.StoreId);
+                var response = await _saleRepository.CreateAsync(sale, cancellationToken);
+                var stockMovementResponse = await _productRepository.UpdateProductStock(request.SaleItems, sale, request.StoreId);
 
                 return response;
             }
