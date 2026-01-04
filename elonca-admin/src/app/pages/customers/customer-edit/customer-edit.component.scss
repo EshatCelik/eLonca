@@ -899,6 +899,31 @@ input:checked + .slider:before {
           font-weight: 700;
         }
       }
+      
+      // İade satırları - Sarı tema
+      &.return-row {
+        background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+        border-left: 4px solid #ffb300;
+        
+        &:hover {
+          background: linear-gradient(135deg, #fff59d 0%, #ffeb3b 100%);
+          box-shadow: 0 2px 8px rgba(255, 179, 0, 0.15);
+        }
+        
+        .transaction-badge.return-badge {
+          background: linear-gradient(135deg, #ffb300, #ff9800);
+          color: white;
+          
+          i {
+            color: white;
+          }
+        }
+        
+        .total-amount {
+          color: #f57c00;
+          font-weight: 700;
+        }
+      }
 
       td {
         padding: 15px 12px;

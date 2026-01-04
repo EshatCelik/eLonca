@@ -177,8 +177,9 @@
                 <tbody>
                   @for (sale of sales; track sale.id) {
                     <tr (click)="goToSaleDetail(sale)" class="clickable-row" [ngClass]="{
-                      'sale-row': sale.isSale === true,
-                      'purchase-row': sale.isSale === false
+                      'sale-row': sale.transactionType === 'Satış',
+                      'purchase-row': sale.transactionType === 'Alış',
+                      'return-row': sale.transactionType === 'İade'
                     }">
                     <td class="invoice-cell">
                       <div class="invoice-info">
@@ -232,7 +233,7 @@
                             }"></i>
                             {{ sale.paymentStatus === 1 ? 'Ödendi' : 'Bekliyor' }}
                           </span>
-                          <button class="btn btn-warning btn-sm return-btn" (click)="openReturnModal(sale); $event.stopPropagation()" title="İade Gir">
+                          <button class="btn btn-warning btn-sm return-btn" (click)="openReturnModal(sale); $event.stopPropagation()" title="İade Gir" *ngIf="sale.transactionType !== 'İade'">
                             <i class="fas fa-undo"></i>
                             İade Gir
                           </button>
