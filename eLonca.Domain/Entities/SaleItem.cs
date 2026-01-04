@@ -1,4 +1,5 @@
-﻿using eLonca.Domain.Entities.BaseEntities;
+﻿using eLonca.Common.Enums;
+using eLonca.Domain.Entities.BaseEntities;
 
 namespace eLonca.Domain.Entities
 {
@@ -12,6 +13,7 @@ namespace eLonca.Domain.Entities
         public Double? CustomerDiscount { get; set; }
         public decimal? TotalPrice { get; set; }
         public int ReturnedQuantity { get; set; } // iade ürünsayısı
+        public SaleItemType SaleType { get; set; }
 
         // Navigation
         public Tenant? Tenant { get; set; } = null!;

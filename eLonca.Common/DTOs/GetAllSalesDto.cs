@@ -15,6 +15,7 @@ namespace eLonca.Common.DTOs
         public PaymentStatus PaymentStatus { get; set; }
         public string? Notes { get; set; }
         public List<SaleItemDto> SaleItems { get; set; }
+        public List<SaleItemDto> SaleReturnItems { get; set; }
         public StoreDto Store { get; set; }
         public string StoreName { get; set; }
         public bool IsActive { get; set; }

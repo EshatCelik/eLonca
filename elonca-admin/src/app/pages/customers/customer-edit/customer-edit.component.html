@@ -221,16 +221,22 @@
                         </div>
                       </td>
                       <td class="status-cell">
-                        <span class="status-badge" [ngClass]="{
-                          'paid': sale.paymentStatus === 1,
-                          'pending': sale.paymentStatus === 0
-                        }">
-                          <i class="fas" [ngClass]="{
-                            'fa-check-circle': sale.paymentStatus === 1,
-                            'fa-clock': sale.paymentStatus === 0
-                          }"></i>
-                          {{ sale.paymentStatus === 1 ? 'Ödendi' : 'Bekliyor' }}
-                        </span>
+                        <div class="status-actions">
+                          <span class="status-badge" [ngClass]="{
+                            'paid': sale.paymentStatus === 1,
+                            'pending': sale.paymentStatus === 0
+                          }">
+                            <i class="fas" [ngClass]="{
+                              'fa-check-circle': sale.paymentStatus === 1,
+                              'fa-clock': sale.paymentStatus === 0
+                            }"></i>
+                            {{ sale.paymentStatus === 1 ? 'Ödendi' : 'Bekliyor' }}
+                          </span>
+                          <button class="btn btn-warning btn-sm return-btn" (click)="openReturnModal(sale); $event.stopPropagation()" title="İade Gir">
+                            <i class="fas fa-undo"></i>
+                            İade Gir
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   }
@@ -498,16 +504,13 @@
           <div class="products-section">
             <div class="section-header">
               <h4><i class="fas fa-box"></i> İade Ürünleri</h4>
-              <button type="button" class="btn btn-warning btn-sm" (click)="openReturnProductModal()">
-                <i class="fas fa-plus"></i> Ürün Ekle
-              </button>
             </div>
             
             @if (returnProducts.length === 0) {
               <div class="empty-products">
                 <i class="fas fa-box-open"></i>
                 <p>Henüz ürün eklenmedi</p>
-                <small>"Ürün Ekle" butonuna tıklayarak ürün ekleyin</small>
+                <small>İade edilecek ürünler bulunamadı</small>
               </div>
             } @else {
               <div class="products-list">
@@ -517,16 +520,33 @@
                       <div class="product-name">{{ product.productName }}</div>
                       <div class="product-details">
                         <span class="product-code">{{ product.productCode }}</span>
-                        <span class="product-quantity">{{ product.quantity }} adet</span>
+                        <span class="product-max">Maks: {{ product.maxQuantity || product.originalQuantity }} adet</span>
                         <span class="product-price">{{ formatCurrency(product.unitPrice) }}</span>
                       </div>
                     </div>
+                    <div class="product-quantity-control">
+                      <label>İade Miktarı:</label>
+                      <input 
+                        type="number" 
+                        [(ngModel)]="product.quantity" 
+                        class="form-input quantity-input" 
+                        placeholder="0" 
+                        min="0" 
+                        [max]="product.maxQuantity || product.originalQuantity"
+                        (input)="validateReturnQuantity(product)"
+                      />
+                      <small class="quantity-info">0 - {{ product.maxQuantity || product.originalQuantity }} arası</small>
+                    </div>
                     <div class="product-pricing">
+                      <div class="pricing-row">
+                        <span>Birim Fiyat:</span>
+                        <span>{{ formatCurrency(product.unitPrice) }}</span>
+                      </div>
                       <div class="pricing-row">
                         <span>Ara Toplam:</span>
                         <span>{{ formatCurrency(product.subtotal) }}</span>
                       </div>
-                      <div class="pricing-row">
+                      <div class="pricing-row total">
                         <span>İade Tutarı:</span>
                         <span>{{ formatCurrency(product.totalPrice) }}</span>
                       </div>

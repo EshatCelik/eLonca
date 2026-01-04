@@ -1,8 +1,6 @@
-﻿using eLonca.Common.Enums;
-
-namespace eLonca.Common.DTOs
+﻿namespace eLonca.Common.DTOs.SaleItem
 {
-    public class SaleItemDto
+    public class ReturnSaleItemDto
     {
         public Guid Id { get; set; }
         public Guid? SaleId { get; set; }
@@ -14,10 +12,6 @@ namespace eLonca.Common.DTOs
         public double? CustomerDiscount { get; set; }
         public decimal? TotalPrice { get; set; }
         public string ProductName { get; set; }
-        public string ProductCode { get; set; }
-        public string CreateDate { get; set; }
-        public decimal?  ReturnedQuantity { get; set; }
-        public SaleItemType  SaleItemType { get; set; }
-
+        public string ProductCode { get; set; }  
     }
 }

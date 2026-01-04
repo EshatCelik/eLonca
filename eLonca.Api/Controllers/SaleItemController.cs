@@ -1,4 +1,5 @@
 ﻿
+using eLonca.Application.Commands.SaleItemCommand.CreateReturnSaleItem;
 using eLonca.Application.Commands.SaleItemCommand.CreateSaleItem;
 using eLonca.Application.Commands.SaleItemCommand.UpdateSaleItem;
 using eLonca.Application.Commands.SaleItemCommand.UpdateSaleItemToReturn;
@@ -20,6 +21,12 @@ namespace eLonca.Api.Controllers
         public async Task<IActionResult>Create(AddSaleItemCommandResponse addSaleItemResponse)
         {
             var response= await _mediator.Send(addSaleItemResponse);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddReturnItemToSale(AddReturnItemToSaleCommandResponse addSaleItemResponse)
+        {
+            var response = await _mediator.Send(addSaleItemResponse);
             return Ok(response);
         }
         [HttpPost]

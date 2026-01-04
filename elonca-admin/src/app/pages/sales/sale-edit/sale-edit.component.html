@@ -92,12 +92,12 @@
 
       <!-- Satış Ürünleri -->
       <div class="detail-section">
-        <div class="section-header">
+        <!-- <div class="section-header">
           <h3><i class="fas fa-shopping-cart"></i>Satış Ürünleri</h3>
           <button type="button" class="btn btn-primary add-product-btn" (click)="openAddProductModal()">
             <i class="fas fa-plus"></i> Ürün Ekle
           </button>
-        </div>
+        </div> -->
         <div *ngIf="sale.saleItems && sale.saleItems.length > 0" class="items-table">
           <div class="table-header">
             <div class="header-cell">Ürün Kodu</div>
@@ -149,6 +149,53 @@
         <div *ngIf="!sale.saleItems || sale.saleItems.length === 0" class="no-items">
           <i class="fas fa-box-open"></i>
           <p>Bu satışta ürün bulunmamaktadır.</p>
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="section-header">
+          <h3><i class="fas fa-shopping-cart"></i>İade Ürünler</h3>
+        </div>
+        <div *ngIf="sale.saleReturnItems && sale.saleReturnItems.length > 0" class="items-table">
+          <div class="table-header">
+            <div class="header-cell">Ürün Kodu</div>
+            <div class="header-cell">Ürün Adı</div>
+            <div class="header-cell">Miktar</div>
+            <div class="header-cell">İade</div>
+            <div class="header-cell">Birim Fiyat</div>
+            <div class="header-cell">İndirim</div>
+            <div class="header-cell">Toplam Fiyat</div>
+            <div class="header-cell">İşlemler</div>
+          </div>
+          <div *ngFor="let item of sale.saleReturnItems; trackBy: trackByItemId" 
+               class="table-row" 
+               [class.returned-item]="item.isReturned" 
+               (click)="onItemClick(item)">
+            <div class="table-cell">{{ item.productCode || '-' }}</div>
+            <div class="table-cell product-name">{{ item.productName || '-' }}</div>
+            <div class="table-cell quantity">{{ item.quantity || 0 }}</div>
+            <div class="table-cell returned-quantity">{{ item.returnedQuantity || 0 }}</div>
+            <div class="table-cell price">{{ formatCurrency(item.unitPrice) }}</div>
+            <div class="table-cell discount">
+              <span *ngIf="item.discount">{{ item.discount }}%</span>
+              <span *ngIf="!item.discount && item.customerDiscount && item.customerDiscount > 0">{{ item.customerDiscount }}%</span>
+              <span *ngIf="!item.discount && (!item.customerDiscount || item.customerDiscount === 0)">-</span>
+            </div>
+            <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div> 
+          </div>
+          <div class="table-footer">
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"></div>
+            <div class="footer-cell"><strong>Toplam:</strong></div>
+            <div class="footer-cell total-amount">{{ formatCurrency(sale.totalAmount) }}</div>
+            <div class="footer-cell"></div>
+          </div>
+        </div>
+        <div *ngIf="!sale.saleReturnItems || sale.saleReturnItems.length === 0" class="no-items">
+          <i class="fas fa-box-open"></i>
+          <p>Bu satışta iade bulunmamaktadır.</p>
         </div>
       </div>
     </div>

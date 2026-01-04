@@ -1,5 +1,7 @@
 ﻿using eLonca.Common;
 using eLonca.Common.DTOs;
+using eLonca.Common.DTOs.SaleItem;
+using eLonca.Common.Enums;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
@@ -13,6 +15,64 @@ namespace eLonca.Infrastructure.Repositories
         public SaleRepository(LoncaDbContext dbContext, IProductRepository productRepository) : base(dbContext)
         {
             _productRepository = productRepository;
+        }
+
+        public async Task<Result<Sale>> AddReturnItemToSale(List<ReturnSaleItemDto> _items, Sale sale, CancellationToken cancellationToken)
+        {
+
+            foreach (var s in _items)
+            {
+
+                var findItem = _dbContext.SaleItems.Where(x => x.SaleId == sale.Id && x.ProductId == s.ProductId && x.SaleType == SaleItemType.Sale).FirstOrDefault();
+                if (findItem != null && (findItem.Quantity > s.Quantity))
+                {
+                    findItem.Quantity -= s.Quantity;
+                    findItem.TotalPrice = findItem.Quantity * findItem.UnitPrice;
+                    sale.TotalAmount -= s.Quantity * s.UnitPrice;
+
+                    var createNewReturnItem = new SaleItem()
+                    {
+                        SaleId = sale.Id,
+                        SaleType = SaleItemType.Return,
+                        Quantity = s.Quantity,
+                        ProductId = s.ProductId,
+                        TotalPrice = 0
+
+                    };
+                    sale.SaleItems.Add(createNewReturnItem);
+
+
+                }
+                else if (findItem != null && (findItem.Quantity == s.Quantity))
+                {
+                    var isExistReturnType = _dbContext.SaleItems.Where(x => x.SaleId == sale.Id && x.ProductId == s.ProductId && x.SaleType == SaleItemType.Return).FirstOrDefault();
+                    if (isExistReturnType != null)
+                    {
+                        isExistReturnType.Quantity += s.Quantity;
+                        sale.TotalAmount -= s.Quantity * s.UnitPrice;
+                        findItem.Quantity = 0;
+                        findItem.TotalPrice = 0;
+                        findItem.IsActive = false;
+                        findItem.IsDeleted = true;
+
+                        _dbContext.SaleItems.Remove(findItem);
+                        _dbContext.SaveChanges();
+                    }
+                    else
+                    {
+
+                        findItem.SaleType = SaleItemType.Return;
+                        findItem.TotalPrice = 0;
+                    }
+                }
+                else if (findItem == null)
+                {
+                    return Result<Sale>.Failure(null, "Ürün Kalemleri bulunamadı", 400);
+                }
+
+            }
+            return Result<Sale>.Success(sale, "Satış detay güncelleme başarılı", 200);
+
         }
 
         public async Task<Result<StoreCustomer>> CheckCustomerRelation(Guid? storeId, Guid? storeCustomerId, CancellationToken cancellationToken)
@@ -33,7 +93,7 @@ namespace eLonca.Infrastructure.Repositories
 
         public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid currentStoreId, Guid partnerStoreId, CancellationToken cancellationToken)
         {
-            var storeCustomerIds =   _dbContext.StoreCustomers
+            var storeCustomerIds = _dbContext.StoreCustomers
                                         .Where(sc =>
                                             (sc.StoreId == currentStoreId && sc.CustomerStoreId == partnerStoreId) ||
                                             (sc.StoreId == partnerStoreId && sc.CustomerStoreId == currentStoreId))
@@ -47,8 +107,9 @@ namespace eLonca.Infrastructure.Repositories
             }
 
             // 2. Bu StoreCustomer'lara ait tüm satışları getir
-            var sales =   (
+            var sales = (
                 from sale in _dbContext.Sales
+                join si in _dbContext.SaleItems on sale.Id equals si.SaleId into saleItemGroup
                 join storeCustomer in _dbContext.StoreCustomers on sale.StoreCustomerId equals storeCustomer.Id
                 join sellerStore in _dbContext.Stores on sale.StoreId equals sellerStore.Id
                 join buyerStore in _dbContext.Stores on storeCustomer.CustomerStoreId equals buyerStore.Id
@@ -66,7 +127,22 @@ namespace eLonca.Infrastructure.Repositories
                     RemainingAmount = sale.RemainingAmount,
                     PaymentStatus = sale.PaymentStatus,
                     Notes = sale.Notes,
-
+                    SaleItems = saleItemGroup.Where(x => x.IsDeleted == false && x.IsActive && x.SaleType == SaleItemType.Sale).Select(a => new SaleItemDto
+                    {
+                        Id = a.Id,
+                        SaleId = a.SaleId,
+                        Quantity = a.Quantity,
+                        UnitPrice = a.UnitPrice,
+                        ProductId = a.ProductId
+                    }).ToList(),
+                    SaleReturnItems = saleItemGroup.Where(x => x.IsDeleted == false && x.IsActive && x.SaleType == SaleItemType.Return).Select(a => new SaleItemDto
+                    {
+                        Id = a.Id,
+                        SaleId = a.SaleId,
+                        Quantity = a.Quantity,
+                        UnitPrice = a.UnitPrice,
+                        ProductId = a.ProductId
+                    }).ToList(),
                     // Satış mı Alış mı? (benim store'dan çıkıyorsa Satış, giriyorsa Alış)
                     IsSale = sale.StoreId == currentStoreId,
 
@@ -157,7 +233,7 @@ namespace eLonca.Infrastructure.Repositories
                              CustomerCode = sc != null ? sc.CustomerCode : null,
                              SaleItems = (from si in _dbContext.SaleItems
                                           join p in _dbContext.Products on si.ProductId equals p.Id
-                                          where si.SaleId == s.Id
+                                          where si.SaleId == s.Id && si.IsDeleted == false && si.IsActive && si.SaleType == SaleItemType.Sale
                                           select new SaleItemDto()
                                           {
                                               Id = si.Id,
@@ -170,8 +246,27 @@ namespace eLonca.Infrastructure.Repositories
                                               CustomerDiscount = si.CustomerDiscount,
                                               TotalPrice = si.TotalPrice,
                                               CreateDate = si.CreateAt.ToString("dd/MM/yyy"),
-                                              ReturnedQuantity = si.ReturnedQuantity
-                                          }).ToList()
+                                              ReturnedQuantity = si.ReturnedQuantity,
+                                              SaleItemType = si.SaleType
+                                          }).ToList(),
+                             SaleReturnItems = (from si in _dbContext.SaleItems
+                                                join p in _dbContext.Products on si.ProductId equals p.Id
+                                                where si.SaleId == s.Id && si.IsDeleted == false && si.IsActive && si.SaleType == SaleItemType.Return
+                                                select new SaleItemDto()
+                                                {
+                                                    Id = si.Id,
+                                                    ProductId = si.ProductId,
+                                                    ProductName = p.ProductName,
+                                                    ProductCode = p.ProductCode,
+                                                    Quantity = si.Quantity,
+                                                    UnitPrice = si.UnitPrice,
+                                                    Discount = si.Discount,
+                                                    CustomerDiscount = si.CustomerDiscount,
+                                                    TotalPrice = si.TotalPrice,
+                                                    CreateDate = si.CreateAt.ToString("dd/MM/yyy"),
+                                                    ReturnedQuantity = si.ReturnedQuantity,
+                                                    SaleItemType = si.SaleType
+                                                }).ToList()
                          }).FirstOrDefault();
 
             sales.TotalAmount = sales.SaleItems.Sum(x => x.TotalPrice);
