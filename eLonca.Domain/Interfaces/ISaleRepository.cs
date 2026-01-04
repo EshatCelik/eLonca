@@ -1,4 +1,5 @@
 ﻿using eLonca.Common.DTOs;
+using eLonca.Common.DTOs.SaleItem;
 using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 
@@ -10,6 +11,7 @@ namespace eLonca.Domain.Interfaces
         Task<Result<StoreCustomer>> CheckCustomerRelation(Guid? storeId,Guid? storeCustomerId,CancellationToken cancellationToken);
         Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid storeId,Guid storeCustomerId, CancellationToken cancellationToken); 
         Task<Result<GetAllSalesDto>> GetSaleById(Guid id, CancellationToken cancellationToken); 
-        Task<Result<List<SaleItem>>> GetAllSaleItemById(Guid saleId, CancellationToken cancellationToken); 
+        Task<Result<List<SaleItem>>> GetAllSaleItemById(Guid saleId, CancellationToken cancellationToken);
+        Task<Result<Sale>> AddReturnItemToSale(List<ReturnSaleItemDto> _items, Sale sale, CancellationToken cancellationToken);
     }
 }

@@ -56,6 +56,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
   showReturnProductModal = false;
   isSavingReturn = false;
   returnProducts: any[] = [];
+  currentSaleId: string = '';
   selectedReturnProduct: string = '';
   returnProductQuantity = 1;
   
@@ -583,8 +584,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
       customerDiscount: 0,
       totalPrice: product.totalPrice,
       productName: product.productName,
-      productCode: product.productCode,
-      createDate: null
+      productCode: product.productCode, 
     }));
 
     const saleData = {
@@ -777,11 +777,51 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     });
   }
 
-  // Return Modal Methods
-  openReturnModal(): void {
+  testButtonClick(): void {
+    console.log('Button clicked!');
+  }
+
+  showAlert(): void {
+    alert('Buton çalışıyor!');
+  }
+
+  openReturnModal(sale?: any): void {
+    console.log('=== openReturnModal called with sale ===', sale);
+    
+    // Mevcut satış ID'sini sakla
+    this.currentSaleId = sale?.id || '';
+    
     this.showReturnModal = true;
     this.returnProducts = [];
     this.resetReturnData();
+    
+    // Müşteri detay sayfasından gelen veri için saleItems kontrolü
+    if (sale && sale.items && sale.items.length > 0) {
+      console.log('=== Sale items found ===', sale.items);
+      
+      // Satıştaki ürünleri iade ürünleri listesine ekle
+      sale.items.forEach((item: any) => {
+        console.log('=== Processing item ===', item);
+        
+        const returnProduct = {
+          id:   item.id,
+          productId: item.productId, // items içindeki productId kullan
+          productCode: item.productCode || 'N/A',
+          productName: item.productName || sale.notes || 'Ürün',
+          quantity: 0,
+          unitPrice: item.unitPrice || 0,
+          subtotal: 0,
+          totalPrice: 0,
+          maxQuantity: item.quantity,
+          originalQuantity: item.quantity
+        };
+        
+        console.log('=== Created return product ===', returnProduct);
+        this.returnProducts.push(returnProduct);
+      });
+      
+      console.log('=== Final return products ===', this.returnProducts);
+    }  
   }
 
   closeReturnModal(): void {
@@ -835,6 +875,12 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     }
 
     const product = this.availableProducts.find(p => p.id === this.selectedReturnProduct);
+    
+    if (!product) {
+      this.swalService.error('Hata', 'Seçilen ürün bulunamadı.');
+      return;
+    }
+    
     const unitPrice = product.price;
     const subtotal = unitPrice * this.returnProductQuantity;
     
@@ -859,6 +905,59 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     this.returnProducts = this.returnProducts.filter(p => p.id !== productId);
   }
 
+  validateReturnQuantity(product: any): void {
+    const maxQuantity = product.maxQuantity || product.originalQuantity;
+    let enteredQuantity = product.quantity;
+    
+    // Başta 0 varsa kaldır (örn: 05 -> 5)
+    if (typeof enteredQuantity === 'string' && enteredQuantity.startsWith('0') && enteredQuantity.length > 1) {
+      enteredQuantity = parseInt(enteredQuantity, 10);
+      product.quantity = enteredQuantity;
+    }
+    
+    // Max değeri aşarsa uyarı ver ve 0'a ayarla
+    if (enteredQuantity > maxQuantity) {
+      this.swalService.warning(
+        'Miktar Limiti Aşıldı!',
+        `"${product.productName}" ürününden en fazla ${maxQuantity} adet iade edebilirsiniz. Miktar 0 olarak ayarlandı.`
+      );
+      
+      // 0'a ayarla
+      product.quantity = 0;
+      this.updateReturnProduct(product);
+      return;
+    }
+    
+    // Negatif değer kontrolü
+    if (enteredQuantity < 0) {
+      this.swalService.warning(
+        'Geçersiz Miktar!',
+        'İade miktarı negatif olamaz. Miktar 0 olarak ayarlandı.'
+      );
+      
+      product.quantity = 0;
+      this.updateReturnProduct(product);
+      return;
+    }
+    
+    // Geçerli değer ise fiyatları güncelle
+    this.updateReturnProduct(product);
+  }
+
+  updateReturnProduct(product: any): void {
+    // Sadece fiyatları güncelle (kontroller validateReturnQuantity'de yapılıyor)
+    const quantity = product.quantity || 0;
+    product.subtotal = product.unitPrice * quantity;
+    product.totalPrice = product.subtotal; // İade için indirim yok
+    
+    console.log(`=== Updated product quantity ===`, {
+      productName: product.productName,
+      quantity: quantity,
+      maxQuantity: product.maxQuantity || product.originalQuantity,
+      subtotal: product.subtotal
+    });
+  }
+
   calculateReturnTotal(): number {
     return this.returnProducts.reduce((total, product) => total + product.totalPrice, 0);
   }
@@ -871,60 +970,86 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
       return;
     }
 
+    // Sadece miktarı 0'dan büyük olan ürünleri filtrele
+    const validReturnProducts = this.returnProducts.filter(p => p.quantity > 0);
+    
+    if (validReturnProducts.length === 0) {
+      this.swalService.error('Hata', 'Lütfen en az bir ürün için iade miktarı girin.');
+      return;
+    }
+
     this.isSavingReturn = true;
 
+    // Backend API için veri formatı
     const returnData = {
-      id: Date.now().toString(),
-      customerId: this.customer.id,
-      customerName: this.customer.name || this.customer.storeName,
-      returnItems: this.returnProducts,
-      totalAmount: this.calculateReturnTotal(),
-      status: 'pending',
-      date: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      description: `${this.returnProducts.length} ürün iadesi`
+      saleId: this.currentSaleId, // Mevcut satış ID'si
+      returnItems: validReturnProducts.map(item => ({
+        productId: item.productId,
+        productName: item.productName,
+        productCode: item.productCode,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.totalPrice
+      }))
     };
 
-    console.log('=== Saving return ===', returnData);
+    console.log('=== Saving return to API ===', returnData);
 
-    // Mock API call - replace with actual return API
-    setTimeout(() => {
-      // İade satışlar listesine ekle (negatif olarak)
-      const returnSale = {
-        id: returnData.id,
-        amount: -returnData.totalAmount, // Negatif tutar
-        date: returnData.date,
-        description: returnData.description,
-        status: 'pending',
-        invoiceNumber: 'IADE-' + Date.now(),
-        customerName: returnData.customerName,
-        items: returnData.returnItems,
-        paidAmount: 0,
-        remainingAmount: -returnData.totalAmount,
-        paymentType: 5, // İade tipi
-        storeName: this.customer.storeName || '',
-        isReturn: true // İade olduğunu belirtmek için
-      };
-      
-      this.sales.unshift(returnSale);
-      this.calculateFinancialSummary();
-      
-      this.isSavingReturn = false;
-      this.closeReturnModal();
-      this.cdr.detectChanges();
-      
-      this.swalService.success(
-        'Başarılı!', 
-        `Toplam ${this.formatCurrency(returnData.totalAmount)} tutarında iade başarıyla kaydedildi.`
-      );
-      
-      console.log('=== Return saved successfully ===', returnSale);
-    }, 1000);
+    // API isteği gönder
+    this.customersService.addReturnItemToSale(returnData).subscribe({
+      next: (response: any) => { 
+        
+        if (response && response.success) {
+          // Başarılı ise satışlar listesini güncelle
+          const returnSale = {
+            id: response.data?.id || Date.now().toString(),
+            amount: -this.calculateReturnTotal(), // Negatif tutar
+            date: new Date().toISOString().split('T')[0],
+            description: `${validReturnProducts.length} ürün iadesi`,
+            status: 'pending',
+            invoiceNumber: 'IADE-' + Date.now(),
+            customerName: this.customer.name || this.customer.storeName,
+            items: validReturnProducts,
+            paidAmount: 0,
+            remainingAmount: -this.calculateReturnTotal(),
+            paymentType: 5, // İade tipi
+            storeName: this.customer.storeName || '',
+            isReturn: true // İade olduğunu belirtmek için
+          };
+          
+          this.sales.unshift(returnSale);
+          this.calculateFinancialSummary();
+          
+          this.isSavingReturn = false;
+          this.closeReturnModal();
+          this.cdr.detectChanges();
+          
+          this.swalService.success(
+            'Başarılı!', 
+            `Toplam ${this.formatCurrency(this.calculateReturnTotal())} tutarında iade başarıyla kaydedildi.`
+          );
+           this.loadSales();
+        } else {
+          this.isSavingReturn = false;
+          this.swalService.error('Hata', response?.message || 'İade kaydedilirken bir hata oluştu.');
+        }
+      },
+      error: (err: any) => {
+        console.error('=== Return API error ===', err);
+        this.isSavingReturn = false;
+        this.cdr.detectChanges();
+        
+        this.swalService.error(
+          'Hata!', 
+          err?.error?.message || 'İade kaydedilirken bir hata oluştu.'
+        );
+      }
+    });
   }
 
   // Satış/Alış kontrol metodları
-  isSellerStore(sale: any): boolean {  
-    const result = sale.isSale === true;  
+  isSellerStore(sale: any): boolean {
+    const result = sale.isSale === true;
     return result;
   }
 
@@ -935,6 +1060,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
       return sale.sellerStoreName || sale.partnerStoreName || 'Bilinmeyen Mağaza';
     }
   }
+  
   getSellerStoreName(sale: any): string {
     return sale.sellerStoreName 
   }

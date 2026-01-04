@@ -34,6 +34,9 @@ export class CustomersService extends BaseService   {
   create(payload: any): Observable<any> {
     return this.post<any>('Customer/Create', payload);
   }
+  addReturnItemToSale(payload: any): Observable<any> {
+    return this.post<any>('SaleItem/AddReturnItemToSale', payload);
+  }
 
   getById(id: string | number,storeId:string|number): Observable<any> {
     const body = { 

@@ -1,4 +1,5 @@
-﻿using eLonca.Common.Models;
+﻿using eLonca.Common.Enums;
+using eLonca.Common.Models;
 using eLonca.Domain.Entities;
 using eLonca.Domain.Interfaces;
 using MediatR;
@@ -29,7 +30,9 @@ namespace eLonca.Application.Commands.SaleItemCommand.CreateSaleItem
                     ProductId = request.ProductId,
                     Quantity = request.Quantity,
                     UnitPrice = request.UnitPrice,
-                    TotalPrice=request.Quantity * request.UnitPrice
+                    TotalPrice=request.Quantity * request.UnitPrice,
+                    SaleType=SaleItemType.Sale,
+                    
 
                 };
                 sale.Data.SaleItems.Add(newSale);
