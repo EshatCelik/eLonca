@@ -558,6 +558,19 @@
                       </button>
                     </div>
                   </div>
+                  
+                  <!-- Product Return Note - Outside product card -->
+                  @if (product.quantity > 0) {
+                    <div class="product-return-note">
+                      <label>İade Notu:</label>
+                      <textarea 
+                        [(ngModel)]="product.returnNote" 
+                        class="form-input product-note-textarea" 
+                        placeholder="Bu ürün için iade notu giriniz..."
+                        rows="2"
+                      ></textarea>
+                    </div>
+                  }
                 }
               </div>
             }
@@ -579,7 +592,7 @@
             <button type="button" class="btn btn-secondary" (click)="closeReturnModal()">
               <i class="fas fa-times"></i> İptal
             </button>
-            <button type="button" class="btn btn-warning" (click)="saveReturn()" [disabled]="returnProducts.length === 0 || isSavingReturn">
+            <button type="button" class="btn btn-warning" (click)="saveReturn()" [disabled]="!canSaveReturn() || isSavingReturn">
               <i class="fas fa-save"></i> {{ isSavingReturn ? 'Kaydediliyor...' : 'İade Kaydet' }}
             </button>
           </div>

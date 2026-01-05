@@ -1621,6 +1621,8 @@ input:checked + .slider:before {
 .return-modal {
   max-width: 600px;
   width: 95%;
+  box-sizing: border-box;
+  overflow: hidden;
   
   .modal-header {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -2414,6 +2416,10 @@ input:checked + .slider:before {
   max-height: 65vh;
   overflow-y: auto;
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -2714,6 +2720,10 @@ input:checked + .slider:before {
 .sales-modal {
   .products-section {
     margin-bottom: 30px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 
     .section-header {
       display: flex;
@@ -2770,6 +2780,10 @@ input:checked + .slider:before {
       display: flex;
       flex-direction: column;
       gap: 15px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
 
       .product-item {
         background: white;
@@ -2778,6 +2792,10 @@ input:checked + .slider:before {
         border: 1px solid #e9ecef;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
 
         &:hover {
           transform: translateY(-2px);
@@ -2970,6 +2988,99 @@ input:checked + .slider:before {
     .btn {
       min-width: 120px;
       justify-content: center;
+    }
+  }
+  
+  // Return Note Section
+  .return-note-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    
+    .section-header {
+      margin-bottom: 15px;
+      
+      h4 {
+        margin: 0;
+        color: #495057;
+        font-size: 14px;
+        font-weight: 600;
+        
+        i {
+          margin-right: 8px;
+          color: #ffc107;
+        }
+      }
+    }
+    
+    .note-input-container {
+      .note-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 14px;
+        line-height: 1.5;
+        resize: vertical;
+        min-height: 80px;
+        
+        &:focus {
+          outline: none;
+          border-color: #ffc107;
+          box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+        }
+        
+        &::placeholder {
+          color: #6c757d;
+        }
+      }
+    }
+  }
+  
+  // Product Return Note
+  .product-return-note {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    width: calc(100% - 40px);
+    max-width: calc(100% - 40px);
+    box-sizing: border-box;
+    margin-left: 20px;
+    margin-right: 20px;
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    .product-note-textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.4;
+      resize: vertical;
+      min-height: 60px;
+      box-sizing: border-box;
+      
+      &:focus {
+        outline: none;
+        border-color: #ffc107;
+        box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.1);
+      }
+      
+      &::placeholder {
+        color: #6c757d;
+        font-size: 12px;
+      }
     }
   }
 }

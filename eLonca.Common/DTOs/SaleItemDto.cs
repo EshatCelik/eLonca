@@ -16,6 +16,7 @@ namespace eLonca.Common.DTOs
         public string ProductName { get; set; }
         public string ProductCode { get; set; }
         public string CreateDate { get; set; }
+        public string ReturnNote { get; set; }
         public decimal?  ReturnedQuantity { get; set; }
         public SaleItemType  SaleItemType { get; set; }
 
