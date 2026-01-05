@@ -1,5 +1,4 @@
-﻿using eLonca.Common;
-using eLonca.Common.DTOs;
+﻿using eLonca.Common.DTOs;
 using eLonca.Common.DTOs.SaleItem;
 using eLonca.Common.Enums;
 using eLonca.Common.Models;
@@ -23,65 +22,31 @@ namespace eLonca.Infrastructure.Repositories
 
             foreach (var s in _items)
             {
-
                 var findItem = _dbContext.SaleItems.Where(x => x.SaleId == sale.Id && x.ProductId == s.ProductId && x.SaleType == SaleItemType.Sale).FirstOrDefault();
-                if (findItem != null && (findItem.Quantity > s.Quantity))
+                if (findItem != null)
                 {
                     findItem.Quantity -= s.Quantity;
                     findItem.TotalPrice = findItem.Quantity * findItem.UnitPrice;
-                    sale.TotalAmount -= s.Quantity * s.UnitPrice;
+                    sale.TotalAmount -= s.Quantity * s.UnitPrice- (s.Quantity * s.UnitPrice * Convert.ToDecimal(findItem.CustomerDiscount)/100);
 
-                    var isExistReturnType = _dbContext.SaleItems.Where(x => x.SaleId == sale.Id && x.ProductId == s.ProductId && x.SaleType == SaleItemType.Return).FirstOrDefault();
-                    if (isExistReturnType != null)
+                    var createNewReturnItem = new SaleItem()
                     {
-                        isExistReturnType.Quantity += s.Quantity;
-                    }
-                    else
-                    {
-                        var createNewReturnItem = new SaleItem()
-                        {
-                            SaleId = sale.Id,
-                            SaleType = SaleItemType.Return,
-                            Quantity = s.Quantity,
-                            ProductId = s.ProductId,
-                            TotalPrice = 0
-
-                        };
-                        sale.SaleItems.Add(createNewReturnItem);
-                    }
-                }
-                else if (findItem != null && (findItem.Quantity == s.Quantity))
-                {
-                    var isExistReturnType = _dbContext.SaleItems.Where(x => x.SaleId == sale.Id && x.ProductId == s.ProductId && x.SaleType == SaleItemType.Return).FirstOrDefault();
-                    if (isExistReturnType != null)
-                    {
-                        isExistReturnType.Quantity += s.Quantity;
-                        sale.TotalAmount -= s.Quantity * s.UnitPrice;
-                        findItem.Quantity = 0;
-                        findItem.TotalPrice = 0;
-                        findItem.IsActive = false;
-                        findItem.IsDeleted = true;
-
-                        _dbContext.SaleItems.Remove(findItem);
-                        _dbContext.SaveChanges();
-                    }
-                    else
-                    {
-
-                        findItem.SaleType = SaleItemType.Return;
-                        findItem.TotalPrice = 0;
-                    }
-                }
+                        SaleId = sale.Id,
+                        SaleType = SaleItemType.Return,
+                        Quantity = s.Quantity,
+                        ProductId = s.ProductId,
+                        TotalPrice = 0,
+                        ReturnNote = s.ReturnNote
+                    };
+                    sale.SaleItems.Add(createNewReturnItem);
+                }                 
                 else if (findItem == null)
                 {
                     return Result<Sale>.Failure(null, "Ürün Kalemleri bulunamadı", 400);
                 }
-
             }
             return Result<Sale>.Success(sale, "Satış detay güncelleme başarılı", 200);
-
         }
-
         public async Task<Result<StoreCustomer>> CheckCustomerRelation(Guid? storeId, Guid? storeCustomerId, CancellationToken cancellationToken)
         {
             var customer = _dbContext.StoreCustomers.Where(x => x.StoreId == storeId && x.CustomerStoreId == storeCustomerId && x.IsActive && x.IsDeleted == false).FirstOrDefault();
@@ -91,13 +56,11 @@ namespace eLonca.Infrastructure.Repositories
             }
             return Result<StoreCustomer>.Success(customer, "Müşteri bulundu", 200);
         }
-
         public async Task<Result<List<SaleItem>>> GetAllSaleItemById(Guid saleId, CancellationToken cancellationToken)
         {
             var list = _dbContext.SaleItems.Where(x => x.SaleId == saleId).ToList();
             return Result<List<SaleItem>>.Success(list, "Liste başarılı", 200);
         }
-
         public async Task<Result<List<GetAllSalesDto>>> GetAllSales(Guid currentStoreId, Guid partnerStoreId, CancellationToken cancellationToken)
         {
             var storeCustomerIds = await _dbContext.StoreCustomers
@@ -203,17 +166,18 @@ namespace eLonca.Infrastructure.Repositories
                         TransactionType = "İade", // ← Her zaman İade
                         SaleItems = new List<SaleItemDto>(),
                         SaleReturnItems = new List<SaleItemDto>
-                {
-                    new SaleItemDto
-                    {
-                        Id = returnItem.Id,
-                        SaleId = returnItem.SaleId,
-                        Quantity = returnItem.Quantity,
-                        UnitPrice = returnItem.UnitPrice,
-                        ProductId = returnItem.ProductId,
-                        TotalPrice = returnItem.TotalPrice
-                    }
-                },
+                                        {
+                                            new SaleItemDto
+                                            {
+                                                Id = returnItem.Id,
+                                                SaleId = returnItem.SaleId,
+                                                Quantity = returnItem.Quantity,
+                                                UnitPrice = returnItem.UnitPrice,
+                                                ProductId = returnItem.ProductId,
+                                                TotalPrice = returnItem.TotalPrice,
+                                                ReturnNote=returnItem.ReturnNote
+                                            }
+                                        },
                         IsSale = isSale, // İade olsa da orijinal satışın IsSale değeri
                         SellerStoreId = saleData.SellerStore.Id,
                         SellerStoreName = saleData.SellerStore.StoreName,
@@ -233,7 +197,7 @@ namespace eLonca.Infrastructure.Repositories
                 .ToList();
 
             return Result<List<GetAllSalesDto>>.Success(sortedTransactions, "Satış listesi", 200);
-        } 
+        }
 
         public async Task<Result<List<SaleItem>>> GetItemsTotalAmount(List<SaleItem> list, Guid storeId, Guid customerId)
         {
@@ -330,7 +294,8 @@ namespace eLonca.Infrastructure.Repositories
                                                     TotalPrice = si.TotalPrice,
                                                     CreateDate = si.CreateAt.ToString("dd/MM/yyy HH:mm"),
                                                     ReturnedQuantity = si.ReturnedQuantity,
-                                                    SaleItemType = si.SaleType
+                                                    SaleItemType = si.SaleType,
+                                                    ReturnNote = si.ReturnNote
                                                 }).ToList()
                          }).FirstOrDefault();
 

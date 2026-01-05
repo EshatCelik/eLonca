@@ -161,11 +161,11 @@
             <div class="header-cell">Ürün Adı</div>
             <div class="header-cell">İade Tarihi</div>
             <div class="header-cell">Miktar</div>
-            <div class="header-cell">İade</div>
+            <div class="header-cell">İade Notu</div> 
             <div class="header-cell">Birim Fiyat</div>
             <div class="header-cell">İndirim</div>
             <div class="header-cell">Toplam Fiyat</div>
-            <div class="header-cell">İşlemler</div>
+            <!-- <div class="header-cell">İşlemler</div> -->
           </div>
           <div *ngFor="let item of sale.saleReturnItems; trackBy: trackByItemId" 
                class="table-row" 
@@ -175,25 +175,15 @@
             <div class="table-cell product-name">{{ item.productName || '-' }}</div>
             <div class="table-cell return-date">{{ item.createDate || '-' }}</div>
             <div class="table-cell quantity">{{ item.quantity || 0 }}</div>
-            <div class="table-cell returned-quantity">{{ item.returnedQuantity || 0 }}</div>
+            <div class="table-cell returned">{{ item.returnNote}}</div> 
             <div class="table-cell price">{{ formatCurrency(item.unitPrice) }}</div>
             <div class="table-cell discount">
               <span *ngIf="item.discount">{{ item.discount }}%</span>
               <span *ngIf="!item.discount && item.customerDiscount && item.customerDiscount > 0">{{ item.customerDiscount }}%</span>
               <span *ngIf="!item.discount && (!item.customerDiscount || item.customerDiscount === 0)">-</span>
             </div>
-            <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div> 
-          </div>
-          <div class="table-footer">
-            <div class="footer-cell"></div>
-            <div class="footer-cell"></div>
-            <div class="footer-cell"></div>
-            <div class="footer-cell"></div>
-            <div class="footer-cell"></div>
-            <div class="footer-cell"><strong>Toplam:</strong></div>
-            <div class="footer-cell total-amount">{{ formatCurrency(sale.totalAmount) }}</div>
-            <div class="footer-cell"></div>
-          </div>
+            <!-- <div class="table-cell total-price">{{ formatCurrency(item.totalPrice) }}</div>  -->
+          </div> 
         </div>
         <div *ngIf="!sale.saleReturnItems || sale.saleReturnItems.length === 0" class="no-items">
           <i class="fas fa-box-open"></i>

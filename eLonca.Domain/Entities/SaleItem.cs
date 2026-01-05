@@ -13,6 +13,7 @@ namespace eLonca.Domain.Entities
         public Double? CustomerDiscount { get; set; }
         public decimal? TotalPrice { get; set; }
         public int ReturnedQuantity { get; set; } // iade ürünsayısı
+        public string? ReturnNote { get; set; } // iade ürünsayısı
         public SaleItemType SaleType { get; set; }
 
         // Navigation

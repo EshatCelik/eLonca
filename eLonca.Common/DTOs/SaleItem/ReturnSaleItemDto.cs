@@ -13,5 +13,6 @@
         public decimal? TotalPrice { get; set; }
         public string ProductName { get; set; }
         public string ProductCode { get; set; }  
+        public string ReturnNote { get; set; }  
     }
 }

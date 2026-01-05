@@ -963,6 +963,11 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     return this.returnProducts.reduce((total, product) => total + product.totalPrice, 0);
   }
 
+  canSaveReturn(): boolean {
+    const validProducts = this.returnProducts.filter(p => p.quantity > 0);
+    return validProducts.length > 0 && validProducts.every(p => p.returnNote && p.returnNote.trim().length > 0);
+  }
+
   saveReturn(): void {
     if (this.isSavingReturn) return;
     
@@ -990,7 +995,8 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
         productCode: item.productCode,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        totalPrice: item.totalPrice
+        totalPrice: item.totalPrice,
+        returnNote: item.returnNote || '' // Her ürünün iade notu
       }))
     };
 
