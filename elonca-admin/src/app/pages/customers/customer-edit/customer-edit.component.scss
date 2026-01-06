@@ -36,6 +36,103 @@
   gap: 15px;
 }
 
+.customer-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  align-items: center;
+}
+
+.customer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.customer-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.customer-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 25px;
+  align-items: start;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.edit-field label i {
+  font-size: 10px;
+  color: #667eea;
+}
+
+.edit-field .form-input {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  margin-right: 5px;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  }
+}
+
+.switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.switch-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .customer-edit-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .customer-edit-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+
 .action-buttons {
   display: flex;
   gap: 12px;
@@ -850,28 +947,29 @@ input:checked + .slider:before {
         }
       }
       
-      // Satış satırları - Yeşil tema
+      // Satış satırları - Varsayılan tema
       &.sale-row {
-        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-        border-left: 4px solid #28a745;
+        background: #ffffff;
+        border-left: 4px solid #e9ecef;
         
         &:hover {
-          background: linear-gradient(135deg, #c3e6cb 0%, #b8dabc 100%);
-          box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
+          background: #f8f9fa;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .transaction-badge.sale-badge {
-          background: linear-gradient(135deg, #28a745, #20c997);
-          color: white;
+          background: #f8f9fa;
+          color: #6c757d;
+          border: 1px solid #dee2e6;
           
           i {
-            color: white;
+            color: #6c757d;
           }
         }
         
         .total-amount {
-          color: #155724;
-          font-weight: 700;
+          color: #2c3e50;
+          font-weight: 600;
         }
       }
       
