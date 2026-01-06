@@ -29,6 +29,12 @@ export class LoginComponent extends BaseComponent {
     private readonly cdr: ChangeDetectorRef
   ) {
     super(platformId);
+    
+    // If already logged in, redirect to returnUrl or home
+    if (this.authService.isAuthenticated() && !this.authService.isTokenExpired()) {
+      const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/admin';
+      this.router.navigateByUrl(returnUrl);
+    }
   }
 
   onSubmit(): void {
@@ -54,8 +60,11 @@ export class LoginComponent extends BaseComponent {
             // Save auth data to localStorage using BaseComponent method
             this.saveCurrentUserToStorage(response.data);
             
-            this.errorMessage = '';
-            this.router.navigate(['/admin']);
+            // Get return URL from route parameters or default to '/admin'
+            const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/admin';
+            
+            // Navigate to the return URL
+            this.router.navigateByUrl(returnUrl);
           } else {
             // Backend'ten gelen mesajı butonun üstünde göster
             this.errorMessage = response?.message || 'E-posta veya şifre hatalı.';
