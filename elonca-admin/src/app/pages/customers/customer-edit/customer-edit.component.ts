@@ -94,12 +94,48 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
   }
 
   ngOnInit(): void {
+    console.log('=== CustomerEditComponent ngOnInit ===');
+    console.log('=== isBrowser:', this.isBrowser());
+    
+    // Ensure we're in browser environment
+    if (!this.isBrowser()) {
+      console.log('=== Running on server - skipping data load ===');
+      return;
+    }
+    
+    // Load data immediately
+    console.log('=== Starting data load ===');
     this.loadCustomer();
     this.loadAvailableProducts();
-    // Change detection için
+    
+    // Force change detection multiple times to ensure UI updates
+    this.cdr.detectChanges();
+    console.log('=== Initial change detection triggered ===');
+    
     setTimeout(() => {
       this.cdr.detectChanges();
+      console.log('=== Change detection after 50ms ===');
+    }, 50);
+    
+    setTimeout(() => {
+      this.cdr.detectChanges();
+      console.log('=== Change detection after 100ms ===');
     }, 100);
+    
+    setTimeout(() => {
+      this.cdr.detectChanges();
+      console.log('=== Change detection after 200ms ===');
+    }, 200);
+    
+    setTimeout(() => {
+      this.cdr.detectChanges();
+      console.log('=== Change detection after 500ms ===');
+    }, 500);
+    
+    setTimeout(() => {
+      this.cdr.detectChanges();
+      console.log('=== Change detection after 1000ms ===');
+    }, 1000);
   }
 
   ngAfterViewInit(): void {
@@ -118,20 +154,25 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
     }
     
     this.isLoading = true;
+    console.log('=== Starting customer load ===');
 
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('=== Customer ID from route:', id);
     
     if (!id) {
+      console.log('=== No customer ID found ===');
       this.swalService.error('Hata', 'Müşteri ID bulunamadı.');
       this.isLoading = false;
       return;
     }
     
+    console.log('=== Calling customer service getById ===');
     this.customersService
       .getById(id,this.currentStoreId)
       .pipe(
         timeout(10000),
         catchError((err: any) => {
+          console.log('=== Customer service error ===', err);
           this.swalService.error('Hata', 'API isteği zaman aşımına uğradı veya hata oluştu.');
           this.cdr.detectChanges();
           return of(null);
@@ -139,16 +180,22 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
       )
       .subscribe({
         next: (data: any) => {
+          console.log('=== Customer service response ===', data);
           if (data) {
             this.customer = data;
+            console.log('=== Customer data set ===', this.customer);
             this.loadCustomerFinancialData();
+          } else {
+            console.log('=== No customer data received ===');
           }
           this.isLoading = false;
           // Force change detection
           this.cdr.detectChanges();
+          console.log('=== Change detection triggered after customer load ===');
           // Additional force after a small delay
           setTimeout(() => {
             this.cdr.detectChanges();
+            console.log('=== Additional change detection after 50ms ===');
           }, 50);
         }
       });
@@ -267,6 +314,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
         catchError((err: any) => {
           console.log('=== Sales load error ===', err);
           this.swalService.error('Hata', 'Satışlar yüklenirken bir hata oluştu.');
+          this.isLoadingSales = false;
           this.cdr.detectChanges();
           return of([]);
         })
@@ -310,6 +358,7 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
               items: sale.saleItems || [],
               paidAmount: sale.paidAmount || 0,
               remainingAmount: sale.remainingAmount || 0,
+              saleUser:sale.saleUser || '',
               paymentType: sale.paymentType || 1,
               storeName: sale.storeName || '',
               isSale: sale.isSale,
@@ -323,13 +372,17 @@ export class CustomerEditComponent extends BaseComponent implements OnInit, Afte
           }
           
           this.isLoadingSales = false;
+          console.log('=== Sales loaded ===', this.sales);
           this.calculateFinancialSummary();
-          setTimeout(() => {
-            this.cdr.detectChanges();
-          }, 0);
+          
+          // Force multiple change detections
+          this.cdr.detectChanges();
+          setTimeout(() => this.cdr.detectChanges(), 50);
+          setTimeout(() => this.cdr.detectChanges(), 100);
         },
         error: (err: any) => {
           console.log('=== Sales API error ===', err);
+          this.isLoadingSales = false;
           this.cdr.detectChanges();
         }
       });

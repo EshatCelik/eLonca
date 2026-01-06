@@ -947,23 +947,23 @@ input:checked + .slider:before {
         }
       }
       
-      // Satış satırları - Varsayılan tema
+      // Satış satırları - Yeşil tema
       &.sale-row {
-        background: #ffffff;
-        border-left: 4px solid #e9ecef;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left: 4px solid #28a745;
         
         &:hover {
-          background: #f8f9fa;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          background: linear-gradient(135deg, #c3e6cb 0%, #b8dabc 100%);
+          box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
         }
         
         .transaction-badge.sale-badge {
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 1px solid #dee2e6;
+          background: linear-gradient(135deg, #28a745, #20c997);
+          color: white;
+          border: 1px solid #28a745;
           
           i {
-            color: #6c757d;
+            color: white;
           }
         }
         
@@ -985,6 +985,15 @@ input:checked + .slider:before {
         
         .transaction-badge.purchase-badge {
           background: linear-gradient(135deg, #dc3545, #e74c3c);
+          color: white;
+          
+          i {
+            color: white;
+          }
+        }
+        
+        .transaction-badge.return-badge {
+          background: linear-gradient(135deg, #ffb300, #ffa000);
           color: white;
           
           i {

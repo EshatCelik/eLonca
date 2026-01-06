@@ -137,20 +137,23 @@ export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
   ) {
     super(platformId);
     
+    // Remove any existing dropdown on component initialization
+    if (this.isBrowser()) {
+      this.removeDropdown();
+    }
+    
     // Browser'da auth kontrolünü tetikle ve yönlendir
     setTimeout(() => {
       this.authService.checkAuthOnBrowser();
       
       // 100ms sonra auth durumunu kontrol et
       setTimeout(() => {
-        // Geçici olarak auth kontrolünü devre dışı bırak
-        // if (!this.authService.isAuthenticated()) {
-        //   console.log('Not authenticated - redirecting to login');
-        //   this.router.navigate(['/login']);
-        // } else {
-        //   console.log('Authenticated - staying on page');
-        // }
-        console.log('Auth check temporarily disabled');
+        if (!this.authService.isAuthenticated()) {
+          console.log('Not authenticated - redirecting to login');
+          this.router.navigate(['/login']);
+        } else {
+          console.log('Authenticated - staying on page');
+        }
       }, 100);
     }, 0);
   }
@@ -248,10 +251,20 @@ export class AdminLayoutComponent extends BaseComponent implements OnDestroy {
 
   private removeDropdown(): void {
     if (this.isBrowser()) {
-      const existing = document.querySelector('[data-user-dropdown="true"]');
-      if (existing) {
-        existing.remove();
-      }
+      // Remove all dropdown elements with the data attribute
+      const dropdowns = document.querySelectorAll('[data-user-dropdown="true"]');
+      dropdowns.forEach(dropdown => {
+        dropdown.remove();
+      });
+      
+      // Also remove any elements that might be dropdowns but don't have the attribute
+      const possibleDropdowns = document.querySelectorAll('div[style*="position: fixed"][style*="top: 60px"][style*="right: 20px"]');
+      possibleDropdowns.forEach(dropdown => {
+        const hasUserMenuStyle = dropdown.getAttribute('style')?.includes('min-width: 200px');
+        if (hasUserMenuStyle) {
+          dropdown.remove();
+        }
+      });
     }
   }
 
