@@ -4,7 +4,7 @@
     <!-- Financial Summary -->
     @if (customer && !isLoading) {
       <div class="financial-summary-wrapper">
-        <div class="financial-summary receivable" [ngClass]="financialStatus === 'positive' || financialStatus === 'neutral' ? 'positive' : 'neutral'">
+        <div class="financial-summary receivable positive">
           <div class="financial-icon">
             <i class="fas fa-arrow-down"></i>
           </div>
@@ -14,7 +14,7 @@
           </div>
         </div>
         
-        <div class="financial-summary payable" [ngClass]="financialStatus === 'negative' ? 'negative' : 'neutral'">
+        <div class="financial-summary payable negative">
           <div class="financial-icon">
             <i class="fas fa-arrow-up"></i>
           </div>
@@ -25,37 +25,7 @@
         </div>
       </div>
     }
-
-    <!-- Customer Info Bar -->
-    <div class="customer-info-bar">
-      <div class="customer-details">
-        <span class="customer-code-display">{{ customer?.customerCode || '-' }}</span>
-        <span class="status-badge" [ngClass]="{
-          'active': customer?.isActive,
-          'inactive': !customer?.isActive
-        }">
-          {{ customer?.isActive ? 'Aktif' : 'Pasif' }}
-        </span> 
-        <p class="customer-type">{{ getCustomerType(customer?.customerType) }}</p>
-      </div>
-      
-      <div class="action-buttons">
-        <button type="button" class="btn btn-secondary" (click)="onClose()">
-          <i class="fas fa-arrow-left"></i> Geri Dön
-        </button>
-        <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
-          <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Güncelle' }}
-        </button>
-      </div>
-    </div>
   </div>
-
-  @if (isLoading) {
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Yükleniyor...</p>
-    </div>
-  }
 
   @if (!isLoading && !customer) {
     <div class="error-container">
@@ -67,20 +37,19 @@
   @if (customer && !isLoading) {
     <div class="content-container">
       <div class="customer-card"> 
- 
         <div class="card-body">
           <div class="info-section">
             <h3><i class="fas fa-info-circle"></i> Müşteri Bilgileri</h3>
-            <div class="info-grid">
-              <div class="info-item">
+            <div class="customer-edit-grid">
+              <div class="edit-field">
                 <label><i class="fas fa-barcode"></i> Müşteri Kodu</label>
                 <input type="text" [(ngModel)]="customer.customerCode" class="form-input" placeholder="Müşteri kodu" />
               </div>
-              <div class="info-item">
+              <div class="edit-field">
                 <label><i class="fas fa-store"></i> Mağaza Adı</label>
                 <input type="text" [(ngModel)]="customer.storeName" class="form-input" placeholder="Mağaza adı" />
               </div>
-              <div class="info-item">
+              <div class="edit-field">
                 <label><i class="fas fa-tag"></i> Müşteri Tipi</label>
                 <select [(ngModel)]="customer.customerType" class="form-input">
                   <option value="">Müşteri tipi seçin</option>
@@ -88,46 +57,36 @@
                   <option value="2">Kurumsal</option>
                 </select>
               </div>
-              <div class="info-item">
+              <div class="edit-field">
                 <label><i class="fas fa-percentage"></i> İndirim Oranı</label>
                 <div class="input-with-icon">
                   <input type="number" [(ngModel)]="customer.discountRate" class="form-input" placeholder="0" min="0" max="100" step="0.01" />
                   <span class="input-icon">%</span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div class="info-section">
-            <h3><i class="fas fa-phone-alt"></i> İletişim Bilgileri</h3>
-            <div class="info-grid">
-              <div class="info-item">
+              <div class="edit-field">
                 <label><i class="fas fa-phone"></i> Telefon</label>
-                <input type="tel" [(ngModel)]="customer.phone" class="form-input" placeholder="Telefon numarası" />
+                <input type="tel" [(ngModel)]="customer.phone" class="form-input" placeholder="Telefon" />
               </div>
-              <div class="info-item">
+              <div class="edit-field">
                 <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" [(ngModel)]="customer.email" class="form-input" placeholder="Email adresi" />
+                <input type="email" [(ngModel)]="customer.email" class="form-input" placeholder="Email" />
               </div>
-              <div class="info-item full-width">
-                <label><i class="fas fa-map-marker-alt"></i> Adres</label>
-                <textarea [(ngModel)]="customer.address" class="form-input" placeholder="Adres bilgileri" rows="3"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div class="info-section">
-            <h3><i class="fas fa-cog"></i> Diğer Ayarlar</h3>
-            <div class="settings-grid">
-              <div class="setting-item">
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="customer.isActive" />
-                  <span class="slider"></span>
-                </label>
-                <div class="setting-info">
-                  <h4>Aktif Müşteri</h4>
-                  <p>Bu müşterinin sistemde aktif olup olmadığını belirler</p>
+              <div class="edit-field">
+                <label><i class="fas fa-toggle-on"></i> Durum</label>
+                <div class="switch-wrapper">
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="customer.isActive" />
+                    <span class="slider"></span>
+                  </label>
+                  <span class="switch-label">{{ customer.isActive ? 'Aktif' : 'Pasif' }}</span>
                 </div>
+              </div>
+              <div class="edit-field">
+                <label><i class="fas fa-save"></i> İşlem</label>
+                <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="isSaving">
+                  <i class="fas fa-save"></i> {{ isSaving ? 'Kaydediliyor...' : 'Güncelle' }}
+                </button>
               </div>
             </div>
           </div>
