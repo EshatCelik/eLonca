@@ -92,13 +92,32 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+
+    try {
+      // Decode the token to check expiration
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expires = payload.exp * 1000; // Convert to milliseconds
+      const now = Date.now();
+      
+      return now >= expires;
+    } catch (error) {
+      console.error('Error checking token expiration:', error);
+      return true; // If there's an error, assume token is expired
+    }
+  }
+
+  logout(navigateToLogin: boolean = true): void {
     this.clearToken();
     this.clearTenantId();
-    // BaseComponent'in authData'sını da temizle
     this.clearAuthData();
     this._isAuthenticated.set(false);
-    this.router.navigate(['/login']);
+    
+    if (navigateToLogin) {
+      this.router.navigate(['/login']);
+    }
   }
 
   getToken(): string | null {
