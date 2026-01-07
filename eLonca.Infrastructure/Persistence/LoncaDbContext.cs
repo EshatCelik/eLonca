@@ -49,14 +49,14 @@ namespace eLonca.Infrastructure.Persistence
             {
 
                 //modelBuilder.Entity<StoreCustomer>().HasQueryFilter(c => c.TenantId == tenantId);
-                modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == tenantId);
-                modelBuilder.Entity<Category>().HasQueryFilter(c => c.TenantId == tenantId);
-                modelBuilder.Entity<CustomerAccount>().HasQueryFilter(ca => ca.TenantId == tenantId);
-                modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == tenantId);
-                modelBuilder.Entity<Product>().HasQueryFilter(p => p.TenantId == tenantId);
-                modelBuilder.Entity<Sale>().HasQueryFilter(s => s.TenantId == tenantId);
-                modelBuilder.Entity<SaleItem>().HasQueryFilter(si => si.TenantId == tenantId);
-                modelBuilder.Entity<StockMovement>().HasQueryFilter(sm => sm.TenantId == tenantId);
+                //modelBuilder.Entity<User>().HasQueryFilter(u => u.TenantId == tenantId);
+                //modelBuilder.Entity<Category>().HasQueryFilter(c => c.TenantId == tenantId);
+                //modelBuilder.Entity<CustomerAccount>().HasQueryFilter(ca => ca.TenantId == tenantId);
+                //modelBuilder.Entity<Payment>().HasQueryFilter(p => p.TenantId == tenantId);
+                //modelBuilder.Entity<Product>().HasQueryFilter(p => p.TenantId == tenantId);
+                //modelBuilder.Entity<Sale>().HasQueryFilter(s => s.TenantId == tenantId);
+                ////modelBuilder.Entity<SaleItem>().HasQueryFilter(si => si.TenantId == tenantId);
+                //modelBuilder.Entity<StockMovement>().HasQueryFilter(sm => sm.TenantId == tenantId);
                 //modelBuilder.Entity<Store>().HasQueryFilter(s => s.TenantId == tenantId);
             }
 

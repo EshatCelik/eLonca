@@ -18,13 +18,11 @@ export class AuthService {
     private readonly http: HttpClient,
     @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {
-    // Sadece browser'da auth kontrolü yap
     if (isPlatformBrowser(this.platformId)) {
       this.initializeAuth();
       console.log('Browser - Auth initialized');
     } else {
       console.log('Running on server - skipping auth initialization');
-      // Server'da false olarak başla, browser'da güncellenecek
       this._isAuthenticated.set(false);
     }
   }
@@ -41,15 +39,13 @@ export class AuthService {
     const token = this.getToken();
     console.log('Initial auth check - Token exists:', !!token);
     
-    // Token varsa authenticated olarak işaretle, yoksa false yap
     if (token) {
+      this.ensureTenantContext();
       this._isAuthenticated.set(true);
       console.log('User authenticated from stored token');
-      console.log('Signal value after set:', this._isAuthenticated());
     } else {
       this._isAuthenticated.set(false);
       console.log('No token found - user not authenticated');
-      console.log('Signal value after set:', this._isAuthenticated());
     }
   }
 
@@ -64,19 +60,15 @@ export class AuthService {
 
     return this.http.post<any>(`${this.apiBase}/Login`, body).pipe(
       tap((response) => {
-        const token =
-          response?.token ||
-          response?.accessToken ||
-          response?.data?.token ||
-          response?.data?.accessToken ||
-          response?.result?.token ||
-          response?.result?.accessToken;
-
+        const token = this.extractToken(response);
         if (response?.isSuccess && token) {
           this.setToken(token);
-          const tenantId = response?.tenantId ?? response?.data?.tenantId ?? response?.result?.tenantId;
-          if (tenantId) this.setTenantId(tenantId);
+          const tenantId = this.extractTenantId(response);
+          if (tenantId) {
+            this.setTenantId(tenantId);
+          }
           this._isAuthenticated.set(true);
+          console.log('Login successful, tenant ID:', tenantId);
         } else {
           this.clearToken();
           this.clearTenantId();
@@ -90,6 +82,47 @@ export class AuthService {
         return throwError(() => error);
       })
     );
+  }
+
+  private extractToken(response: any): string | null {
+    return response?.token || 
+           response?.accessToken || 
+           response?.data?.token || 
+           response?.data?.accessToken || 
+           response?.result?.token || 
+           response?.result?.accessToken;
+  }
+
+  private extractTenantId(response: any): string | null {
+    return response?.tenantId || 
+           response?.data?.tenantId || 
+           response?.result?.tenantId || 
+           (response?.data?.user ? response.data.user.tenantId : null);
+  }
+
+  ensureTenantContext(): void {
+    const token = this.getToken();
+    const tenantId = this.getTenantId();
+    
+    if (token && !tenantId) {
+      try {
+        const payload = this.parseJwt(token);
+        if (payload.tenantId) {
+          this.setTenantId(payload.tenantId);
+          console.log('Tenant ID set from token:', payload.tenantId);
+        }
+      } catch (error) {
+        console.error('Failed to extract tenantId from token:', error);
+      }
+    }
+  }
+
+  private parseJwt(token: string): any {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
   }
 
   isTokenExpired(): boolean {
@@ -122,76 +155,105 @@ export class AuthService {
 
   getToken(): string | null {
     if (!isPlatformBrowser(this.platformId)) {
-      console.log('Running on server - cannot access localStorage');
       return null;
     }
     
     try {
-      // Farklı token anahtarlarını dene
       const tokenKeys = ['auth_token', 'token', 'access_token', 'jwt_token'];
       let token = null;
       
       for (const key of tokenKeys) {
         token = localStorage.getItem(key);
         if (token) {
-          console.log(`Browser - Token found with key: ${key}`);
+          // Standardize the token key
+          if (key !== 'auth_token') {
+            localStorage.setItem('auth_token', token);
+            localStorage.removeItem(key);
+          }
           break;
         }
       }
       
-      if (!token) {
-        console.log('Browser - No token found in localStorage');
+      if (token) {
+        this.ensureTenantContext();
       }
       
       return token;
-    } catch {
-      console.log('Browser - localStorage access failed');
+    } catch (error) {
+      console.error('Error getting token:', error);
       return null;
     }
   }
 
   private setToken(token: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
     try {
-      localStorage.setItem(this.tokenKey, token);
-    } catch {}
+      // Remove any existing tokens to prevent duplicates
+      const tokenKeys = ['auth_token', 'token', 'access_token', 'jwt_token'];
+      tokenKeys.forEach(key => {
+        if (key !== 'auth_token') {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      localStorage.setItem('auth_token', token);
+    } catch (error) {
+      console.error('Error setting token:', error);
+    }
   }
 
   private clearToken(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
     try {
-      localStorage.removeItem(this.tokenKey);
-    } catch {}
+      const tokenKeys = ['auth_token', 'token', 'access_token', 'jwt_token'];
+      tokenKeys.forEach(key => localStorage.removeItem(key));
+    } catch (error) {
+      console.error('Error clearing token:', error);
+    }
   }
 
   getTenantId(): string | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    
     try {
       return localStorage.getItem(this.tenantIdKey);
-    } catch {
+    } catch (error) {
+      console.error('Error getting tenant ID:', error);
       return null;
     }
   }
 
   private setTenantId(tenantId: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
     try {
       localStorage.setItem(this.tenantIdKey, tenantId);
-    } catch {}
+      console.log('Tenant ID set:', tenantId);
+    } catch (error) {
+      console.error('Error setting tenant ID:', error);
+    }
   }
 
   private clearTenantId(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
     try {
       localStorage.removeItem(this.tenantIdKey);
-    } catch {}
+    } catch (error) {
+      console.error('Error clearing tenant ID:', error);
+    }
   }
 
   private clearAuthData(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
     
     try {
       localStorage.removeItem('authData');
-      console.log('AuthData cleared from localStorage');
+      console.log('Auth data cleared');
     } catch (error) {
-      console.log('Failed to clear authData:', error);
+      console.error('Error clearing auth data:', error);
     }
   }
 
