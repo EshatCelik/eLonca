@@ -16,15 +16,17 @@ namespace eLonca.Application.Queries.RoleQueries.GetAllRole
 
         public async Task<Result<List<GetAllRoleDto>>> Handle(GetAllRoleQueryResponse request, CancellationToken cancellationToken)
         {
-            var list = _roleRepository.GetAllAsync(x => x.StoreId == request.StoreId).Result.Data
-                .Select(x => new GetAllRoleDto()
-                {
-                    Code = x.RoleCode,
-                    Name = x.RoleCode,
-                    StoreId = x.StoreId,
-                });
+            var list = _roleRepository.GetAllAsync(x => x.StoreId == request.StoreId).Result.Data.ToList();
 
-            return Result<List<GetAllRoleDto>>.Success(list.ToList(), "liste Başarılı", 200);
+            var dto = list.Select(x => new GetAllRoleDto()
+            {
+                Id=x.Id,
+                Code = x.RoleCode,
+                Name = x.RoleName,
+                StoreId = x.StoreId,
+            }).ToList();
+
+            return Result<List<GetAllRoleDto>>.Success(dto, "liste Başarılı", 200);
         }
     }
 }

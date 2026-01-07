@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef , Inject, PLATFORM_ID } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RolesService, Role } from './roles.service';
+import { RolesService, Role, CreateRoleRequest } from './roles.service';
 import { BaseComponent } from '../../core/base.component';
 
 
@@ -16,6 +16,13 @@ import { BaseComponent } from '../../core/base.component';
 export class RolesComponent extends BaseComponent  implements OnInit {
   roles: Role[] = [];
   isLoading = false; 
+  showCreateModal = false;
+  newRole: any = {
+    name: '',
+    code: '',
+    storeId: ''
+  };
+  isCreating = false; 
 
   constructor(
      @Inject(PLATFORM_ID) platformId: Object,
@@ -64,5 +71,47 @@ export class RolesComponent extends BaseComponent  implements OnInit {
 
   trackByRoleId(index: number, role: any): number {
     return role.id;
+  }
+
+  openCreateModal(): void {
+    this.showCreateModal = true;
+    this.newRole = {
+      name: '',
+      code: '',
+      storeId: 1
+    };
+  }
+
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+    this.newRole = {
+      name: '',
+      code: '',
+      storeId: 1
+    };
+  }
+
+  createRole(): void {
+    if (!this.newRole.name || !this.newRole.code) {
+      alert('Lütfen rol adı ve kodu girin!');
+      return;
+    }
+
+    this.isCreating = true;
+    this.newRole.storeId=this.currentStoreId
+    this.rolesService.create(this.newRole).subscribe({
+      next: (response) => {
+        console.log('Rol oluşturuldu:', response);
+        this.isCreating = false;
+        this.closeCreateModal();
+        this.loadRoles(); // Rolleri yeniden yükle
+        alert('Rol başarıyla oluşturuldu!');
+      },
+      error: (error) => {
+        console.error('Rol oluşturulurken hata:', error);
+        this.isCreating = false;
+        alert('Rol oluşturulurken hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+      }
+    });
   }
 }

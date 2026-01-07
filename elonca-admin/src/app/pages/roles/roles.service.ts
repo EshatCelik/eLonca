@@ -23,6 +23,18 @@ export interface GetAllRoleResponse {
   message?: string;
 }
 
+export interface CreateRoleRequest {
+  name: string;
+  code: string;
+  storeId?: number;
+}
+
+export interface CreateRoleResponse {
+  isSuccess: boolean;
+  message?: string;
+  data?: Role;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -68,6 +80,15 @@ export class RolesService extends BaseService {
 
   create(role: any): Observable<any> {
     console.log('RolesService.create - Creating role:', role);
-    return this.post<any>('Role/Create', role);
+    return this.post<any>('Role/Create', role).pipe(
+      map((res: any) => {
+        console.log('RolesService.create - Response:', res);
+        return {
+          isSuccess: res?.isSuccess ?? true,
+          message: res?.message ?? 'Rol başarıyla oluşturuldu',
+          data: res?.data ?? res
+        };
+      })
+    );
   }
 }
