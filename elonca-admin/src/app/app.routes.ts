@@ -26,6 +26,8 @@ import { ChangePasswordComponent } from './pages/profile/change-password.compone
 import { InventoryComponent } from './pages/inventory/inventory.component';
 import { StockDetailComponent } from './pages/inventory/stock-detail/stock-detail.component';
 import { ProductCompaniesComponent } from './pages/product-companies/product-companies.component';
+import { RolesComponent } from './pages/roles/roles.component';
+import { RoleDetailComponent } from './pages/roles/role-detail/role-detail.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -67,6 +69,8 @@ export const routes: Routes = [
       { path: 'inventory', component: InventoryComponent },
       { path: 'inventory/:productId/:storeId/detail', component: StockDetailComponent },
       { path: 'receivables', component: ReceivablesComponent },
+      { path: 'roles', component: RolesComponent },
+      { path: 'roles/:id', component: RoleDetailComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'change-password', component: ChangePasswordComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

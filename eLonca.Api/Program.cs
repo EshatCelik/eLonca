@@ -41,6 +41,7 @@ builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<IProductListRepository, ProductListRepository>();
 builder.Services.AddScoped<IProductListItemRepository, ProductListItemRepository>();
 builder.Services.AddScoped<IProductCompanyRepository, ProductCompanyRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
