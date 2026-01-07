@@ -1,0 +1,41 @@
+<div class="roles-container">
+  <div class="page-header">
+    <h1>Roller</h1>
+    <p>Sistem rollerini yönetin</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Yükleniyor...</p>
+  </div>
+
+  <!-- Roles Grid -->
+  <div class="roles-grid" *ngIf="!isLoading">
+    <div 
+      class="role-card" 
+      *ngFor="let role of roles; trackBy: trackByRoleId"
+      (click)="goToRoleDetail(role.id)"
+    >
+      <div class="role-icon">
+        <i class="fas" [ngClass]="getRoleIcon(role.name)"></i>
+      </div>
+      <div class="role-info">
+        <h3>{{ role.name }}</h3>
+        <p>{{ role.description }}</p>
+      </div>
+      <div class="role-arrow">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && roles.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-users-slash"></i>
+    </div>
+    <h3>Rol Bulunamadı</h3>
+    <p>Sistemde tanımlanmış rol bulunmamaktadır.</p>
+  </div>
+</div>
