@@ -1,8 +1,15 @@
 <div class="roles-container">
-  <div class="page-header">
-    <h1>Roller</h1>
-    <p>Sistem rollerini yönetin</p>
-  </div>
+  <div class="roles-wrapper">
+    <div class="page-header">
+      <div class="header-left">
+        <h1>Roller</h1>
+        <p>Sistem rollerini yönetin</p>
+      </div>
+      <button class="create-button" (click)="openCreateModal()">
+        <i class="fas fa-plus"></i>
+        Yeni Rol Oluştur
+      </button>
+    </div>
 
   <!-- Loading State -->
   <div class="loading-state" *ngIf="isLoading">
@@ -21,8 +28,7 @@
         <i class="fas" [ngClass]="getRoleIcon(role.name)"></i>
       </div>
       <div class="role-info">
-        <h3>{{ role.name }}</h3>
-        <p>{{ role.description }}</p>
+        <h3>{{ role.name }} ({{ role.code }})</h3> 
       </div>
       <div class="role-arrow">
         <i class="fas fa-chevron-right"></i>
@@ -37,5 +43,62 @@
     </div>
     <h3>Rol Bulunamadı</h3>
     <p>Sistemde tanımlanmış rol bulunmamaktadır.</p>
+    <button class="create-button" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      İlk Rolü Oluştur
+    </button>
+  </div>
+  </div>
+
+  <!-- Create Role Modal -->
+  <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Yeni Rol Oluştur</h2>
+        <button class="close-button" (click)="closeCreateModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="roleName">Rol Adı</label>
+          <input 
+            type="text" 
+            id="roleName" 
+            [(ngModel)]="newRole.name" 
+            placeholder="Rol adını girin..."
+            class="form-input"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="roleCode">Rol Kodu</label>
+          <input 
+            type="text" 
+            id="roleCode" 
+            [(ngModel)]="newRole.code" 
+            placeholder="Rol kodunu girin..."
+            class="form-input"
+            style="text-transform: uppercase;"
+          >
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="cancel-button" (click)="closeCreateModal()">
+          İptal
+        </button>
+        <button 
+          class="save-button" 
+          (click)="createRole()" 
+          [disabled]="isCreating || !newRole.name || !newRole.code"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isCreating"></i>
+          <i class="fas fa-save" *ngIf="!isCreating"></i>
+          {{ isCreating ? 'Oluşturuluyor...' : 'Rol Oluştur' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>
