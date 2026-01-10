@@ -28,10 +28,53 @@ export class RoleDetailComponent extends BaseComponent implements OnInit {
   categories: PermissionCategory[] = mockPermissionCategories;
   rolePermissions: string[] = [];
   selectedPermissions: { [key: string]: boolean } = {};
-  isLoading = false; 
+  isLoading = false;
+  roleStoreId = 1;
+
+  // Kategori menüleri
+  categoryMenus = [
+    {
+      title: 'Tenantlar',
+      icon: 'fa-building',
+      description: 'Sistem tenantlarını yönetin',
+      hasPermission: true,
+      action: () => this.goToTenants()
+    },
+    {
+      title: 'Kullanıcılar',
+      icon: 'fa-users',
+      description: 'Sistem kullanıcılarını yönetin',
+      hasPermission: true,
+      action: () => this.goToUsers()
+    },
+    {
+      title: 'Roller',
+      icon: 'fa-user-shield',
+      description: 'Sistem rollerini yönetin',
+      hasPermission: true,
+      action: () => this.goToRoles()
+    },
+    {
+      title: 'Mağazalar',
+      icon: 'fa-store',
+      description: 'Mağaza bilgilerini yönetin',
+      hasPermission: true,
+      action: () => this.goToStores()
+    },
+    {
+      title: 'Ürün Firmaları',
+      icon: 'fa-industry',
+      description: 'Ürün firmalarını yönetin',
+      hasPermission: true,
+      action: () => this.goToProductCompanies()
+    }
+  ];
+
+  // Alt menü durumu
+  isMenuExpanded = true;
 
   constructor(
-     @Inject(PLATFORM_ID) platformId: Object,
+    @Inject(PLATFORM_ID) platformId: Object,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
@@ -41,8 +84,26 @@ export class RoleDetailComponent extends BaseComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.roleId = +params['id'];
-      this.loadRole();
-      this.loadRolePermissions();
+      
+      // URL'i kontrol et - eğer 'permissions' varsa doğrudan yetki sayfası olarak aç
+      const currentUrl = this.router.url;
+      console.log('Current URL:', currentUrl);
+      
+      const isPermissionsPage = currentUrl.includes('permissions');
+      
+      if (isPermissionsPage) {
+        console.log('Role izinleri sayfası açılıyor, roleId:', this.roleId);
+        // Kategori menülerini göster
+        this.isMenuExpanded = true;
+        this.loadRole();
+        this.loadRolePermissions();
+      } else {
+        console.log('Role detayı sayfası açılıyor, roleId:', this.roleId);
+        // Kategori menülerini gizle
+        this.isMenuExpanded = false;
+        this.loadRole();
+        this.loadRolePermissions();
+      }
     });
   }
 
@@ -50,7 +111,7 @@ export class RoleDetailComponent extends BaseComponent implements OnInit {
     this.isLoading = true;
     
     // API'den rolü getir
-    this.rolesService.getAll({ storeId: this.currentStoreId }).subscribe({
+    this.rolesService.getAll({ storeId: this.roleStoreId }).subscribe({
       next: (response) => {
         console.log('Rol yüklendi:', response);
         this.role = response.data|| null;
@@ -131,5 +192,34 @@ export class RoleDetailComponent extends BaseComponent implements OnInit {
 
   trackByPermissionId(index: number, permission: any): string {
     return permission.id;
+  }
+
+  toggleMenu(): void {
+    this.isMenuExpanded = !this.isMenuExpanded;
+  }
+
+  trackByMenuTitle(index: number, menu: any): string {
+    return menu.title;
+  }
+
+  // Navigation method'ları
+  goToTenants(): void {
+    this.router.navigate(['/tenants']);
+  }
+
+  goToUsers(): void {
+    this.router.navigate(['/users']);
+  }
+
+  goToRoles(): void {
+    this.router.navigate(['/roles']);
+  }
+
+  goToStores(): void {
+    this.router.navigate(['/stores']);
+  }
+
+  goToProductCompanies(): void {
+    this.router.navigate(['/product-companies']);
   }
 }

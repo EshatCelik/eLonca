@@ -22,7 +22,7 @@
     <div 
       class="role-card" 
       *ngFor="let role of roles; trackBy: trackByRoleId"
-      (click)="goToRoleDetail(role.id)"
+      (click)="goToRolePermissions(role.id)"
     >
       <div class="role-icon">
         <i class="fas" [ngClass]="getRoleIcon(role.name)"></i>

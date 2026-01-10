@@ -2,6 +2,7 @@
 using eLonca.Application.Commands.SaleCommand.SaleCreate;
 using eLonca.Application.Commands.SaleCommand.SaleUpdate;
 using eLonca.Application.Queries.RoleQueries.GetAllRole;
+using eLonca.Application.Queries.RoleQueries.GetAllRolePermissionCategory;
 using eLonca.Application.Queries.SalesQueries.GetAllSale;
 using eLonca.Application.Queries.SalesQueries.GetSaleById;
 using MediatR;
@@ -30,9 +31,9 @@ namespace eLonca.Api.Controllers
             return Ok(response);
         }
         [HttpPost]
-        public async Task<IActionResult> GetAllCustomerSale(GetAllSalesQueryResponse getAllSalesQueryResponse)
+        public async Task<IActionResult> GetAllRolePermissionCategories(GetAllRolePermissionCategoryQueryResponse getAllRolePermissionCategoryQueryResponse)
         {
-            var response = await _mediator.Send(getAllSalesQueryResponse);
+            var response = await _mediator.Send(getAllRolePermissionCategoryQueryResponse);
             return Ok(response);
         }
         [HttpPost]

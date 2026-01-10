@@ -28,6 +28,7 @@ import { StockDetailComponent } from './pages/inventory/stock-detail/stock-detai
 import { ProductCompaniesComponent } from './pages/product-companies/product-companies.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { RoleDetailComponent } from './pages/roles/role-detail/role-detail.component';
+import { RolePermissionsComponent } from './pages/roles/role-permissions/role-permissions.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -71,6 +72,7 @@ export const routes: Routes = [
       { path: 'receivables', component: ReceivablesComponent },
       { path: 'roles', component: RolesComponent },
       { path: 'roles/:id', component: RoleDetailComponent },
+      { path: 'roles/:id/permissions', component: RolePermissionsComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'change-password', component: ChangePasswordComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
