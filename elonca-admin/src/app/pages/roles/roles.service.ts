@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseService } from '../../core/base.service';
+import { Permission, PermissionCategory } from '../../models/role-new.model';
+
+export interface RolePermissionsResponse {
+  permissions: Permission[];
+  categories: PermissionCategory[];
+  rolePermissions: string[];
+}
 
 export interface Role {
   id: number;
@@ -43,6 +50,29 @@ export class RolesService extends BaseService {
     super(http);
   }
 
+  // Get role by ID
+  getRoleById(roleId: number): Observable<Role> {
+    return this.get<Role>(`Role/GetById/${roleId}`).pipe(
+      map((res: any) => res.data)
+    );
+  }
+
+  // Get all permissions for a role
+  getRolePermissions(roleId: number): Observable<RolePermissionsResponse> {
+    return this.get<RolePermissionsResponse>(`Role/GetRolePermissions/${roleId}`);
+  }
+
+  // Update role permissions
+  updateRolePermissions(roleId: number, permissionIds: string[]): Observable<any> {
+    return this.post(`Role/UpdateRolePermissions/${roleId}`, { permissionIds });
+  }
+
+  // Get all available permissions
+  getAllPermissions(): Observable<RolePermissionsResponse> {
+    return this.get<RolePermissionsResponse>('Role/GetAllPermissions');
+  }
+
+  // Get all roles
   getAll(payload?: any): Observable<any> {
     const body = payload ?? {};
     console.log('RolesService.getAll - Sending request to Role/GetAll with payload:', body);

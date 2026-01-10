@@ -20,7 +20,7 @@ export class RolesComponent extends BaseComponent  implements OnInit {
   newRole: any = {
     name: '',
     code: '',
-    storeId: ''
+    storeId: 1
   };
   isCreating = false; 
 
@@ -56,9 +56,12 @@ export class RolesComponent extends BaseComponent  implements OnInit {
     });
   }
 
-  goToRoleDetail(roleId: number): void {
-    this.router.navigate(['/roles', roleId]);
+  goToRolePermissions(roleId: number): void {
+    console.log('goToRolePermissions çağrıldı, roleId:', roleId);
+    console.log('Navigating to:', ['/admin', 'roles', roleId, 'permissions']);
+    this.router.navigate(['/admin', 'roles', roleId, 'permissions']);
   }
+ 
 
   getRoleIcon(roleName: string): string {
     const icons: { [key: string]: string } = {
@@ -72,6 +75,8 @@ export class RolesComponent extends BaseComponent  implements OnInit {
   trackByRoleId(index: number, role: any): number {
     return role.id;
   }
+ 
+
 
   openCreateModal(): void {
     this.showCreateModal = true;
@@ -88,7 +93,7 @@ export class RolesComponent extends BaseComponent  implements OnInit {
       name: '',
       code: '',
       storeId: 1
-    };
+    }
   }
 
   createRole(): void {

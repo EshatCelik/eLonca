@@ -1,94 +1,119 @@
 <div class="role-detail-container">
-  <!-- Header -->
-  <div class="page-header">
-    <button class="back-button" (click)="goBack()">
-      <i class="fas fa-arrow-left"></i>
-      Geri
-    </button>
-    <div class="role-info" *ngIf="!isLoading && role">
-      <h1>{{ role.name }}</h1>
-      <p>{{ role.description }}</p>
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div class="loading-state" *ngIf="isLoading">
-    <div class="spinner"></div>
-    <p>Yükleniyor...</p>
-  </div>
-
-  <!-- Permissions Content -->
-  <div class="permissions-content" *ngIf="!isLoading && role">
-    <!-- Summary -->
-    <div class="permissions-summary">
-      <div class="summary-card">
-        <div class="summary-icon">
-          <i class="fas fa-shield-alt"></i>
-        </div>
-        <div class="summary-info">
-          <h3>{{ getSelectedCount() }} / {{ getTotalCount() }}</h3>
-          <p>Yetki Verilmiş</p>
-        </div>
-      </div>
-      <button class="save-button" (click)="savePermissions()">
-        <i class="fas fa-save"></i>
-        Değişiklikleri Kaydet
+  <!-- Kategori Menüleri -->
+  <div class="category-menus" *ngIf="isMenuExpanded">
+    <div class="menu-header">
+      <h3>Kategoriler</h3>
+      <button class="toggle-button" (click)="toggleMenu()">
+        <i class="fas" [ngClass]="isMenuExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
       </button>
     </div>
-
-    <!-- Permission Categories -->
-    <div class="permission-categories">
+    <div class="menu-grid" [class.collapsed]="!isMenuExpanded">
       <div 
-        class="category-card" 
-        *ngFor="let category of categories; trackBy: trackByCategoryId"
+        class="menu-item" 
+        *ngFor="let menu of categoryMenus; trackBy: trackByMenuTitle"
+        (click)="menu.action()"
+        [class.disabled]="!menu.hasPermission"
       >
-        <div class="category-header">
-          <div class="category-info">
-            <div class="category-icon">
-              <i class="fas" [ngClass]="category.icon"></i>
-            </div>
-            <h3>{{ category.name }}</h3>
-          </div>
-          <label class="checkbox-container">
-            <input 
-              type="checkbox" 
-              [checked]="isAllPermissionsSelected(category.id)"
-              [indeterminate]="isSomePermissionsSelected(category.id)"
-              (change)="toggleAllPermissions(category.id)"
-            >
-            <span class="checkmark"></span>
-          </label>
+        <div class="menu-icon">
+          <i class="fas" [ngClass]="menu.icon"></i>
         </div>
+        <div class="menu-content">
+          <h3>{{ menu.title }}</h3>
+          <p>{{ menu.description }}</p>
+        </div>
+        <div class="menu-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="permissions-list">
-          <div 
-            class="permission-item"
-            *ngFor="let permission of getPermissionsByCategory(category.id); trackBy: trackByPermissionId"
-          >
-            <div class="permission-info">
-              <span class="permission-code">{{ permission.id }}</span>
-              <span class="permission-name">{{ permission.name }}</span>
+  <!-- Rol Bilgileri -->
+  <div class="role-info-section">
+    <div class="page-header">
+      <button class="back-button" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Geri
+      </button>
+      <div class="role-info" *ngIf="!isLoading && role">
+        <h1>{{ role.name }} ({{ role.code }})</h1>
+        <p>{{ role.description }}</p>
+      </div>
+    </div>
+
+    <!-- Permissions Content -->
+    <div class="permissions-content" *ngIf="!isLoading && role">
+      <!-- Summary -->
+      <div class="permissions-summary">
+        <div class="summary-card">
+          <div class="summary-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <div class="summary-info">
+            <h3>{{ getSelectedCount() }} / {{ getTotalCount() }}</h3>
+            <p>Yetki Verilmiş</p>
+          </div>
+        </div>
+        <button class="save-button" (click)="savePermissions()">
+          <i class="fas fa-save"></i>
+          Değişiklikleri Kaydet
+        </button>
+      </div>
+
+      <!-- Permission Categories -->
+      <div class="permission-categories">
+        <div 
+          class="category-card" 
+          *ngFor="let category of categories; trackBy: trackByCategoryId"
+        >
+          <div class="category-header">
+            <div class="category-info">
+              <div class="category-icon">
+                <i class="fas" [ngClass]="category.icon"></i>
+              </div>
+              <h3>{{ category.name }}</h3>
             </div>
             <label class="checkbox-container">
               <input 
                 type="checkbox" 
-                [checked]="selectedPermissions[permission.id]"
-                (change)="togglePermission(permission.id)"
+                [checked]="isAllPermissionsSelected(category.id)"
+                [indeterminate]="isSomePermissionsSelected(category.id)"
+                (change)="toggleAllPermissions(category.id)"
               >
               <span class="checkmark"></span>
             </label>
           </div>
+
+          <div class="permissions-list">
+            <div 
+              class="permission-item"
+              *ngFor="let permission of getPermissionsByCategory(category.id); trackBy: trackByPermissionId"
+            >
+              <div class="permission-info">
+                <span class="permission-code">{{ permission.id }}</span>
+                <span class="permission-name">{{ permission.name }}</span>
+              </div>
+              <label class="checkbox-container">
+                <input 
+                  type="checkbox" 
+                  [checked]="selectedPermissions[permission.id]"
+                  (change)="togglePermission(permission.id)"
+                >
+                <span class="checkmark"></span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="!isLoading && !role">
-    <div class="empty-icon">
-      <i class="fas fa-user-slash"></i>
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && !role">
+      <div class="empty-icon">
+        <i class="fas fa-user-slash"></i>
+      </div>
+      <h3>Rol Bulunamadı</h3>
+      <p>Aradığınız rol bulunamadı.</p>
     </div>
-    <h3>Rol Bulunamadı</h3>
-    <p>Aradığınız rol bulunamadı.</p>
   </div>
 </div>
